@@ -1,8 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect  ,useContext  } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Modal, ScrollView, StyleSheet } from 'react-native';
 import DatePicker from 'react-native-date-picker';
+import { AuthContext } from '../Context/AuthContext';
 
 const AddBorrower = ({ visible, onClose, customerId }) => {
+
+
+    const { userInfo } = useContext(AuthContext);
+
+
     const [borrowerName, setBorrowerName] = useState('');
     const [phoneNumber, setPhoneNumber] = useState('');
     const [email, setEmail] = useState('');
@@ -54,9 +60,11 @@ const AddBorrower = ({ visible, onClose, customerId }) => {
             borrowedDate,
             endDate,
         };
-    
+        // console.log('Borrower Data:', borrowerData);
+        // console.log(userInfo.id);
+        console.log('Borrower Details:', { borrowerName, principalAmount, interestRate });
         try {
-            const response = await fetch(`http://localhost:8080/customers/${customerId}/borrowers`, {
+            const response = await fetch(`http://192.168.3.53:8080/${userInfo.id}/borrowers`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -69,15 +77,17 @@ const AddBorrower = ({ visible, onClose, customerId }) => {
             }
     
             const data = await response.json();
-            console.log('Borrower added successfully:', data);
+            // console.log('Borrower added successfully:', data);
             handleClear();
             onClose();
         } catch (error) {
             console.error('Error adding borrower:', error);
-            // Optionally, show an alert or some feedback to the user
             alert('Failed to add borrower. Please check your network connection and try again.');
         }
+        // console.log(borrowerName);
+
     };
+    
 
     const handleClear = () => {
         setBorrowerName('');

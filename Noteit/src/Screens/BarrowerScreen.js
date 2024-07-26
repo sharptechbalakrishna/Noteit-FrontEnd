@@ -6,7 +6,7 @@ import AddBorrower from './AddBorrower'; // Import your AddBorrower component
 
 const borrowers = [
   { id: '1', name: 'Gayathri', principalAmount: '100000', interestRate: '2%' },
-  { id: '2', name: 'Sharavan Kumar', principalAmount: '20000', interestRate: '5%' },
+  { id: '2', name: 'SharavanKumar yashavant karigari', principalAmount: '20000', interestRate: '5%' },
   { id: '3', name: 'Priya', principalAmount: '29200', interestRate: '8%' },
   { id: '4', name: 'Reddy', principalAmount: '96540', interestRate: '10%' },
   { id: '15', name: 'Gayathri', principalAmount: '100000', interestRate: '2%' },
