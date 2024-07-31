@@ -7,7 +7,6 @@ import SettingScreen from '../Screens/SettingScreen';
 import ProfileScreen from '../Screens/ProfileScreen';
 import IconIcons from 'react-native-vector-icons/Ionicons';
 import Feather from 'react-native-vector-icons/Feather';
-import StackNavigation from './StackNavigation';
 
 
 const TabNavigator = () => {
@@ -43,7 +42,7 @@ const TabNavigator = () => {
 
 
             }}>
-            <Tab.Screen name='HomeStack' component={StackNavigation}
+            <Tab.Screen name='HomeStack' component={HomeScreen}
                 options={{
                     tabBarIcon: ({ color, size }) => (
                         <IconIcons name="home-outline" color={color} size={size} />

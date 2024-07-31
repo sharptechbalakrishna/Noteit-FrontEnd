@@ -44,7 +44,7 @@ const Navigation = () => {
                         ),
                     }}
                 /> */}
-            <Drawer.Screen name="HomeScreen" component={TabNavigator}
+            <Drawer.Screen name="Home" component={TabNavigator}
                 options={{
                     drawerIcon: ({ color }) => (
                         <Ionicons name="home-outline" size={22} color={color} />
@@ -52,7 +52,7 @@ const Navigation = () => {
                     ),
                 }}
             />
-            <Drawer.Screen name="ProfileScreen" component={TabNavigator}
+            <Drawer.Screen name="ProfileScreen" component={ProfileScreen}
                 options={{
                     drawerIcon: ({ color }) => (
                         <Ionicons name="person-outline" size={22} color={color} />
@@ -77,7 +77,7 @@ const Navigation = () => {
                     ),
                 }}
             />
-            <Drawer.Screen name="SettingScreen" component={TabNavigator}
+            <Drawer.Screen name="SettingScreen" component={SettingScreen}
                 options={{
                     drawerIcon: ({ color }) => (
                         <Ionicons name="settings-outline" size={22} color={color} />
