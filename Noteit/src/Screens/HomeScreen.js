@@ -22,13 +22,13 @@ const HomeScreen = ({ navigation }) => {
 
   }
   const onSelfNotes = () => {
-    console.warn("Barrower Pressed");
-    navigation.navigate('BarrowerScreen');
+    console.warn("SelfNotes Pressed");
+    navigation.navigate('SelfNotes');
 
   }
   const onExpenseTracker = () => {
-    console.warn("Barrower Pressed");
-    navigation.navigate('BarrowerScreen');
+    console.warn("ExpenseTracker Pressed");
+    navigation.navigate('ExpenseTracker');
 
   }
   const onInterestCalculator = () => {
@@ -57,28 +57,28 @@ const HomeScreen = ({ navigation }) => {
         </View>
         <Carousel />
         <View style={styles.boxContainer}>
-        <TouchableOpacity style={styles.box} onPress={onBarrower}>
-          <FontAwesome5 name="rupee-sign" color="#45D48D" size={100} />
-          <Text style={styles.boxText}>Borrowers</Text>
-        </TouchableOpacity>
+          <TouchableOpacity style={styles.box} onPress={onBarrower}>
+            <FontAwesome5 name="rupee-sign" color="#45D48D" size={100} />
+            <Text style={styles.boxText}>Borrowers</Text>
+          </TouchableOpacity>
 
-        <TouchableOpacity style={styles.box}  onPress={onSelfNotes}>
-          <Foundation name="clipboard-notes" color="#45D48D" size={100} />
-          <Text style={styles.boxText}>Self Notes</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.box}  onPress={onExpenseTracker}>
-          <Entypo name="wallet" color="#45D48D" size={100} />
-          <Text style={styles.boxText}>Expense Tracker</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.box}  onPress={onInterestCalculator}>
-          <ImageBackground
-            source={require('../assets/images/Logo_2.png')}
-            style={styles.boxIcon}
-          />
-          <Text style={styles.boxText}>Interest Calculator</Text>
-        </TouchableOpacity>
+          <TouchableOpacity style={styles.box} onPress={onSelfNotes}>
+            <Foundation name="clipboard-notes" color="#45D48D" size={100} />
+            <Text style={styles.boxText}>Self Notes</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.box} onPress={onExpenseTracker}>
+            <Entypo name="wallet" color="#45D48D" size={100} />
+            <Text style={styles.boxText}>Expense Tracker</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.box} onPress={onInterestCalculator}>
+            <ImageBackground
+              source={require('../assets/images/Logo_2.png')}
+              style={styles.boxIcon}
+            />
+            <Text style={styles.boxText}>Interest Calculator</Text>
+          </TouchableOpacity>
 
-      </View>
+        </View>
 
       </ScrollView>
 

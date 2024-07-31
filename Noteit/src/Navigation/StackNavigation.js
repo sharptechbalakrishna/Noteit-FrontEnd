@@ -6,6 +6,8 @@ import BarrowerScreen from '../Screens/BarrowerScreen';
 import InterestCalculator from '../Screens/InterestCalculator';
 import Navigation from './Navigation';
 import BorrowerDetailScreen from '../Screens/BorrowerDetailScreen';
+import ExpenseTracker from '../Screens/ExpenseTracker';
+import SelfNotes from '../Screens/SelfNotes';
 
 const StackNavigation = () => {
     const Stack = createStackNavigator();
@@ -21,6 +23,8 @@ const StackNavigation = () => {
             <Stack.Screen name="BarrowerScreen" component={BarrowerScreen} />
             <Stack.Screen name="InterestCalculator" component={InterestCalculator} />
             <Stack.Screen name="BorrowerDetailScreen" component={BorrowerDetailScreen} />
+            <Stack.Screen name="ExpenseTracker" component={ExpenseTracker} />
+            <Stack.Screen name="SelfNotes" component={SelfNotes} />
 
         </Stack.Navigator>
     )

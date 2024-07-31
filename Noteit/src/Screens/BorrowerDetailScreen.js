@@ -6,10 +6,17 @@ const BorrowerDetailScreen = ({ route }) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Borrower Details</Text>
-      <Text style={styles.detail}>Name: {borrowerName}</Text>
-      <Text style={styles.detail}>Principal Amount: {principalAmount}</Text>
-      {/* You can add more details here if needed */}
+      <View style={styles.detailsContainer}>
+        <Text style={styles.detailText}>Barrower Name: {borrowerName}</Text>
+        <Text style={styles.detailText}>Borrowed Date: 25-Nov-23</Text>
+        <Text style={styles.detailText}>End Date: 24-Oct-24</Text>
+        <Text style={styles.detailText}>P Amt: {principalAmount}</Text>
+        <Text style={styles.detailText}>Int %: 5%</Text>
+        <Text style={styles.detailText}>Borrowed Basis: Pledge</Text>
+        <Text style={styles.detailText}>Period: 12 Months</Text>
+        <Text style={styles.detailText}>Loan/Credit Status: Secured</Text>
+        <Text style={styles.detailText}>Status: Closed</Text>
+      </View>
     </View>
   );
 };
