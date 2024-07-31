@@ -1,55 +1,85 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useContext } from 'react';
 import { View, Text, TouchableOpacity, FlatList, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
 import { Searchbar } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import axios from 'axios';
 import AddBorrower from './AddBorrower'; // Import your AddBorrower component
+import { AuthContext } from '../Context/AuthContext';
 
-const borrowers = [
-  { id: '1', name: 'Gayathri', principalAmount: '100000', interestRate: '2%' },
-  { id: '2', name: 'SharavanKumar yashavant karigari', principalAmount: '20000', interestRate: '5%' },
-  { id: '3', name: 'Priya', principalAmount: '29200', interestRate: '8%' },
-  { id: '4', name: 'Reddy', principalAmount: '96540', interestRate: '10%' },
-  { id: '15', name: 'Gayathri', principalAmount: '100000', interestRate: '2%' },
-  { id: '254', name: 'Sharavan Kumar', principalAmount: '20000', interestRate: '5%' },
-  { id: '38', name: 'Priya', principalAmount: '29200', interestRate: '8%' },
-  { id: '4987', name: 'Reddy', principalAmount: '96540', interestRate: '10%' },
-];
-
-const BorrowerScreen = () => {
+const BorrowerScreen = ({ navigation }) => { // Add navigation prop
+  const { userInfo } = useContext(AuthContext); // Get userInfo from AuthContext
   const [searchQuery, setSearchQuery] = useState('');
-  const [filteredBorrowers, setFilteredBorrowers] = useState(borrowers);
+  const [borrowers, setBorrowers] = useState([]);
+  const [filteredBorrowers, setFilteredBorrowers] = useState([]); // Initialize filteredBorrowers state
+
   const [modalVisible, setModalVisible] = useState(false);
   const flatListRef = useRef(null); // Create a ref for FlatList
 
   useEffect(() => {
-    const query = searchQuery.toLowerCase();
-    const filtered = borrowers.filter(borrower =>
-      borrower.name.toLowerCase().includes(query) ||
-      borrower.principalAmount.toLowerCase().includes(query) ||
-      borrower.interestRate.toLowerCase().includes(query)
-    );
-    setFilteredBorrowers(filtered);
+    const fetchBorrowers = async () => {
+      try {
+        const response = await axios.get(`http://192.168.3.53:8080/${userInfo.id}/borrowers`);
+        const borrowersData = response.data;
+  
+        borrowersData.forEach(borrower => {
+          console.log('Borrower Name:', borrower.borrowerName);
+          console.log('Principal Amount:', parseFloat(borrower.principalAmount));
+          console.log('Interest Rate:', parseFloat(borrower.interestRate));
+          console.log('Credit Status:', borrower.creditStatus);
+          console.log('---------------------------');
+        });
+  
+        setBorrowers(borrowersData);
+        setFilteredBorrowers(borrowersData); 
 
-    // Scroll to top when search query changes
-    if (flatListRef.current) {
-      flatListRef.current.scrollToOffset({ offset: 0, animated: true });
+      } catch (error) {
+        console.error('Error fetching borrowers:', error);
+      }
+    };
+  
+    if (userInfo && userInfo.id) {
+      fetchBorrowers();
     }
-  }, [searchQuery]);
+  }, [userInfo]);
 
-  const onChangeSearch = query => setSearchQuery(query);
+  const addBorrower = (newBorrower) => {
+    setBorrowers([...borrowers, newBorrower]);
+    setFilteredBorrowers([...borrowers, newBorrower]); // Update the filteredBorrowers as well
+  };
+
+  const onChangeSearch = query => {
+    setSearchQuery(query);
+    if (query === '') {
+      setFilteredBorrowers(borrowers);
+    } else {
+      const filtered = borrowers.filter(borrower => 
+        borrower.borrowerName?.toLowerCase().includes(query.toLowerCase()) ||
+        borrower.principalAmount?.toString().includes(query) ||
+        borrower.interestRate?.toString().includes(query)
+      );
+      setFilteredBorrowers(filtered);
+    }
+  };
+
+  const truncateName = (name) => {
+    return name.length > 8 ? `${name.substring(0, 8)}...` : name;
+  };
 
   const renderItem = ({ item }) => (
-    <View style={styles.rowContainer}>
+    <TouchableOpacity 
+      style={styles.rowContainer} 
+      onPress={() => navigation.navigate('BorrowerDetailScreen', { borrowerName: item.borrowerName, principalAmount: item.principalAmount })} // Navigate to detail screen with borrowerName and principalAmount
+    >
       <View style={styles.cell}>
-        <Text style={styles.cellText}>{item.name}</Text>
+        <Text style={styles.cellText}>{item.borrowerName ? truncateName(item.borrowerName) : 'N/A'}</Text>
       </View>
       <View style={styles.cell}>
-        <Text style={styles.cellText}>{item.principalAmount}</Text>
+        <Text style={styles.cellText}>{item.principalAmount?.toString() || 'N/A'}</Text>
       </View>
       <View style={styles.cell}>
-        <Text style={styles.cellText}>{item.interestRate}</Text>
+        <Text style={styles.cellText}>{item.interestRate?.toString() || 'N/A'}</Text>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 
   return (
@@ -61,7 +91,7 @@ const BorrowerScreen = () => {
         <Text style={styles.headerTitle}>Gayathri Enterprises</Text>
         <Icon name='bell' size={20} color='#fff' />
       </View>
-                
+
       <Searchbar
         placeholder="Search Borrower"
         onChangeText={onChangeSearch}
@@ -69,16 +99,15 @@ const BorrowerScreen = () => {
         style={styles.searchBar}
       />
 
+      <View style={styles.tableHeader}>
+        <View style={styles.cellHeader}><Text style={styles.headerText}>Name</Text></View>
+        <View style={styles.cellHeader}><Text style={styles.headerText}>Principal</Text></View>
+        <View style={styles.cellHeader}><Text style={styles.headerText}>Interest Rate</Text></View>
+      </View>
+
       <FlatList
         ref={flatListRef} // Attach the ref to FlatList
-        ListHeaderComponent={
-          <View style={styles.tableHeader}>
-            <View style={styles.cellHeader}><Text style={styles.headerText}>Name</Text></View>
-            <View style={styles.cellHeader}><Text style={styles.headerText}>Principal</Text></View>
-            <View style={styles.cellHeader}><Text style={styles.headerText}>Interest Rate</Text></View>
-          </View>
-        }
-        data={filteredBorrowers}
+        data={filteredBorrowers} // Use filteredBorrowers instead of borrowers
         renderItem={renderItem}
         keyExtractor={item => item.id}
         contentContainerStyle={styles.listContent}
@@ -91,7 +120,11 @@ const BorrowerScreen = () => {
         <Text style={styles.addButtonText}>   Borrower</Text>
       </TouchableOpacity>
 
-      <AddBorrower visible={modalVisible} onClose={() => setModalVisible(false)} />
+      <AddBorrower
+        visible={modalVisible}
+        onClose={() => setModalVisible(false)}
+        addBorrower={addBorrower}
+      />
     </KeyboardAvoidingView>
   );
 };
@@ -129,8 +162,8 @@ const styles = StyleSheet.create({
   },
   cellHeader: {
     flex: 1,
-    alignItems: 'center',
     justifyContent: 'center',
+    paddingLeft: 10, // Add padding to align text to the left
   },
   headerText: {
     fontWeight: 'bold',
@@ -147,8 +180,8 @@ const styles = StyleSheet.create({
   },
   cell: {
     flex: 1,
-    alignItems: 'center',
     justifyContent: 'center',
+    paddingLeft: 10, // Add padding to align text to the left
   },
   cellText: {
     fontSize: 16,

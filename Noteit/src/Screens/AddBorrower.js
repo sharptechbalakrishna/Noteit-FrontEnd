@@ -1,13 +1,11 @@
-import React, { useState, useEffect  ,useContext  } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Modal, ScrollView, StyleSheet } from 'react-native';
 import DatePicker from 'react-native-date-picker';
 import { AuthContext } from '../Context/AuthContext';
 
-const AddBorrower = ({ visible, onClose, customerId }) => {
 
-
+const AddBorrower = ({ visible, onClose, addBorrower }) => {
     const { userInfo } = useContext(AuthContext);
-
 
     const [borrowerName, setBorrowerName] = useState('');
     const [phoneNumber, setPhoneNumber] = useState('');
@@ -28,14 +26,14 @@ const AddBorrower = ({ visible, onClose, customerId }) => {
         if (borrowedDate && endDate) {
             const diffInYears = endDate.getFullYear() - borrowedDate.getFullYear();
             const diffInMonths = endDate.getMonth() - borrowedDate.getMonth() + (diffInYears * 12);
-            const diffInDays = (endDate - borrowedDate) / (1000 * 60 * 60 * 24);
+            const diffInWeeks = Math.floor((endDate - borrowedDate) / (1000 * 60 * 60 * 24 * 7));
 
             if (timePeriodUnit === 'Years') {
                 setTimePeriodNumber(diffInYears.toString());
             } else if (timePeriodUnit === 'Months') {
                 setTimePeriodNumber(diffInMonths.toString());
-            } else if (timePeriodUnit === 'Days') {
-                setTimePeriodNumber(Math.floor(diffInDays).toString());
+            } else if (timePeriodUnit === 'Weeks') {
+                setTimePeriodNumber(diffInWeeks.toString());
             }
         }
     }, [borrowedDate, endDate, timePeriodUnit]);
@@ -60,9 +58,7 @@ const AddBorrower = ({ visible, onClose, customerId }) => {
             borrowedDate,
             endDate,
         };
-        // console.log('Borrower Data:', borrowerData);
-        // console.log(userInfo.id);
-        console.log('Borrower Details:', { borrowerName, principalAmount, interestRate });
+
         try {
             const response = await fetch(`http://192.168.3.53:8080/${userInfo.id}/borrowers`, {
                 method: 'POST',
@@ -71,23 +67,20 @@ const AddBorrower = ({ visible, onClose, customerId }) => {
                 },
                 body: JSON.stringify(borrowerData),
             });
-    
+
             if (!response.ok) {
                 throw new Error('Failed to add borrower');
             }
-    
+
             const data = await response.json();
-            // console.log('Borrower added successfully:', data);
+            addBorrower(borrowerData);
             handleClear();
             onClose();
         } catch (error) {
             console.error('Error adding borrower:', error);
             alert('Failed to add borrower. Please check your network connection and try again.');
         }
-        // console.log(borrowerName);
-
     };
-    
 
     const handleClear = () => {
         setBorrowerName('');
@@ -170,7 +163,7 @@ const AddBorrower = ({ visible, onClose, customerId }) => {
                                 <TouchableOpacity
                                     style={styles.selectInput}
                                     onPress={() => {
-                                        const newUnit = timePeriodUnit === 'Months' ? 'Days' : timePeriodUnit === 'Days' ? 'Years' : 'Months';
+                                        const newUnit = timePeriodUnit === 'Months' ? 'Weeks' : timePeriodUnit === 'Weeks' ? 'Years' : 'Months';
                                         setTimePeriodUnit(newUnit);
                                     }}>
                                     <Text style={styles.selectText}>{timePeriodUnit}</Text>
@@ -201,7 +194,7 @@ const AddBorrower = ({ visible, onClose, customerId }) => {
                                 <Text style={styles.buttonText}>Clear</Text>
                             </TouchableOpacity>
                             <TouchableOpacity
-                                style={[styles.submitButton, { backgroundColor: '#32CD32',  }]} // Custom color for Save button
+                                style={[styles.submitButton, { backgroundColor: '#32CD32' }]} // Custom color for Save button
                                 onPress={handleSubmit}
                             >
                                 <Text style={styles.buttonText}>Save</Text>
@@ -240,6 +233,7 @@ const AddBorrower = ({ visible, onClose, customerId }) => {
         </Modal>
     );
 };
+
 
 const styles = StyleSheet.create({
     container: {

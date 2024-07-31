@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, Alert, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, StyleSheet, Alert, TouchableOpacity, ScrollView } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 
 const InterestCalculator = () => {
@@ -60,7 +60,7 @@ const InterestCalculator = () => {
     setPrincipal('');
     setRate('');
     setTime('');
-    setTimeUnit('years');
+    setTimeUnit('select');
     setTotalInterest(null);
     setInterestPerYear(null);
     setInterestPerMonth(null);
@@ -68,69 +68,93 @@ const InterestCalculator = () => {
     setTotalRepayment(null);
   };
 
-  const saveData = () => {
-    console.log('Saved Data:', { principal, rate, time, timeUnit, totalInterest, interestPerYear, interestPerMonth, interestPerWeek, totalRepayment });
-    Alert.alert('Success', 'Data saved successfully!');
-  };
-
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
       <Text style={styles.header}>Interest Calculator</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Principal Amount"
-        keyboardType="numeric"
-        value={principal}
-        onChangeText={setPrincipal}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Interest Rate (%)"
-        keyboardType="numeric"
-        value={rate}
-        onChangeText={setRate}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Time"
-        keyboardType="numeric"
-        value={time}
-        onChangeText={setTime}
-      />
-      <Picker
-        selectedValue={timeUnit}
-        style={styles.picker}
-        onValueChange={(itemValue) => setTimeUnit(itemValue)}
-      >
-        <Picker.Item label="Years" value="years" />
-        <Picker.Item label="Months" value="months" />
-        <Picker.Item label="Weeks" value="weeks" />
-      </Picker>
+      <View style={styles.inputContainer}>
+        <Text style={styles.inputLabel}>Principal Amount</Text>
+        <TextInput
+          style={styles.input}
+          keyboardType="numeric"
+          value={principal}
+          onChangeText={setPrincipal}
+        />
+      </View>
+      <View style={styles.inputContainer}>
+        <Text style={styles.inputLabel}>Interest Rate (%)</Text>
+        <TextInput
+          style={styles.input}
+          keyboardType="numeric"
+          value={rate}
+          onChangeText={setRate}
+        />
+      </View>
+      <View style={styles.rowContainer}>
+        <View style={styles.rowItem}>
+          <Text style={styles.inputLabel}>Tenure Units</Text>
+          <TextInput
+            style={styles.input}
+            keyboardType="numeric"
+            value={time}
+            onChangeText={setTime}
+          />
+        </View>
+        <View style={styles.rowItem}>
+          <Text style={styles.inputLabel}>Select Tenure</Text>
+          <View style={styles.pickerContainer}>
+            <Picker
+              selectedValue={timeUnit}
+              style={styles.picker}
+              onValueChange={(itemValue) => setTimeUnit(itemValue)}
+            >
+              <Picker.Item label="Years" value="years" />
+              <Picker.Item label="Months" value="months" />
+              <Picker.Item label="Weeks" value="weeks" />
+            </Picker>
+          </View>
+        </View>
+      </View>
       <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.button} onPress={calculateInterest}>
+        <TouchableOpacity style={styles.buttonCalculate} onPress={calculateInterest}>
           <Text style={styles.buttonText}>Calculate</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={saveData}>
-          <Text style={styles.buttonText}>Save</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={resetFields}>
+        <TouchableOpacity style={styles.buttonReset} onPress={resetFields}>
           <Text style={styles.buttonText}>Reset</Text>
         </TouchableOpacity>
       </View>
       {totalInterest !== null && (
-        <View style={styles.resultContainer}>
-          <Text style={styles.result}>Total Interest: ₹{totalInterest}</Text>
+        <View style={styles.resultTable}>
+          <View style={[styles.tableRow, styles.tableHeader]}>
+            <Text style={styles.tableCellHeader}>Description</Text>
+            <Text style={styles.tableCellHeader}>Amount</Text>
+          </View>
+          <View style={styles.tableRow}>
+            <Text style={styles.tableCell}>Total Interest</Text>
+            <Text style={styles.tableCell}>₹{totalInterest}</Text>
+          </View>
           {interestPerYear !== null && (
-            <Text style={styles.result}>Interest Per Year: ₹{interestPerYear}</Text>
+            <View style={styles.tableRow}>
+              <Text style={styles.tableCell}>Interest Per Year</Text>
+              <Text style={styles.tableCell}>₹{interestPerYear}</Text>
+            </View>
           )}
-          <Text style={styles.result}>Interest Per Month: ₹{interestPerMonth}</Text>
+          <View style={styles.tableRow}>
+            <Text style={styles.tableCell}>Interest Per Month</Text>
+            <Text style={styles.tableCell}>₹{interestPerMonth}</Text>
+          </View>
           {interestPerWeek !== null && (
-            <Text style={styles.result}>Interest Per Week: ₹{interestPerWeek}</Text>
+            <View style={styles.tableRow}>
+              <Text style={styles.tableCell}>Interest Per Week</Text>
+              <Text style={styles.tableCell}>₹{interestPerWeek}</Text>
+            </View>
           )}
-          <Text style={styles.result}>Total Repayment: ₹{totalRepayment}</Text>
+          <View style={styles.tableRow}>
+            <Text style={styles.tableCell}>Total Repayment</Text>
+            <Text style={styles.tableCell}>₹{totalRepayment}</Text>
+          </View>
         </View>
       )}
-    </View>
+    </ScrollView>
   );
 };
 
@@ -138,7 +162,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    justifyContent: 'center',
     backgroundColor: '#f0f8ff',
   },
   header: {
@@ -148,28 +171,57 @@ const styles = StyleSheet.create({
     color: '#333',
     fontWeight: 'bold',
   },
+  inputContainer: {
+    marginBottom: 15,
+  },
+  inputLabel: {
+    fontSize: 16,
+    marginBottom: 5,
+    color: '#555',
+  },
   input: {
     height: 45,
     borderColor: '#aaa',
     borderWidth: 1,
-    marginBottom: 15,
     paddingHorizontal: 10,
     borderRadius: 5,
     backgroundColor: '#fff',
     fontSize: 16,
   },
-  picker: {
-    height: 50,
-    width: '100%',
+  rowContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     marginBottom: 15,
+  },
+  rowItem: {
+    flex: 1,
+    marginHorizontal: 5,
+  },
+  pickerContainer: {
+    height: 45,
+    borderColor: '#aaa',
+    borderWidth: 1,
+    borderRadius: 5,
+    backgroundColor: '#fff',
+    justifyContent: 'center',
+  },
+  picker: {
+    height: 45,
+    width: '100%',
   },
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     marginVertical: 20,
   },
-  button: {
+  buttonCalculate: {
     backgroundColor: '#4CAF50',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+  },
+  buttonReset: {
+    backgroundColor: 'orange',
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 5,
@@ -179,16 +231,37 @@ const styles = StyleSheet.create({
     fontSize: 16,
     textAlign: 'center',
     fontWeight: 'bold',
+    width: 100,
   },
-  resultContainer: {
+  resultTable: {
     marginTop: 20,
-    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 5,
+    overflow: 'hidden',
+    backgroundColor: '#fff',
   },
-  result: {
-    fontSize: 20,
+  tableRow: {
+    flexDirection: 'row',
+    borderBottomWidth: 1,
+    borderColor: '#ddd',
+    padding: 10,
+  },
+  tableHeader: {
+    backgroundColor: '#f2f2f2',
+  },
+  tableCellHeader: {
+    flex: 1,
+    fontWeight: 'bold',
     textAlign: 'center',
-    marginVertical: 5,
+    fontSize: 16,
     color: '#333',
+  },
+  tableCell: {
+    flex: 1,
+    textAlign: 'center',
+    fontSize: 16,
+    color: '#555',
   },
 });
 
