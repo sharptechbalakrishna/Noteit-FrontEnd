@@ -1,13 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Modal } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import axios from 'axios';
+import { AuthContext } from '../Context/AuthContext';
 
 // Helper function to format date
 const formatDate = (date) => {
   const options = {
     weekday: 'short', year: 'numeric', month: 'short', day: 'numeric',
   };
-  return date.toLocaleDateString(undefined, options);
+  return new Date(date).toLocaleDateString(undefined, options);
 };
 
 // Helper function to format time
@@ -15,14 +17,14 @@ const formatTime = (date) => {
   const options = {
     hour: 'numeric', minute: 'numeric',
   };
-  return date.toLocaleTimeString(undefined, options);
+  return new Date(date).toLocaleTimeString(undefined, options);
 };
 
 // Function to group notes by date
 const groupByDate = (notes) => {
   const grouped = {};
   notes.forEach(note => {
-    const dateKey = formatDate(note.timestamp);
+    const dateKey = formatDate(note.createdTs);
     if (!grouped[dateKey]) {
       grouped[dateKey] = [];
     }
@@ -32,12 +34,10 @@ const groupByDate = (notes) => {
 };
 
 const SelfNotes = () => {
+  const { userInfo } = useContext(AuthContext);
   const [inputText, setInputText] = useState('');
   const [isAdding, setIsAdding] = useState(false);
-  const [notes, setNotes] = useState([
-    { id: 1, title: 'Note Title 1', body: 'This is the first sample note.', timestamp: new Date() },
-    { id: 2, title: 'Note Title 2', body: 'This is the second sample note.', timestamp: new Date() },
-  ]);
+  const [notes, setNotes] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchVisible, setSearchVisible] = useState(false);
   const [editNoteId, setEditNoteId] = useState(null);
@@ -45,65 +45,140 @@ const SelfNotes = () => {
   const [optionsVisible, setOptionsVisible] = useState(false);
   const [selectedNoteId, setSelectedNoteId] = useState(null);
 
-  const handleSave = () => {
+  useEffect(() => {
+    const fetchNotes = async () => {
+      try {
+        const response = await axios.get(`http://192.168.3.53:8080/${userInfo.id}/selfnotes`);
+        const notesData = response.data;
+        console.log('Fetched Notes:', notesData);
+        setNotes(notesData);
+      } catch (error) {
+        console.error('Error fetching notes:', error.message);
+        if (error.response) {
+          console.error('Error Response Data:', error.response.data);
+          console.error('Error Response Status:', error.response.status);
+        }
+      }
+    };
+
+    if (userInfo && userInfo.id) {
+      fetchNotes();
+    }
+  }, [userInfo]);
+
+  const handleSave = async () => {
     const [title, ...bodyLines] = inputText.split('\n');
-    const body = bodyLines.join('\n').trim();
-    if (!title.trim() || !body.trim()) return; // Prevent saving if title or note is empty
+    const notesContent = bodyLines.join('\n').trim();
+    console.log('Title:', title);
+    console.log('Notes:', notesContent);
+
+    if (!title.trim() || !notesContent.trim()) return;
 
     const newNote = {
-      id: notes.length + 1, // Generate a new ID
       title: title.trim(),
-      body: body.trim(),
-      timestamp: new Date(),
+      notes: notesContent.trim(),
+      createdTs: new Date().toISOString(),
+      updatedTs: new Date().toISOString()
     };
-    const updatedNotes = [...notes, newNote];
-    setNotes(updatedNotes);
+
+    try {
+      const response = await axios.post(`http://192.168.3.53:8080/${userInfo.id}/selfnotes`, newNote);
+      console.log('Note Saved:', response.data);
+      setNotes([...notes, response.data]);
+    } catch (error) {
+      console.error('Error saving note:', error.message);
+      if (error.response) {
+        console.error('Error Response Data:', error.response.data);
+        console.error('Error Response Status:', error.response.status);
+      }
+    }
+
     setIsAdding(false);
     setInputText('');
-    setOptionsVisible(false);
-
-    // Log the updated notes array to the console
-    console.log('Updated Notes:', updatedNotes);
   };
 
   const handleEdit = (id) => {
     const noteToEdit = notes.find(note => note.id === id);
     setEditNoteId(id);
-    setEditText(`${noteToEdit.title}\n${noteToEdit.body}`);
+    setEditText(`${noteToEdit.title}\n${noteToEdit.notes}`);
     setOptionsVisible(false);
   };
 
-  const handleUpdate = () => {
+  const handleUpdate = async () => {
     const [title, ...bodyLines] = editText.split('\n');
     const body = bodyLines.join('\n').trim();
-    if (!title.trim() || !body.trim()) return; // Prevent updating if title or note is empty
-
-    const updatedNotes = notes.map(note =>
-      note.id === editNoteId
-        ? { ...note, title: title.trim(), body: body.trim(), timestamp: new Date() }
-        : note
-    );
-    setNotes(updatedNotes);
-    setEditNoteId(null);
-    setEditText('');
-
-    // Log the updated notes array to the console
-    console.log('Updated Notes:', updatedNotes);
+    if (!title.trim() || !body.trim()) return;
+  
+    const updatedNote = {
+      ...notes.find(note => note.id === editNoteId),
+      title: title.trim(),
+      notes: body.trim(),
+      updatedTs: new Date().toISOString()
+    };
+  
+    try {
+      await axios.post(`http://192.168.3.53:8080/${userInfo.id}/selfnotes`, updatedNote);
+      const updatedNotes = notes.map(note =>
+        note.id === editNoteId
+          ? updatedNote
+          : note
+      );
+  
+      console.log('Updated Note:', updatedNote);
+  
+      setNotes(updatedNotes);
+      setEditNoteId(null);
+      setEditText('');
+    } catch (error) {
+      console.error('Error updating note:', error.message);
+      if (error.response) {
+        console.error('Error Response Data:', error.response.data);
+        console.error('Error Response Status:', error.response.status);
+      }
+    }
   };
 
-  const handleDelete = (id) => {
-    const updatedNotes = notes.filter(note => note.id !== id);
-    setNotes(updatedNotes);
-    setOptionsVisible(false);
+  const handleDelete = async (id) => {
+    try {
+      console.log(`Attempting to delete note with ID: ${id}`);
+      
+      // Send DELETE request to the server
+      const response = await axios.delete(`http://192.168.3.53:8080/${userInfo.id}/selfnotes/${id}`);
+      
+      console.log('Delete Response Status:', response.status); // Log the response status
+  
+      if (response.status === 204) { // HTTP 204 No Content indicates successful deletion
+        // Update local state only after successful deletion
+        setNotes(prevNotes => prevNotes.filter(note => note.id !== id));
+        console.log('Note successfully deleted from server.');
+      } else {
+        console.log('Failed to delete note from server.');
+      }
+  
+      // Close options modal
+      setOptionsVisible(false);
+    } catch (error) {
+      console.error('Error deleting note:', error.message);
+      if (error.response) {
+        console.error('Error Response Data:', error.response.data);
+        console.error('Error Response Status:', error.response.status);
+      } else if (error.request) {
+        console.error('No response received:', error.request);
+      } else {
+        console.error('Error Message:', error.message);
+      }
+  
+      // Optionally, you might want to show an error message to the user here
+    }
   };
 
   const handleSearch = (query) => {
     setSearchQuery(query);
   };
 
-  const filteredNotes = notes.filter(note => 
-    note.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-    note.body.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredNotes = notes.filter(note =>
+    note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    note.notes.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const groupedNotes = groupByDate(filteredNotes);
@@ -147,8 +222,8 @@ const SelfNotes = () => {
                     <Icon name="ellipsis-v" size={24} color="#007bff" />
                   </TouchableOpacity>
                 </View>
-                <Text style={styles.noteBody}>{note.body}</Text>
-                <Text style={styles.noteTimestamp}>{formatTime(note.timestamp)}</Text>
+                <Text style={styles.noteBody}>{note.notes}</Text>
+                <Text style={styles.noteTimestamp}>{formatTime(note.createdTs)}</Text>
               </View>
             ))}
           </View>
@@ -172,79 +247,69 @@ const SelfNotes = () => {
       </ScrollView>
 
       {!isAdding && (
-        <TouchableOpacity
-          style={styles.addButton}
-          onPress={() => setIsAdding(true)}>
+        <TouchableOpacity style={styles.addButton} onPress={() => setIsAdding(true)}>
           <Icon name="plus" size={24} color="#fff" />
         </TouchableOpacity>
       )}
 
-      {/* Options Modal */}
-      <Modal
-        transparent
-        visible={optionsVisible}
-        onRequestClose={() => setOptionsVisible(false)}
-      >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <TouchableOpacity
-              style={styles.modalButton}
-              onPress={() => handleEdit(selectedNoteId)}
-            >
-              <Text style={styles.modalButtonText}>Edit</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.modalButton}
-              onPress={() => handleDelete(selectedNoteId)}
-            >
-              <Text style={styles.modalButtonText}>Delete</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.modalButton}
-              onPress={() => setOptionsVisible(false)}
-            >
-              <Text style={styles.modalButtonText}>Cancel</Text>
-            </TouchableOpacity>
+      {optionsVisible && (
+        <Modal
+          transparent={true}
+          visible={optionsVisible}
+          onRequestClose={() => setOptionsVisible(false)}
+        >
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <TouchableOpacity onPress={() => handleEdit(selectedNoteId)} style={styles.modalButton}>
+                <Text style={styles.modalButtonText}>Edit</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => handleDelete(selectedNoteId)} style={styles.modalButton}>
+                <Text style={styles.modalButtonText}>Delete</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => setOptionsVisible(false)} style={styles.modalButton}>
+                <Text style={styles.modalButtonText}>Cancel</Text>
+              </TouchableOpacity>
+            </View>
           </View>
-        </View>
-      </Modal>
+        </Modal>
+      )}
 
-      {/* Edit Note Modal */}
-      <Modal
-        transparent
+      {editNoteId !== null && (
+        <Modal
+        transparent={true}
         visible={editNoteId !== null}
         onRequestClose={() => setEditNoteId(null)}
       >
         <View style={styles.modalContainer}>
-          <View style={styles.editModalContent}>
-            <ScrollView>
+          <View style={styles.editModalWrapper}>
+            <ScrollView contentContainerStyle={styles.editModalContent}>
               <TextInput
-                style={styles.textArea}
-                placeholder="Edit title and note..."
+                style={styles.textAreaUpdate}
+                placeholder="Edit your note..."
                 placeholderTextColor="#888"
                 multiline
                 value={editText}
                 onChangeText={setEditText}
               />
+              <View style={styles.modalActions}>
+                <TouchableOpacity
+                  style={styles.updateButton}
+                  onPress={handleUpdate}
+                >
+                  <Text style={styles.updateButtonText}>Update</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.cancelButton}
+                  onPress={() => setEditNoteId(null)}
+                >
+                  <Text style={styles.cancelButtonText}>Cancel</Text>
+                </TouchableOpacity>
+              </View>
             </ScrollView>
-
-            <View style={styles.modalActions}>
-              <TouchableOpacity
-                style={styles.updateButton}
-                onPress={handleUpdate} >
-                <Text style={styles.updateButtonText}>Update</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.cancelButton}
-                onPress={() => setEditNoteId(null)}
-              >
-                <Text style={styles.cancelButtonText}>Cancel</Text>
-              </TouchableOpacity>
-            </View>
-
           </View>
         </View>
       </Modal>
+      )}
     </View>
   );
 };
@@ -386,12 +451,29 @@ const styles = StyleSheet.create({
     color:'black',
         fontSize: 16,
   },
-  editModalContent: {
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent background
+  },
+  editModalWrapper: {
+    width: '80%', // Adjust width as needed
+    maxWidth: 600, // Maximum width of the modal
     backgroundColor: '#fff',
-    padding: 20,
     borderRadius: 8,
-    width: '90%',
-    maxHeight: '80%',
+    padding: 20,
+    elevation: 5, // Shadow for better visibility
+  },
+  editModalContent: {
+    paddingBottom: 20, // Space for the action buttons
+  },
+  textAreaUpdate: {
+    fontSize: 16,
+    color: '#333',
+    textAlignVertical: 'top',
+    height: 150, // Adjust height as needed
+    marginBottom: 20, // Space for the action buttons
   },
   modalActions: {
     flexDirection: 'row',
