@@ -68,7 +68,7 @@ const BorrowerScreen = ({ navigation }) => { // Add navigation prop
   const renderItem = ({ item }) => (
     <TouchableOpacity 
       style={styles.rowContainer} 
-      onPress={() => navigation.navigate('BorrowerDetailScreen', { borrowerName: item.borrowerName, principalAmount: item.principalAmount })} // Navigate to detail screen with borrowerName and principalAmount
+      onPress={() => navigation.navigate('BorrowerDetailScreen', { barrowerData: item })} // Navigate to detail screen with borrowerName and principalAmount
     >
       <View style={styles.cell}>
         <Text style={styles.cellText}>{item.borrowerName ? truncateName(item.borrowerName) : 'N/A'}</Text>

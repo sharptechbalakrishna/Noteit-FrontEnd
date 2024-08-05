@@ -15,7 +15,9 @@ const ProfileScreen = () => {
     }
     return (
         <ScrollView style={styles.container}>
+           
             <View style={styles.userInfoSection}>
+            {/* <View style={{flexDirection: "row" ,  justifyContent: 'space-between', padding: 10,}}><Text>1</Text><Text>1</Text></View> */}
                 <View style={{ flexDirection: 'row', marginTop: 15 }}>
                     <Avatar.Image
                         source={{

@@ -1,6 +1,9 @@
 import axios from 'axios';
+import { AuthContext } from '../Context/AuthContext';
 
 class UserService {
+
+
     static BASE_URL = 'http://192.168.3.53:8080';
 
     static async register(register) {
@@ -8,6 +11,27 @@ class UserService {
             console.log('In User Service', register);  // While Deploying need to Commit this line
             const response = await axios.post(`${UserService.BASE_URL}/register`, register);
             console.log('In User Service', response.data);
+            return response.data;
+        } catch (err) {
+            throw err;
+        }
+    }
+    static async ledgerData(borrowerId) {
+        try {
+            console.log('In User Service', borrowerId); // While Deploying need to Commit this line
+            const response = await axios.get(`${UserService.BASE_URL}/ledger/${borrowerId}`);
+            // console.log('name', response.data.borrowerName); // While Deploying need to Commit this line
+            // console.log('In User Service', response.data); // While Deploying need to Commit this line
+            return response.data;
+        } catch (err) {
+            throw err;
+        }
+    }
+    static async addEntry(entry) {
+        try {
+            // console.log(entry);
+            const response = await axios.post(`${UserService.BASE_URL}/ledger/update`, entry);
+            console.log(response.data);
             return response.data;
         } catch (err) {
             throw err;

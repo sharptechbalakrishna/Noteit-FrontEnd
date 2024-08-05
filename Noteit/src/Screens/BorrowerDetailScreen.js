@@ -1,26 +1,62 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity } from 'react-native';
 import AddEntryModal from './AddEntryModal';
+import UserService from '../UserService/UserService';
 
 const BorrowerDetailScreen = ({ route }) => {
-  const { borrowerName, principalAmount } = route.params;
-  const ledgerData = [
-    { no: 1, intAmt: '7,500.00', month: 'November', days: 30, intPerDay: '250.00' },
-    { no: 2, intAmt: '7,500.00', month: 'December', days: 31, intPerDay: '241.94' },
-    { no: 3, intAmt: '7,500.00', month: 'January', days: 31, intPerDay: '241.94' },
-  ];
+  const { barrowerData } = route.params;
+  // console.log("B in ud D", barrowerData)
+  // console.log("B in ud D", barrowerData.borrowedDate.split('T')[1].split('.')[0])
 
-  // Reverse the array to display the latest data on top
+  const [ledgerData, setLedgerData] = useState([]);
+  const [ledgerId, setledgerId] = useState(null);
+  const [successMessage, setSuccessMessage] = useState('');
+
   const reversedLedgerData = [...ledgerData].reverse();
+
+  const fetchLedgerData = async () => {
+    try {
+      // console.log("BD Id", barrowerData.id )
+      const data = await UserService.ledgerData(barrowerData.id);
+      setLedgerData(data);
+    } catch (err) {
+      console.error('Error fetching ledger data:', err);
+    }
+  };
+
+  useEffect(() => {
+    fetchLedgerData();
+  }, []);
+
+  useEffect(() => {
+    if (ledgerData.length > 0) {
+      const reversedLedgerData = [...ledgerData].reverse();
+      setledgerId(reversedLedgerData[0].id);
+    }
+  }, [ledgerData]);
+
+  useEffect(() => {
+    if (ledgerId !== null) {
+      console.log('ID of the last entry:', ledgerId);
+    }
+  }, [ledgerId]);
 
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedTab, setSelectedTab] = useState('card');
 
-
-  const handleAddEntry = (newEntry) => {
-    // Add your logic to handle the new entry
+  const handleAddEntry = async (newEntry) => {
     console.log('New Entry:', newEntry);
-    setModalVisible(false);
+    try {
+      await UserService.addEntry(newEntry);
+      fetchLedgerData();
+      setModalVisible(false);
+      setSuccessMessage('You have successfully added an entry!');
+      setTimeout(() => {
+        setSuccessMessage('');
+      }, 3000); // Clear the success message after 3 seconds
+    } catch (err) {
+      console.error('Error adding new entry:', err);
+    }
   };
 
   return (
@@ -33,41 +69,46 @@ const BorrowerDetailScreen = ({ route }) => {
           <View style={styles.detailsContainer}>
             <View style={styles.tableRow}>
               <Text style={styles.tableLabel}>Borrower Name:</Text>
-              <Text style={styles.tableData}>{borrowerName}</Text>
+              <Text style={styles.tableData}>{barrowerData.borrowerName}</Text>
             </View>
             <View style={styles.tableRow}>
               <Text style={styles.tableLabel}>Borrowed Date:</Text>
-              <Text style={styles.tableData}>25-Nov-23</Text>
+              <Text style={styles.tableData}>{ barrowerData.borrowedDate}</Text>
             </View>
             <View style={styles.tableRow}>
               <Text style={styles.tableLabel}>End Date:</Text>
-              <Text style={styles.tableData}>24-Oct-24</Text>
+              <Text style={styles.tableData}>{barrowerData.endDate.split('T')[0]}</Text>
             </View>
             <View style={styles.tableRow}>
               <Text style={styles.tableLabel}>Principal Amount:</Text>
-              <Text style={styles.tableData}>{principalAmount}</Text>
+              <Text style={styles.tableData}>{barrowerData.principalAmount}</Text>
             </View>
             <View style={styles.tableRow}>
               <Text style={styles.tableLabel}>Interest Rate:</Text>
-              <Text style={styles.tableData}>5%</Text>
+              <Text style={styles.tableData}>{barrowerData.interestRate}</Text>
             </View>
             <View style={styles.tableRow}>
               <Text style={styles.tableLabel}>Borrowed Basis:</Text>
-              <Text style={styles.tableData}>Pledge</Text>
+              <Text style={styles.tableData}>{barrowerData.creditStatus}</Text>
             </View>
             <View style={styles.tableRow}>
               <Text style={styles.tableLabel}>Period:</Text>
-              <Text style={styles.tableData}>12 Months</Text>
+              <Text style={styles.tableData}>{barrowerData.timePeriodUnit}</Text>
             </View>
             <View style={styles.tableRow}>
               <Text style={styles.tableLabel}>Loan/Credit Status:</Text>
-              <Text style={styles.tableData}>Secured</Text>
+              <Text style={styles.tableData}>{barrowerData.borrowerName}</Text>
             </View>
             <View style={styles.tableRow}>
               <Text style={styles.tableLabel}>Status:</Text>
-              <Text style={styles.tableData}>Closed</Text>
+              <Text style={styles.tableData}>{barrowerData.borrowerName}</Text>
             </View>
           </View>
+          {successMessage ? (
+            <View style={styles.successMessageContainer}>
+              <Text style={styles.successMessage}>{successMessage}</Text>
+            </View>
+          ) : null}
           <View style={{ paddingBottom: 20 }} >
             <View style={{ height: 44, width: '100%', backgroundColor: '#C0C0C0', borderRadius: 10, borderColor: '#AD40AF', flexDirection: 'row', justifyContent: 'center' }}>
               <TouchableOpacity
@@ -91,19 +132,31 @@ const BorrowerDetailScreen = ({ route }) => {
                 <View style={styles.cardContent}>
                   <View style={styles.cardRow}>
                     <Text style={styles.cardLabel}>S No:</Text>
-                    <Text style={styles.cardData}>{item.no}</Text>
+                    <Text style={styles.cardData}>{index + 1}</Text>
                   </View>
                   <View style={styles.cardRow}>
                     <Text style={styles.cardLabel}>Int Amt:</Text>
-                    <Text style={styles.cardData}>{item.intAmt}</Text>
+                    <Text style={styles.cardData}>{item.interestAmount}</Text>
                   </View>
                   <View style={styles.cardRow}>
                     <Text style={styles.cardLabel}>Days:</Text>
                     <Text style={styles.cardData}>{item.days}</Text>
                   </View>
                   <View style={styles.cardRow}>
-                    <Text style={styles.cardLabel}>Int per day:</Text>
-                    <Text style={styles.cardData}>{item.intPerDay}</Text>
+                    <Text style={styles.cardLabel}>Principal Amount:</Text>
+                    <Text style={styles.cardData}>{item.principalAmount}</Text>
+                  </View>
+                  <View style={styles.cardRow}>
+                    <Text style={styles.cardLabel}>Locked:</Text>
+                    <Text style={styles.cardData}>{item.locked === true ? "Paid" : "Pending"}</Text>
+                  </View>
+                  <View style={styles.cardRow}>
+                    <Text style={styles.cardLabel}>Interest Paid:</Text>
+                    <Text style={styles.cardData}>{item.interestPaid}</Text>
+                  </View>
+                  <View style={styles.cardRow}>
+                    <Text style={styles.cardLabel}>Status:</Text>
+                    <Text style={styles.cardData}>{item.status}</Text>
                   </View>
                 </View>
               </View>
@@ -115,21 +168,20 @@ const BorrowerDetailScreen = ({ route }) => {
                 <Text style={styles.tableHeaderText}>Int Amt</Text>
                 <Text style={styles.tableHeaderText}>Month</Text>
                 <Text style={styles.tableHeaderText}>Days</Text>
-                <Text style={styles.tableHeaderText}>Int per day</Text>
-                <Text style={styles.tableHeaderText}>Days completed</Text>
-                <Text style={styles.tableHeaderText}>Actual Int till date</Text>
+                <Text style={styles.tableHeaderText}>Principal Amount</Text>
+                <Text style={styles.tableHeaderText}>Locked</Text>
+                <Text style={styles.tableHeaderText}>Interest Paid</Text>
                 <Text style={styles.tableHeaderText}>Status</Text>
               </View>
 
               {ledgerData.map((item, index) => (
                 <View style={styles.tableRow} key={index}>
-                  <Text style={styles.tableCell}>{item.no}</Text>
-                  <Text style={styles.tableCell}>{item.intAmt}</Text>
+                  <Text style={styles.tableCell}>{index + 1}</Text>
+                  <Text style={styles.tableCell}>{item.interestAmount}</Text>
                   <Text style={styles.tableCell}>{item.month}</Text>
                   <Text style={styles.tableCell}>{item.days}</Text>
-                  <Text style={styles.tableCell}>{item.intPerDay}</Text>
-                  <Text style={styles.tableCell}>{item.daysCompleted}</Text>
-                  <Text style={styles.tableCell}>{item.actualIntTillDate}</Text>
+                  <Text style={styles.tableCell}>{item.principalAmount}</Text>
+                  <Text style={styles.tableCell}>{item.locked === true ? "True" : "False"}</Text>
                   <Text style={styles.tableCell}>{item.status}</Text>
                 </View>
               ))}
@@ -145,7 +197,8 @@ const BorrowerDetailScreen = ({ route }) => {
           visible={modalVisible}
           onClose={() => setModalVisible(false)}
           onSubmit={handleAddEntry}
-          borrowerName={borrowerName}
+          borrowerName={barrowerData.borrowerName}
+          ledgerId={ledgerId}
         />
       </View>
     </SafeAreaView>
@@ -301,6 +354,17 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontFamily: 'Roboto-Bold',
+    textAlign: 'center',
+  },
+  successMessageContainer: {
+    padding: 10,
+    backgroundColor: '#d4edda',
+    borderRadius: 5,
+    marginBottom: 20,
+  },
+  successMessage: {
+    fontSize: 16,
+    color: '#155724',
     textAlign: 'center',
   },
 });

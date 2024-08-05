@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, Modal, TextInput, Button, KeyboardAvoidingView, Platform } from 'react-native';
 
-const AddEntryModal = ({ visible, onClose, onSubmit, borrowerName }) => {
-  const [interestAmount, setInterestAmount] = useState('');
+const AddEntryModal = ({ visible, onClose, onSubmit, borrowerName, ledgerId }) => {
+  const [interestPaid, setInterestPaid] = useState('');
 
   const handleAddEntry = () => {
-    onSubmit({ interestAmount });
-    setInterestAmount('');
+    onSubmit({ interestPaid, ledgerId });
+    setInterestPaid('');
   };
 
   return (
@@ -22,8 +22,8 @@ const AddEntryModal = ({ visible, onClose, onSubmit, borrowerName }) => {
           <TextInput
             style={styles.input}
             placeholder="Interest Amount"
-            value={interestAmount}
-            onChangeText={setInterestAmount}
+            value={interestPaid}
+            onChangeText={setInterestPaid}
             keyboardType="numeric"
           />
           <View style={styles.buttonContainer}>
