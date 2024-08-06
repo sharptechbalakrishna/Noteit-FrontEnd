@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useRef } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Modal } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import axios from 'axios';
@@ -44,6 +44,10 @@ const SelfNotes = () => {
   const [editText, setEditText] = useState('');
   const [optionsVisible, setOptionsVisible] = useState(false);
   const [selectedNoteId, setSelectedNoteId] = useState(null);
+  const scrollViewRef = useRef(null); // Ref for ScrollView
+  const [expandedNoteId, setExpandedNoteId] = useState(null);
+  const [highlightInput, setHighlightInput] = useState(false); // State to highlight input
+
 
   useEffect(() => {
     const fetchNotes = async () => {
@@ -65,6 +69,11 @@ const SelfNotes = () => {
       fetchNotes();
     }
   }, [userInfo]);
+
+  useEffect(() => {
+    // Scroll to the end when notes are updated
+    scrollViewRef.current?.scrollToEnd({ animated: true });
+  }, [notes]);
 
   const handleSave = async () => {
     const [title, ...bodyLines] = inputText.split('\n');
@@ -108,14 +117,14 @@ const SelfNotes = () => {
     const [title, ...bodyLines] = editText.split('\n');
     const body = bodyLines.join('\n').trim();
     if (!title.trim() || !body.trim()) return;
-  
+
     const updatedNote = {
       ...notes.find(note => note.id === editNoteId),
       title: title.trim(),
       notes: body.trim(),
       updatedTs: new Date().toISOString()
     };
-  
+
     try {
       await axios.post(`http://192.168.3.53:8080/${userInfo.id}/selfnotes`, updatedNote);
       const updatedNotes = notes.map(note =>
@@ -123,9 +132,9 @@ const SelfNotes = () => {
           ? updatedNote
           : note
       );
-  
+
       console.log('Updated Note:', updatedNote);
-  
+
       setNotes(updatedNotes);
       setEditNoteId(null);
       setEditText('');
@@ -140,35 +149,16 @@ const SelfNotes = () => {
 
   const handleDelete = async (id) => {
     try {
-      console.log(`Attempting to delete note with ID: ${id}`);
-      
-      // Send DELETE request to the server
-      const response = await axios.delete(`http://192.168.3.53:8080/${userInfo.id}/selfnotes/${id}`);
-      
-      console.log('Delete Response Status:', response.status); // Log the response status
-  
-      if (response.status === 204) { // HTTP 204 No Content indicates successful deletion
-        // Update local state only after successful deletion
-        setNotes(prevNotes => prevNotes.filter(note => note.id !== id));
-        console.log('Note successfully deleted from server.');
-      } else {
-        console.log('Failed to delete note from server.');
-      }
-  
-      // Close options modal
+      await axios.delete(`http://192.168.3.53:8080/${userInfo.id}/selfnotes/${id}`);
+      const updatedNotes = notes.filter(note => note.id !== id);
+      setNotes(updatedNotes);
       setOptionsVisible(false);
     } catch (error) {
       console.error('Error deleting note:', error.message);
       if (error.response) {
         console.error('Error Response Data:', error.response.data);
         console.error('Error Response Status:', error.response.status);
-      } else if (error.request) {
-        console.error('No response received:', error.request);
-      } else {
-        console.error('Error Message:', error.message);
       }
-  
-      // Optionally, you might want to show an error message to the user here
     }
   };
 
@@ -182,6 +172,17 @@ const SelfNotes = () => {
   );
 
   const groupedNotes = groupByDate(filteredNotes);
+
+  const toggleExpand = (id) => {
+    setExpandedNoteId(expandedNoteId === id ? null : id);
+  };
+
+  useEffect(() => {
+    // Scroll to the input area if it's highlighted
+    if (highlightInput && scrollViewRef.current) {
+      scrollViewRef.current.scrollTo({ y: 1000, animated: true }); // Adjust the y value as needed
+    }
+  }, [highlightInput]);
 
   return (
     <View style={styles.container}>
@@ -207,7 +208,10 @@ const SelfNotes = () => {
         </View>
       )}
 
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView
+        contentContainerStyle={styles.content}
+        ref={scrollViewRef} // Set ref here
+      >
         {Object.keys(groupedNotes).map(dateKey => (
           <View key={dateKey}>
             <Text style={styles.dateHeader}>{dateKey}</Text>
@@ -222,7 +226,14 @@ const SelfNotes = () => {
                     <Icon name="ellipsis-v" size={24} color="#007bff" />
                   </TouchableOpacity>
                 </View>
-                <Text style={styles.noteBody}>{note.notes}</Text>
+                <TouchableOpacity onPress={() => toggleExpand(note.id)}>
+                  <Text
+                    style={styles.noteBody}
+                    numberOfLines={expandedNoteId === note.id ? undefined : 1} // Handle multi-line text based on expanded state
+                  >
+                    {note.notes}
+                  </Text>
+                </TouchableOpacity>
                 <Text style={styles.noteTimestamp}>{formatTime(note.createdTs)}</Text>
               </View>
             ))}
@@ -230,7 +241,7 @@ const SelfNotes = () => {
         ))}
 
         {isAdding && (
-          <View style={styles.inputContainer}>
+          <View style={[styles.inputContainer, highlightInput && styles.highlightedInput]}>
             <TextInput
               style={styles.textArea}
               placeholder="Enter title on the first line, then your note on the next lines."
@@ -257,16 +268,17 @@ const SelfNotes = () => {
           transparent={true}
           visible={optionsVisible}
           onRequestClose={() => setOptionsVisible(false)}
+          animationType="slide"
         >
           <View style={styles.modalContainer}>
             <View style={styles.modalContent}>
-              <TouchableOpacity onPress={() => handleEdit(selectedNoteId)} style={styles.modalButton}>
+              <TouchableOpacity style={styles.modalButton} onPress={() => handleEdit(selectedNoteId)}>
                 <Text style={styles.modalButtonText}>Edit</Text>
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => handleDelete(selectedNoteId)} style={styles.modalButton}>
+              <TouchableOpacity style={styles.modalButton} onPress={() => handleDelete(selectedNoteId)}>
                 <Text style={styles.modalButtonText}>Delete</Text>
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => setOptionsVisible(false)} style={styles.modalButton}>
+              <TouchableOpacity style={styles.modalButton} onPress={() => setOptionsVisible(false)}>
                 <Text style={styles.modalButtonText}>Cancel</Text>
               </TouchableOpacity>
             </View>
@@ -274,41 +286,33 @@ const SelfNotes = () => {
         </Modal>
       )}
 
-      {editNoteId !== null && (
+      {editNoteId && (
         <Modal
-        transparent={true}
-        visible={editNoteId !== null}
-        onRequestClose={() => setEditNoteId(null)}
-      >
-        <View style={styles.modalContainer}>
-          <View style={styles.editModalWrapper}>
-            <ScrollView contentContainerStyle={styles.editModalContent}>
+          transparent={true}
+          visible={!!editNoteId}
+          onRequestClose={() => setEditNoteId(null)}
+          animationType="slide"
+        >
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
               <TextInput
-                style={styles.textAreaUpdate}
+                style={styles.textArea}
                 placeholder="Edit your note..."
                 placeholderTextColor="#888"
                 multiline
                 value={editText}
                 onChangeText={setEditText}
               />
-              <View style={styles.modalActions}>
-                <TouchableOpacity
-                  style={styles.updateButton}
-                  onPress={handleUpdate}
-                >
-                  <Text style={styles.updateButtonText}>Update</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.cancelButton}
-                  onPress={() => setEditNoteId(null)}
-                >
-                  <Text style={styles.cancelButtonText}>Cancel</Text>
-                </TouchableOpacity>
-              </View>
-            </ScrollView>
+              <TouchableOpacity style={styles.updateButton} onPress={handleUpdate}>
+                <Text style={styles.updateButtonText}>Update</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.cancelButton} onPress={() => setEditNoteId(null)}>
+                <Text style={styles.cancelButtonText}>Cancel</Text>
+              </TouchableOpacity>
+              
+            </View>
           </View>
-        </View>
-      </Modal>
+        </Modal>
       )}
     </View>
   );
@@ -398,11 +402,15 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginBottom: 10,
     elevation: 2,
+  
   },
   textArea: {
-    fontSize: 16,
-    color: '#333',
+    minHeight: 80, // Set a minimum height
+    maxHeight: 150, // Set a maximum height
+    borderRadius: 8,
+    padding: 8,
     textAlignVertical: 'top',
+    overflow: 'scroll', // Enable scrolling within the text area
   },
   saveButton: {
     backgroundColor: '#007bff',
@@ -451,35 +459,7 @@ const styles = StyleSheet.create({
     color:'black',
         fontSize: 16,
   },
-  modalContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent background
-  },
-  editModalWrapper: {
-    width: '80%', // Adjust width as needed
-    maxWidth: 600, // Maximum width of the modal
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    padding: 20,
-    elevation: 5, // Shadow for better visibility
-  },
-  editModalContent: {
-    paddingBottom: 20, // Space for the action buttons
-  },
-  textAreaUpdate: {
-    fontSize: 16,
-    color: '#333',
-    textAlignVertical: 'top',
-    height: 150, // Adjust height as needed
-    marginBottom: 20, // Space for the action buttons
-  },
-  modalActions: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginTop: 10,
-  },
+ 
   cancelButton: {
     backgroundColor: '#ccc',
     padding: 10,
