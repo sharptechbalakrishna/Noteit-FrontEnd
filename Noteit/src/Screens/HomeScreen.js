@@ -46,7 +46,7 @@ const HomeScreen = ({ navigation }) => {
           justifyContent: 'space-between',
           marginBottom: 20,
         }}>
-          <Text style={{ fontSize: 18, fontFamily: 'Roboto-Medium', color: 'black' }}>Hello {userInfo.id}</Text>
+          <Text style={{ fontSize: 18, fontFamily: 'Roboto-Medium', color: 'black' }}>Hello {userInfo.firstName}</Text>
           <TouchableOpacity onPress={() => navigation.openDrawer()}>
             <ImageBackground
               source={require('../assets/images/user-profile.jpg')}

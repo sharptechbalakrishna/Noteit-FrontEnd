@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
-import { View, Text, TouchableOpacity, FlatList, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, ActivityIndicator, Text, TouchableOpacity, FlatList, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
 import { Searchbar } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import axios from 'axios';
@@ -10,17 +10,22 @@ const BorrowerScreen = ({ navigation }) => { // Add navigation prop
   const { userInfo } = useContext(AuthContext); // Get userInfo from AuthContext
   const [searchQuery, setSearchQuery] = useState('');
   const [borrowers, setBorrowers] = useState([]);
-  const [filteredBorrowers, setFilteredBorrowers] = useState([]); // Initialize filteredBorrowers state
+  const [filteredBorrowers, setFilteredBorrowers] = useState([]); // Initialize filteredBorrowers 
+  const [isLoading, setIsLoading] = useState(false);
+
 
   const [modalVisible, setModalVisible] = useState(false);
   const flatListRef = useRef(null); // Create a ref for FlatList
 
   useEffect(() => {
     const fetchBorrowers = async () => {
+      console.log('Checning')
+      setIsLoading(true);
       try {
+        console.log(userInfo.id);
         const response = await axios.get(`http://192.168.3.53:8080/${userInfo.id}/borrowers`);
         const borrowersData = response.data;
-  
+
         borrowersData.forEach(borrower => {
           console.log('Borrower Name:', borrower.borrowerName);
           console.log('Principal Amount:', parseFloat(borrower.principalAmount));
@@ -28,15 +33,17 @@ const BorrowerScreen = ({ navigation }) => { // Add navigation prop
           console.log('Credit Status:', borrower.creditStatus);
           console.log('---------------------------');
         });
-  
+        console.log(response);
         setBorrowers(borrowersData);
-        setFilteredBorrowers(borrowersData); 
+        setFilteredBorrowers(borrowersData);
 
       } catch (error) {
         console.error('Error fetching borrowers:', error);
+      } finally {
+        setIsLoading(false);
       }
     };
-  
+
     if (userInfo && userInfo.id) {
       fetchBorrowers();
     }
@@ -52,7 +59,7 @@ const BorrowerScreen = ({ navigation }) => { // Add navigation prop
     if (query === '') {
       setFilteredBorrowers(borrowers);
     } else {
-      const filtered = borrowers.filter(borrower => 
+      const filtered = borrowers.filter(borrower =>
         borrower.borrowerName?.toLowerCase().includes(query.toLowerCase()) ||
         borrower.principalAmount?.toString().includes(query) ||
         borrower.interestRate?.toString().includes(query)
@@ -66,8 +73,8 @@ const BorrowerScreen = ({ navigation }) => { // Add navigation prop
   };
 
   const renderItem = ({ item }) => (
-    <TouchableOpacity 
-      style={styles.rowContainer} 
+    <TouchableOpacity
+      style={styles.rowContainer}
       onPress={() => navigation.navigate('BorrowerDetailScreen', { barrowerData: item })} // Navigate to detail screen with borrowerName and principalAmount
     >
       <View style={styles.cell}>
@@ -81,6 +88,15 @@ const BorrowerScreen = ({ navigation }) => { // Add navigation prop
       </View>
     </TouchableOpacity>
   );
+
+
+  if (isLoading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size={'large'} />
+      </View>
+    );
+  }
 
   return (
     <KeyboardAvoidingView

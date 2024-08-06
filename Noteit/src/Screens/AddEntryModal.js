@@ -1,16 +1,18 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Modal, TextInput, Button, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, StyleSheet, Modal, TextInput, Button, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native';
 
-const AddEntryModal = ({ visible, onClose, onSubmit, borrowerName, ledgerId }) => {
+const AddEntryModal = ({ visible, onClose, onSubmit, borrowerName, ledgerId, loading }) => {
   const [interestPaid, setInterestPaid] = useState('');
 
   const handleAddEntry = () => {
-    onSubmit({ interestPaid, ledgerId });
-    setInterestPaid('');
+    if (!loading) {
+      onSubmit({ interestPaid, ledgerId });
+      setInterestPaid('');
+    }
   };
 
   return (
-    <Modal visible={visible} animationType="slide" transparent={true}>
+    <Modal visible={visible} animationType= 'fade' transparent={true}>
       <KeyboardAvoidingView
         style={styles.modalContainer}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
