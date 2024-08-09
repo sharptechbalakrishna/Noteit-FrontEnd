@@ -11,6 +11,7 @@ import {
   BackHandler,
   Image,
 } from 'react-native';
+
 import { Avatar } from 'react-native-paper';
 import styles from '../Utils/ProfileUpdateStyles';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -22,10 +23,21 @@ import { useContext } from 'react';
 import { AuthContext } from '../Context/AuthContext';
 import { RadioButton } from 'react-native-paper';
 import Toast from 'react-native-toast-message';
+import CustomFlashMessage from '../Components/CustomFlashMessage';
 
 function ProfileUpdateScreen({ route }) {
 
+  const [id, setId] = useState('');
+  const [image, setImage] = useState('');
+  const [email, setEmail] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [userName, setUserName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [gender, setGender] = useState('');
+
   const { customerData } = route.params;
+  const [userInfo, setUserInfo] = useState(null);
 
   useEffect(() => {
     console.log("Customer Data:", customerData); // Inspect the value
@@ -41,14 +53,6 @@ function ProfileUpdateScreen({ route }) {
     }
 }, [customerData]);;
 
-const [id, setId] = useState('');
-const [image, setImage] = useState('');
-const [email, setEmail] = useState('');
-const [firstName, setFirstName] = useState('');
-const [lastName, setLastName] = useState('');
-const [userName, setUserName] = useState('');
-const [phone, setPhone] = useState('');
-const [gender, setGender] = useState('');
 
 
   const selectPhoto = ({ }) => {
@@ -84,11 +88,16 @@ const [gender, setGender] = useState('');
     };
 
     try {
-      console.log(formData);
+      // console.log("PU S: ",formData);
         const response = await UserService.register(formData);
+        CustomFlashMessage('success', 'Success', 'Updated Sucessfully!');
+        let userInfo = response;
+        setUserInfo(userInfo);
+        AsyncStorage.setItem('userInfo', JSON.stringify(userInfo));
         console.log("Response Data:", response);
     } catch (error) {
         console.error("Update Error:", error);
+        CustomFlashMessage('error', 'Error', 'Failed To Update!');
     }
 };
   return (

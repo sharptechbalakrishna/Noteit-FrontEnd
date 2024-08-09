@@ -11,6 +11,7 @@ import { useForm, Controller } from "react-hook-form";
 import { TextInput } from 'react-native-gesture-handler';
 import axios from 'axios';
 import { AuthContext } from '../Context/AuthContext';
+import CustomFlashMessage from '../Components/CustomFlashMessage';
 
 
 const SignInScreen = () => {
@@ -29,9 +30,16 @@ const SignInScreen = () => {
 
     const onSignInPressed = async (data) => {
         // console.warn("Signed In Successfully");
+
         console.log(data);
-        await login(data);
-        setSuccessMessage('Signed In Successfully');
+        try {
+            await login(data);
+            CustomFlashMessage('success', 'Success', 'Logged In Sucessfully !');
+        } catch (error) {
+            console.log("Sign In :", error);
+            CustomFlashMessage('error', 'Login Faild', 'Provide valid phone and password !');
+        }
+
     };
     const onForgotPasswordPressed = () => {
         console.warn("onForgotPasswordPressed");
@@ -56,16 +64,24 @@ const SignInScreen = () => {
                 <CustomInput
                     control={control}
                     name='phoneNumber'
-                    rules={{ required: 'User Name required', }}
                     placeholder='PhoneNumber'
+                    keyboardType='numeric'
                     secureTextEntry={false}
+                    maxLength={10}
+                    rules={{
+                        required: 'Phone Number Required',
+                        minLength: { value: 10, message: 'Phone Number Exactly 10 Digits' },
+                    }}
 
                 />
 
                 <CustomInput
                     control={control}
                     name='password'
-                    rules={{ required: 'Password Required' }}
+                    rules={{
+                        required: 'Password Required',
+                        minLength: { value: 3, message: 'Password Should be at least 3 charecter' }
+                    }}
                     placeholder='Passwowrd'
                     secureTextEntry={true}
                 />

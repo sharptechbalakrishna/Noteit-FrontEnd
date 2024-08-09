@@ -2,7 +2,7 @@ import { StyleSheet, Text, View, TextInput } from 'react-native'
 import React, { useState, useEffect } from 'react'
 import { Controller } from 'react-hook-form'
 
-const CustomInput = ({ control, name, rules = {}, placeholder, secureTextEntry }) => {
+const CustomInput = ({ control, maxLength, keyboardType, name, rules = {}, placeholder, secureTextEntry }) => {
 
 
   const [errorMessage, setErrorMessage] = useState(null);
@@ -29,6 +29,8 @@ const CustomInput = ({ control, name, rules = {}, placeholder, secureTextEntry }
             <TextInput
               style={styles.input}
               value={value}
+              maxLength={maxLength}
+              keyboardType={keyboardType}
               onChangeText={onChange}
               onBlur={onBlur}
               placeholder={placeholder}

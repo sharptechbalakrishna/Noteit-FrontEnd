@@ -4,6 +4,7 @@ import AddEntryModal from './AddEntryModal';
 import UserService from '../UserService/UserService';
 import BorrowerDetailView from './BorrowerDetailView';
 import FlashMessage, { showMessage } from 'react-native-flash-message';
+import CustomFlashMessage from '../Components/CustomFlashMessage';
 
 const BorrowerDetailScreen = ({ route }) => {
   const { barrowerData } = route.params;
@@ -50,23 +51,11 @@ const BorrowerDetailScreen = ({ route }) => {
       setModalVisible(false);
       await UserService.addEntry(newEntry);
       fetchLedgerData();
-
-      showMessage({
-        message: 'Success',
-        description: 'Entry added successfully!',
-        type: 'success',
-        backgroundColor: '#28a745',
-        color: '#fff',
-      });
+      CustomFlashMessage('success', 'Success', 'Entry added successfully!');
+      
     } catch (err) {
+      CustomFlashMessage('error', 'Error', 'Failed to add entry.');
       console.error('Error adding new entry:', err);
-      showMessage({
-        message: 'Error',
-        description: 'Failed to add entry.',
-        type: 'danger',
-        backgroundColor: '#dc3545',
-        color: '#fff',
-      });
     } finally {
       setLoading(false);
     }

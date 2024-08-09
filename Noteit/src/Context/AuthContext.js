@@ -36,7 +36,9 @@ export const AuthProvider = ({ children }) => {
             console.log("User Token by id ", userToken);
 
         } catch (error) {
-            console.error("Error:", error);
+            throw error;
+        }finally{
+            setIsLoading(false);
         }
 
 
@@ -75,7 +77,7 @@ export const AuthProvider = ({ children }) => {
     }, []);
 
     return (
-        <AuthContext.Provider value={{ login, logout, isLoading, userToken, userInfo }}>
+        <AuthContext.Provider value={{ login, logout, isLoading, userToken, userInfo, setUserInfo }}>
             {children}
         </AuthContext.Provider>
     )

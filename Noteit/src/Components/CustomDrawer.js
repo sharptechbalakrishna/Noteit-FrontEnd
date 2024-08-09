@@ -6,7 +6,7 @@ import { AuthContext } from '../Context/AuthContext';
 
 const CustomDrawer = (props) => {
 
-    const { logout } = useContext(AuthContext);
+    const { logout, userInfo } = useContext(AuthContext);
 
 
     const onLogoutPressed = () => {
@@ -26,7 +26,7 @@ const CustomDrawer = (props) => {
                         source={require('../assets/images/user-profile.jpg')}
                         style={{ height: 80, width: 80, borderRadius: 40, marginBottom: 10 }}
                     />
-                    <Text style={{ color: '#fff', fontSize: 18, fontFamily: 'Robot-Medium' }}>  Shravankumar</Text>
+                    <Text style={{ color: '#fff', fontSize: 18, fontFamily: 'Robot-Medium' }}>  {userInfo.firstName}</Text>
 
                 </ImageBackground>
 

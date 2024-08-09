@@ -6,6 +6,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useForm, Controller } from "react-hook-form";
 import UserService from '../UserService/UserService';
 import { ActivityIndicator } from 'react-native-paper';
+import CustomFlashMessage from '../Components/CustomFlashMessage';
 
 
 const SignUpScreen = () => {
@@ -44,9 +45,11 @@ const SignUpScreen = () => {
         try {
 
             const response = await UserService.register(register);
+            CustomFlashMessage('success', 'Success', 'Registered Sucessfully!');
             console.log("Response Data in Sign up:", response);
             navigation.navigate('SignInScreen');
         } catch (error) {
+            CustomFlashMessage('error', 'Error', 'Somthing Went Wrong!');
             console.error("Signup:", error);
         }
         setIsLoading(false);
@@ -83,8 +86,15 @@ const SignUpScreen = () => {
 
                 <CustomInput
                     control={control}
-                    name="name"
+                    name="firstName"
                     placeholder='Name'
+                    secureTextEntry={false}
+                    rules={{ required: 'Name Required' }}
+                />
+                <CustomInput
+                    control={control}
+                    name="userName"
+                    placeholder='User Name'
                     secureTextEntry={false}
                     rules={{ required: 'Name Required' }}
                 />
@@ -93,7 +103,12 @@ const SignUpScreen = () => {
                     name="phone"
                     placeholder='PhoneNumber'
                     secureTextEntry={false}
-                    rules={{ required: 'Phone Number Required', minLength: 10, maxLength: 10 }}
+                    keyboardType='numeric'
+                    maxLength={10}
+                    rules={{
+                        required: 'Phone Number Required',
+                        minLength: { value: 10, message: 'Phone Number Exactly 10 Digits' },
+                    }}
                 />
 
                 <CustomInput
@@ -109,7 +124,10 @@ const SignUpScreen = () => {
                     name="password"
                     placeholder='Passwowrd'
                     secureTextEntry={true}
-                    rules={{ required: 'Password Required', minLength: { value: 4, message: 'Password Should be at least 4 charecter' } }}
+                    rules={{
+                        required: 'Password Required',
+                        minLength: { value: 4, message: 'Password Should be at least 4 charecter' }
+                    }}
                 />
                 <CustomInput
                     control={control}

@@ -9,39 +9,37 @@ import UserService from '../UserService/UserService';
 import { useFocusEffect } from '@react-navigation/native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import ProfileUpdateScreen from './ProfileUpdateScreen';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 
 const ProfileScreen = ({ navigation }) => {
 
 
-    const { userInfo } = useContext(AuthContext);
-    const [customer, setCustomer] = useState(null);
+    const { userInfo, setUserInfo } = useContext(AuthContext);
 
     const onPressFavorites = () => {
         console.warn("FavoratePressed");
     }
-    //
-    const customerData = async () => {
-        try {
 
-            const response = await UserService.customerData(userInfo.id);
-            setCustomer(response);
-            console.log(response.id);
-            // console.log("Response Data in ProfileScreen:", response.firstName);
+    // Fetch user info from AsyncStorage
+    const fetchUserInfo = async () => {
+        try {
+            const storedUserInfo = await AsyncStorage.getItem('userInfo');
+            if (storedUserInfo) {
+                const parsedUserInfo = JSON.parse(storedUserInfo);
+                setUserInfo(parsedUserInfo);
+            }
         } catch (error) {
-            console.error("ProfileScreen:", error);
+            console.error('Failed to fetch user info:', error);
         }
     };
 
+    // Fetch user info whenever the screen comes into focus
     useFocusEffect(
         useCallback(() => {
-            customerData();
+            fetchUserInfo();
         }, [])
     );
-
-    // useEffect(() => {
-    //     customerData();
-    // }, []);
     return (
         <SafeAreaView style={{ flex: 1 }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', padding: 15 }} >
@@ -53,7 +51,7 @@ const ProfileScreen = ({ navigation }) => {
                     />
                 </TouchableOpacity>
 
-                <TouchableOpacity onPress={() => navigation.navigate('ProfileUpdateScreen', { customerData: customer })}>
+                <TouchableOpacity onPress={() => navigation.navigate('ProfileUpdateScreen', { customerData: userInfo })}>
                     <Icon
                         name="account-edit-outline"
                         size={29}
@@ -78,8 +76,8 @@ const ProfileScreen = ({ navigation }) => {
                                 marginTop: 15,
                                 marginBottom: 0,
 
-                            }]}>{customer ? customer.firstName : null}</Title>
-                            <Caption style={styles.Caption}>{customer ? customer.userName : null}</Caption>
+                            }]}>{userInfo.firstName}</Title>
+                            <Caption style={styles.Caption}>{userInfo.userName}</Caption>
                         </View>
                     </View>
                 </View>
@@ -90,11 +88,11 @@ const ProfileScreen = ({ navigation }) => {
                     </View>
                     <View style={styles.row}>
                         <Ionicons name="phone-portrait-outline" size={20} color='#777777' />
-                        <Text style={{ color: 'green', marginLeft: 10, fontWeight: 'bold' }}>{customer ? customer.phone : null}</Text>
+                        <Text style={{ color: 'green', marginLeft: 10, fontWeight: 'bold' }}>{userInfo.phone}</Text>
                     </View>
                     <View style={styles.row}>
                         <Icon name="email" size={20} color='#777777' />
-                        <Text style={{ color: 'green', marginLeft: 10, fontWeight: 'bold' }}> {customer ? customer.email : null}</Text>
+                        <Text style={{ color: 'green', marginLeft: 10, fontWeight: 'bold' }}> {userInfo.email}</Text>
                     </View>
                 </View>
                 <View style={styles.amountBoxWrapper}>
@@ -239,7 +237,6 @@ const styles = StyleSheet.create({
         fontSize: 16,
         lineHeight: 26,
     }
-
 
 
 })

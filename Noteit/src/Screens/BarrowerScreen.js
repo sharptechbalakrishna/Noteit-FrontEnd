@@ -33,7 +33,7 @@ const BorrowerScreen = ({ navigation }) => { // Add navigation prop
           console.log('Credit Status:', borrower.creditStatus);
           console.log('---------------------------');
         });
-        console.log(response);
+        console.log("BS Barrower :", response.data);
         setBorrowers(borrowersData);
         setFilteredBorrowers(borrowersData);
 
