@@ -2,75 +2,55 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, Alert, TouchableOpacity, ScrollView } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 
-const InterestCalculator = () => {
+const EmiCalculator = () => {
   const [principal, setPrincipal] = useState('');
   const [rate, setRate] = useState('');
   const [time, setTime] = useState('');
   const [timeUnit, setTimeUnit] = useState('years');
   const [rateUnit, setRateUnit] = useState('annual');
+  const [emi, setEmi] = useState(null);
+  const [totalPayment, setTotalPayment] = useState(null);
   const [totalInterest, setTotalInterest] = useState(null);
-  const [interestPerYear, setInterestPerYear] = useState(null);
-  const [interestPerMonth, setInterestPerMonth] = useState(null);
-  const [interestPerWeek, setInterestPerWeek] = useState(null);
-  const [totalRepayment, setTotalRepayment] = useState(null);
+  const [emiPerYear, setEmiPerYear] = useState(null);
 
-  const calculateInterest = () => {
+  const calculateEmi = () => {
     const p = parseFloat(principal);
-    const r = parseFloat(rate);
-    let t = parseFloat(time);
+    let r;
+    let n = parseFloat(time);
 
-    if (isNaN(p) || isNaN(r) || isNaN(t)) {
+    if (isNaN(p) || isNaN(n)) {
       Alert.alert('Invalid Input', 'Please enter valid numbers.');
       return;
     }
 
-    if (r === 0) {
+    if (parseFloat(rate) === 0) {
+      // Special case for 0% interest
+      setEmi((p / n).toFixed(2));
+      setTotalPayment(p.toFixed(2));
       setTotalInterest('0.00');
-      setInterestPerYear('0.00');
-      setInterestPerMonth('0.00');
-      setInterestPerWeek('0.00');
-      setTotalRepayment(p.toFixed(2));
+      setEmiPerYear((p / n * 12).toFixed(2));
       return;
     }
 
-    let totalInt;
-    let perYearInt = null;
-    let perMonthInt;
-    let perWeekInt = null;
-
-    let annualRate = r;
-    if (rateUnit === 'monthly') {
-      annualRate = r * 12;
-    } else if (rateUnit === 'weekly') {
-      annualRate = r * 52;
+    if (rateUnit === 'annual') {
+      r = parseFloat(rate) / 12 / 100; // Annual rate converted to monthly
+    } else {
+      r = parseFloat(rate) / 100; // Monthly rate
     }
 
-    switch (timeUnit) {
-      case 'months':
-        totalInt = (p * annualRate * t) / 100 / 12;
-        perMonthInt = (totalInt / t).toFixed(2);
-        break;
-      case 'weeks':
-        t = t / 4.33;
-        totalInt = (p * annualRate * (t * 4.33)) / 100;
-        perMonthInt = (totalInt / (t * 4.33)).toFixed(2);
-        perWeekInt = (totalInt / (t * 4.33 * 4.33)).toFixed(2);
-        break;
-      case 'years':
-      default:
-        totalInt = (p * annualRate * t) / 100;
-        perYearInt = (totalInt / t).toFixed(2);
-        perMonthInt = (totalInt / (t * 12)).toFixed(2);
-        break;
-    }
+    if (timeUnit === 'years') {
+      n = n * 12; // Convert years to months
+    } 
 
-    const totalRepaymentAmount = (p + totalInt).toFixed(2);
+    const emiCalc = (p * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
+    const totalPay = emiCalc * n;
+    const totalInt = totalPay - p;
+    const emiYr = emiCalc * 12; // EMI per year
 
+    setEmi(emiCalc.toFixed(2));
+    setTotalPayment(totalPay.toFixed(2));
     setTotalInterest(totalInt.toFixed(2));
-    setInterestPerYear(perYearInt);
-    setInterestPerMonth(perMonthInt);
-    setInterestPerWeek(perWeekInt);
-    setTotalRepayment(totalRepaymentAmount);
+    setEmiPerYear(emiYr.toFixed(2));
   };
 
   const resetFields = () => {
@@ -79,17 +59,15 @@ const InterestCalculator = () => {
     setTime('');
     setTimeUnit('years');
     setRateUnit('annual');
+    setEmi(null);
+    setTotalPayment(null);
     setTotalInterest(null);
-    setInterestPerYear(null);
-    setInterestPerMonth(null);
-    setInterestPerWeek(null);
-    setTotalRepayment(null);
+    setEmiPerYear(null);
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.header}>Interest Calculator</Text>
-
+    <ScrollView style={styles.container}>
+      <Text style={styles.header}>EMI Calculator</Text>
       <View style={styles.inputContainer}>
         <Text style={styles.inputLabel}>Principal Amount</Text>
         <TextInput
@@ -101,7 +79,7 @@ const InterestCalculator = () => {
       </View>
       <View style={styles.rowContainer}>
         <View style={styles.rowItem}>
-          <Text style={styles.inputLabel}>Interest Rate</Text>
+          <Text style={styles.inputLabel}>Interest Rate (%)</Text>
           <TextInput
             style={styles.input}
             keyboardType="numeric"
@@ -110,7 +88,7 @@ const InterestCalculator = () => {
           />
         </View>
         <View style={styles.rowItem}>
-          <Text style={styles.inputLabel}>Interest Rate Tenure</Text>
+          <Text style={styles.inputLabel}>Interest Rate Unit</Text>
           <View style={styles.pickerContainer}>
             <Picker
               selectedValue={rateUnit}
@@ -119,14 +97,13 @@ const InterestCalculator = () => {
             >
               <Picker.Item label="Annual" value="annual" />
               <Picker.Item label="Monthly" value="monthly" />
-              <Picker.Item label="Weekly" value="weekly" />
             </Picker>
           </View>
         </View>
       </View>
       <View style={styles.rowContainer}>
         <View style={styles.rowItem}>
-          <Text style={styles.inputLabel}>Tenure Units </Text>
+          <Text style={styles.inputLabel}>Tenure</Text>
           <TextInput
             style={styles.input}
             keyboardType="numeric"
@@ -135,61 +112,48 @@ const InterestCalculator = () => {
           />
         </View>
         <View style={styles.rowItem}>
-          <Text style={styles.inputLabel}>Select Tenure</Text>
+          <Text style={styles.inputLabel}>Select Tenure Unit</Text>
           <View style={styles.pickerContainer}>
             <Picker
               selectedValue={timeUnit}
               style={styles.picker}
               onValueChange={(itemValue) => setTimeUnit(itemValue)}
             >
-              <Picker.Item label="Annual" value="years" />
+              <Picker.Item label="Years" value="years" />
               <Picker.Item label="Months" value="months" />
-              <Picker.Item label="Weeks" value="weeks" />
             </Picker>
           </View>
         </View>
       </View>
-
-
-
       <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.buttonCalculate} onPress={calculateInterest}>
+        <TouchableOpacity style={styles.buttonCalculate} onPress={calculateEmi}>
           <Text style={styles.buttonText}>Calculate</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.buttonReset} onPress={resetFields}>
           <Text style={styles.buttonText}>Reset</Text>
         </TouchableOpacity>
       </View>
-
-      {totalInterest !== null && (
+      {emi !== null && (
         <View style={styles.resultTable}>
           <View style={[styles.tableRow, styles.tableHeader]}>
             <Text style={styles.tableCellHeader}>Description</Text>
             <Text style={styles.tableCellHeader}>Amount</Text>
           </View>
           <View style={styles.tableRow}>
-            <Text style={styles.tableCell}>Total Interest</Text>
-            <Text style={styles.tableCell}>₹{totalInterest}</Text>
+            <Text style={styles.tableCell}>EMI per Month</Text>
+            <Text style={styles.tableCell}>₹{emi}</Text>
           </View>
-          {interestPerYear !== null && (
-            <View style={styles.tableRow}>
-              <Text style={styles.tableCell}>Interest Per Year</Text>
-              <Text style={styles.tableCell}>₹{interestPerYear}</Text>
-            </View>
-          )}
-          <View style={styles.tableRow}>
-            <Text style={styles.tableCell}>Interest Per Month</Text>
-            <Text style={styles.tableCell}>₹{interestPerMonth}</Text>
-          </View>
-          {interestPerWeek !== null && (
-            <View style={styles.tableRow}>
-              <Text style={styles.tableCell}>Interest Per Week</Text>
-              <Text style={styles.tableCell}>₹{interestPerWeek}</Text>
-            </View>
-          )}
           <View style={styles.tableRow}>
             <Text style={styles.tableCell}>Total Repayment</Text>
-            <Text style={styles.tableCell}>₹{totalRepayment}</Text>
+            <Text style={styles.tableCell}>₹{totalPayment}</Text>
+          </View>
+          <View style={styles.tableRow}>
+            <Text style={styles.tableCell}>EMI per Year</Text>
+            <Text style={styles.tableCell}>₹{emiPerYear}</Text>
+          </View>
+          <View style={styles.tableRow}>
+            <Text style={styles.tableCell}>Total Interest</Text>
+            <Text style={styles.tableCell}>₹{totalInterest}</Text>
           </View>
         </View>
       )}
@@ -237,10 +201,12 @@ const styles = StyleSheet.create({
     marginHorizontal: 5,
   },
   pickerContainer: {
+    height: 45,
     borderColor: '#aaa',
     borderWidth: 1,
     borderRadius: 5,
     backgroundColor: '#fff',
+    justifyContent: 'center',
   },
   picker: {
     height: 45,
@@ -248,55 +214,58 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'space-around',
     marginVertical: 20,
   },
   buttonCalculate: {
-    flex: 1,
     backgroundColor: '#4CAF50',
-    paddingVertical: 15,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
     borderRadius: 5,
-    alignItems: 'center',
   },
   buttonReset: {
-    flex: 1,
-    backgroundColor: '#f44336',
-    paddingVertical: 15,
+    backgroundColor: 'orange',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
     borderRadius: 5,
-    alignItems: 'center',
-    marginLeft: 10,
   },
   buttonText: {
     color: '#fff',
     fontSize: 16,
+    textAlign: 'center',
     fontWeight: 'bold',
+    width: 100,
   },
   resultTable: {
     marginTop: 20,
     borderWidth: 1,
     borderColor: '#ddd',
     borderRadius: 5,
+    overflow: 'hidden',
     backgroundColor: '#fff',
   },
   tableRow: {
     flexDirection: 'row',
-    padding: 10,
     borderBottomWidth: 1,
     borderColor: '#ddd',
+    padding: 10,
   },
   tableHeader: {
-    backgroundColor: '#f4f4f4',
-    borderBottomWidth: 2,
+    backgroundColor: '#f2f2f2',
   },
   tableCellHeader: {
     flex: 1,
     fontWeight: 'bold',
     textAlign: 'center',
+    fontSize: 16,
+    color: '#333',
   },
   tableCell: {
     flex: 1,
     textAlign: 'center',
+    fontSize: 16,
+    color: '#555',
   },
 });
 
-export default InterestCalculator;
+export default EmiCalculator;

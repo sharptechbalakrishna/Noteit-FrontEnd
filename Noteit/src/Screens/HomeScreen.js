@@ -36,6 +36,11 @@ const HomeScreen = ({ navigation }) => {
     navigation.navigate('InterestCalculator');
 
   }
+  const onemiCalculator = () => {
+    console.warn(" Emi Calculator Pressed");
+    navigation.navigate('EmiCalculator');
+
+  }
 
   const { control, handleSubmit, formState: { errors } } = useForm();
   return (
@@ -76,6 +81,11 @@ const HomeScreen = ({ navigation }) => {
               style={styles.boxIcon}
             />
             <Text style={styles.boxText}>Interest Calculator</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.box} onPress={onemiCalculator}>
+           
+            <Text style={styles.boxText}>EMI Calculator</Text>
           </TouchableOpacity>
 
         </View>

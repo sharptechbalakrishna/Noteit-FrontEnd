@@ -1,131 +1,258 @@
-import React from 'react';
-import { View, Text, SafeAreaView, ScrollView, StyleSheet } from 'react-native';
+import React, { useState, useEffect, useContext } from 'react';
+import { View, Text, TextInput, Button, FlatList, StyleSheet } from 'react-native';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import axios from 'axios';
+import { AuthContext } from '../Context/AuthContext';
 
-const LedgerScreen = () => {
+const BASE_URL = 'http://192.168.3.53:8080';
 
-  const ledgerData = [
-    { no: 1, intAmt: '7,500.00', month: 'November', days: 30, intPerDay: '250.00', daysCompleted: 6, actualIntTillDate: '1,500.00', status: 'PAID' },
-    { no: 2, intAmt: '7,500.00', month: 'December', days: 31, intPerDay: '241.94', daysCompleted: 31, actualIntTillDate: '7,500.00', status: 'PAID' },
-    { no: 3, intAmt: '7,500.00', month: 'January', days: 31, intPerDay: '241.94', daysCompleted: 31, actualIntTillDate: '7,500.00', status: 'PAID' },
-    { no: 4, intAmt: '7,500.00', month: 'February', days: 29, intPerDay: '258.62', daysCompleted: 29, actualIntTillDate: '7,500.00', status: 'PAID' },
-    { no: 5, intAmt: '7,500.00', month: 'March', days: 31, intPerDay: '241.94', daysCompleted: 0, actualIntTillDate: '7,500.00', status: 'PAID' },
-    { no: 6, intAmt: '7,500.00', month: 'April', days: 30, intPerDay: '250.00', daysCompleted: 30, actualIntTillDate: '7,500.00', status: 'PAID' },
-    { no: 7, intAmt: '7,500.00', month: 'May', days: 31, intPerDay: '241.94', daysCompleted: 31, actualIntTillDate: '7,500.00', status: 'DUE' },
-    { no: 8, intAmt: '7,500.00', month: 'June', days: 30, intPerDay: '250.00', daysCompleted: 30, actualIntTillDate: '7,500.00', status: 'DUE' },
-    { no: 9, intAmt: '7,500.00', month: 'July', days: 31, intPerDay: '241.94', daysCompleted: 31, actualIntTillDate: '3,870.97', status: 'DUE' },
-    { no: 10, intAmt: '7,500.00', month: 'August', days: 31, intPerDay: '241.94', daysCompleted: 0, actualIntTillDate: '-', status: 'CLOSED' },
-    { no: 11, intAmt: '7,500.00', month: 'September', days: 30, intPerDay: '250.00', daysCompleted: 0, actualIntTillDate: '-', status: 'CLOSED' },
-    { no: 12, intAmt: '7,500.00', month: 'October', days: 31, intPerDay: '241.94', daysCompleted: 0, actualIntTillDate: '-', status: 'CLOSED' },
-  ];
+const ExpenseTracker = () => {
+  const { userInfo } = useContext(AuthContext);
+  const [description, setDescription] = useState('');
+  const [amount, setAmount] = useState('');
+  const [transactions, setTransactions] = useState([]);
+  const [savings, setSavings] = useState(0);
+  const [spentAmount, setSpentAmount] = useState(0);
+  const [income, setIncome] = useState(0);
+
+  useEffect(() => {
+    if (userInfo && userInfo.id) {
+      fetchExpenseTrackerData(userInfo.id);
+    }
+  }, [userInfo]);
+
+  const fetchExpenseTrackerData = async (customerId) => {
+    try {
+      const response = await axios.get(`${BASE_URL}/get-expense-tracker`, {
+        params: { customerId },
+      });
+      console.log('Fetched Expense Tracker Data:', response.data);
+
+      const sortedTransactions = response.data.transactions.sort((a, b) => new Date(b.createdTs) - new Date(a.createdTs));
+
+      setTransactions(sortedTransactions);
+      setSavings(response.data.savings);
+      setSpentAmount(response.data.spentAmount);
+      setIncome(response.data.income);
+    } catch (error) {
+      console.error('Error fetching expense tracker:', error);
+    }
+  };
+
+  const handleAddIncome = async () => {
+    if (description && amount) {
+      console.log('Add Income - Description:', description, 'Amount:', amount);
+      const expenseData = {
+        customerId: userInfo.id,
+        description,
+        income: parseFloat(amount),
+      };
+      try {
+        await axios.post(`${BASE_URL}/update-expense`, expenseData);
+        await fetchExpenseTrackerData(userInfo.id); // Refresh data after adding income
+        setDescription('');
+        setAmount('');
+      } catch (error) {
+        console.error('Error adding income:', error);
+      }
+    }
+  };
+
+  const handleAddExpense = async () => {
+    if (description && amount) {
+      console.log('Add Expense - Description:', description, 'Amount:', amount);
+      const expenseData = {
+        customerId: userInfo.id,
+        description,
+        spentAmount: parseFloat(amount),
+      };
+      try {
+        await axios.post(`${BASE_URL}/update-expense`, expenseData);
+        await fetchExpenseTrackerData(userInfo.id); // Refresh data after adding expense
+        setDescription('');
+        setAmount('');
+      } catch (error) {
+        console.error('Error adding expense:', error);
+      }
+    }
+  };
+
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollView}>
-        <View style={styles.header}>
-          <Text style={styles.headerText}>Hello Shravankumar</Text>
+    <View style={styles.container}>
+      <Text style={styles.title}>Expense Tracker</Text>
+      <View style={styles.summaryContainer}>
+      <View style={styles.summaryCard}>
+          <Text style={styles.summaryTitle}>Balance</Text>
+          <Text style={styles.balanceText}>{`₹${savings.toFixed(2)}`}</Text>
         </View>
-
-        <View style={styles.detailsContainer}>
-          <Text style={styles.detailText}>Borrowed Date: 25-Nov-23</Text>
-          <Text style={styles.detailText}>End Date: 24-Oct-24</Text>
-          <Text style={styles.detailText}>P Amt: 10000</Text>
-          <Text style={styles.detailText}>Int %: 5%</Text>
-          <Text style={styles.detailText}>Borrowed Basis: Pledge</Text>
-          <Text style={styles.detailText}>Period: 12 Months</Text>
-          <Text style={styles.detailText}>Loan/Credit Status: Secured</Text>
-          <Text style={styles.detailText}>Status: Closed</Text>
+        <View style={styles.summaryCard}>
+          <Text style={styles.summaryTitle}>Income</Text>
+          <Text style={styles.incomeText}>{`₹${income.toFixed(2)}`}</Text>
         </View>
+        <View style={styles.summaryCard}>
+          <Text style={styles.summaryTitle}>Expenses</Text>
+          <Text style={styles.expenseText}>{`₹${spentAmount.toFixed(2)}`}</Text>
+        </View>
+       
+      </View>
 
-        <View style={styles.table}>
-          <View style={styles.tableRowHeader}>
-            <Text style={styles.tableHeaderText}>S No.</Text>
-            <Text style={styles.tableHeaderText}>Int Amt</Text>
-            <Text style={styles.tableHeaderText}>Months</Text>
-            <Text style={styles.tableHeaderText}>Days</Text>
-            <Text style={styles.tableHeaderText}>Int per day</Text>
-            <Text style={styles.tableHeaderText}>Days completed</Text>
-            <Text style={styles.tableHeaderText}>Actual Int till date</Text>
-            <Text style={styles.tableHeaderText}>Status</Text>
+      {/* First Row: Description and Add Income Button */}
+      <View style={styles.formRow}>
+        <TextInput
+          style={[styles.input, styles.inputDescription]}
+          placeholder="Description"
+          value={description}
+          onChangeText={setDescription}
+        />
+        <Button title="Income  " onPress={handleAddIncome} color="#4CAF50" />
+      </View>
+
+      {/* Second Row: Amount and Add Expense Button */}
+      <View style={styles.formRow}>
+        <TextInput
+          style={[styles.input, styles.inputAmount]}
+          placeholder="Amount"
+          keyboardType="numeric"
+          value={amount}
+          onChangeText={setAmount}
+        />
+        <Button title="Expense" onPress={handleAddExpense} color="#F44336" />
+      </View>
+
+      <View style={styles.iconsRow}>
+        <Ionicons name="search-outline" size={24} color="black" />
+        <Ionicons name="filter-outline" size={24} color="black" />
+      </View>
+
+      <FlatList
+        data={transactions}
+        keyExtractor={(item) => item.id.toString()}
+        renderItem={({ item }) => (
+          <View style={styles.transactionItem}>
+            <Text style={styles.transactionDescription}>{item.description}</Text>
+            <Text style={item.income ? styles.incomeAmount : styles.expenseAmount}>
+              {item.income ? `₹${item.income.toFixed(2)}` : `₹${item.spentAmount.toFixed(2)}`}
+            </Text>
           </View>
-
-          {ledgerData.map((item, index) => (
-            <View style={styles.tableRow} key={index}>
-              <Text style={styles.tableCell}>{item.no}</Text>
-              <Text style={styles.tableCell}>{item.intAmt}</Text>
-              <Text style={styles.tableCell}>{item.month}</Text>
-              <Text style={styles.tableCell}>{item.days}</Text>
-              <Text style={styles.tableCell}>{item.intPerDay}</Text>
-              <Text style={styles.tableCell}>{item.daysCompleted}</Text>
-              <Text style={styles.tableCell}>{item.actualIntTillDate}</Text>
-              <Text style={styles.tableCell}>{item.status}</Text>
-            </View>
-          ))}
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+        )}
+      />
+    </View>
   );
 };
-
-
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#f0f8ff',
   },
-  scrollView: {
+  title: {
+    fontSize: 23,
+    fontWeight: '700',
     padding: 20,
+    color: 'black',
+    textAlign: 'center',
   },
-  header: {
+  summaryContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 20,
+    marginBottom: 10,
   },
-  headerText: {
+  summaryCard: {
+    flex: 1,
+    marginHorizontal: 5,
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 2,
+    alignItems: 'center',
+  },
+  summaryTitle: {
     fontSize: 18,
-    fontFamily: 'Roboto-Medium',
-    color: 'black',
+    fontWeight: '600',
+    color: '#333',
+    marginTop: 10,
   },
-  detailsContainer: {
-    marginBottom: 20,
-    // flexDirection: 'row',
-    justifyContent: 'space-between',
-    
-  },
-  detailText: {
+  balanceText: {
     fontSize: 16,
-    fontFamily: 'Roboto-Regular',
-    color: 'black',
-    marginBottom: 5,
-
-
+    color: '#333',
+    paddingBottom: 10,
   },
-  table: {
+  incomeText: {
+    fontSize: 16,
+    color: '#4CAF50',
+    paddingBottom: 10,
+  },
+  expenseText: {
+    fontSize: 16,
+    color: '#F44336',
+    paddingBottom: 10,
+  },
+  formRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginHorizontal: 10,
+    marginBottom: 10,
+  },
+  inputDescription: {
+    flex: 1,
+    marginRight: 10,
+  },
+  inputAmount: {
+    flex: 1,
+    marginRight: 10,
+  },
+  input: {
+    height: 40,
+    borderColor: 'black',
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    backgroundColor: '#fff',
+    fontSize: 15,
   },
-  tableRowHeader: {
+  iconsRow: {
     flexDirection: 'row',
-    backgroundColor: '#f1f1f1',
+    justifyContent: 'space-between',
+    marginHorizontal: 10,
+    marginBottom: 20,
+    backgroundColor: "white",
+    borderRadius: 5,
+    borderWidth: 1,
     padding: 10,
   },
-  tableHeaderText: {
-    flex: 1,
-    fontFamily: 'Roboto-Bold',
-    color: 'black',
-    fontSize: 14,
-  },
-  tableRow: {
+  transactionItem: {
     flexDirection: 'row',
-    padding: 10,
-    borderBottomWidth: 1,
+    justifyContent: 'space-between',
+    paddingVertical: 15,
+    paddingHorizontal: 10,
     borderBottomColor: '#ddd',
+    borderBottomWidth: 1,
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    marginHorizontal: 10,
+    marginBottom: 10,
+    elevation: 2,
   },
-  tableCell: {
+  transactionDescription: {
+    fontSize: 16,
+    color: '#333',
     flex: 1,
-    fontFamily: 'Roboto-Regular',
-    color: 'black',
-    fontSize: 14,
+  },
+  incomeAmount: {
+    fontSize: 16,
+    color: '#4CAF50',
+    fontWeight: 'bold',
+    textAlign: 'right',
+  },
+  expenseAmount: {
+    fontSize: 16,
+    color: '#F44336',
+    fontWeight: 'bold',
+    textAlign: 'right',
   },
 });
 
-export default LedgerScreen;
+export default ExpenseTracker;
