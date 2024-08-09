@@ -1,136 +1,185 @@
-import { StyleSheet, Text, View, ScrollView } from 'react-native'
-import React, { useContext } from 'react'
+import { StyleSheet, Text, View, ScrollView, SafeAreaView, TouchableOpacity } from 'react-native'
+import React, { useState, useContext, useCallback } from 'react'
 import { Avatar, Title, Caption, TouchableRipple, } from 'react-native-paper';
 import Ionicons from 'react-native-vector-icons/Ionicons'; // Correct import statement
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'; // Correct import statement
 import { AuthContext } from '../Context/AuthContext';
+import ImagePicker from 'react-native-image-crop-picker';
+import UserService from '../UserService/UserService';
+import { useFocusEffect } from '@react-navigation/native';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
+import ProfileUpdateScreen from './ProfileUpdateScreen';
 
-const ProfileScreen = () => {
+
+const ProfileScreen = ({ navigation }) => {
 
 
     const { userInfo } = useContext(AuthContext);
+    const [customer, setCustomer] = useState(null);
 
     const onPressFavorites = () => {
         console.warn("FavoratePressed");
     }
+    //
+    const customerData = async () => {
+        try {
+
+            const response = await UserService.customerData(userInfo.id);
+            setCustomer(response);
+            console.log(response.id);
+            // console.log("Response Data in ProfileScreen:", response.firstName);
+        } catch (error) {
+            console.error("ProfileScreen:", error);
+        }
+    };
+
+    useFocusEffect(
+        useCallback(() => {
+            customerData();
+        }, [])
+    );
+
+    // useEffect(() => {
+    //     customerData();
+    // }, []);
     return (
-        <ScrollView style={styles.container}>
-           
-            <View style={styles.userInfoSection}>
-            {/* <View style={{flexDirection: "row" ,  justifyContent: 'space-between', padding: 10,}}><Text>1</Text><Text>1</Text></View> */}
-                <View style={{ flexDirection: 'row', marginTop: 15 }}>
-                    <Avatar.Image
-                        source={{
-                            uri: 'https://api.adorable.io/avatars/80/abott@adorable.png',
-                        }}
-                        size={80}
+        <SafeAreaView style={{ flex: 1 }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', padding: 15 }} >
+                <TouchableOpacity onPress={() => navigation.openDrawer()}>
+                    <Icon
+                        name="menu"
+                        size={25}
+                        color="#000"
                     />
-                    <View style={{ marginLeft: 20 }}>
-                        <Title style={[styles.title, {
-                            marginTop: 15,
-                            marginBottom: 0,
+                </TouchableOpacity>
 
-                        }]}>{userInfo.name}</Title>
-                        <Caption style={styles.Caption}>{userInfo.id}</Caption>
-                    </View>
-                </View>
+                <TouchableOpacity onPress={() => navigation.navigate('ProfileUpdateScreen', { customerData: customer })}>
+                    <Icon
+                        name="account-edit-outline"
+                        size={29}
+                        color="#000"
+                    />
+                </TouchableOpacity>
             </View>
-            <View style={styles.userInfoSection}>
-                <View style={styles.row}>
-                    <Icon name="map-marker-radius" size={20} color='#777777' />
-                    <Text style={{ color: 'green', marginLeft: 10, fontWeight: 'bold' }}>Banglore, India</Text>
+
+            <ScrollView style={styles.container}>
+
+                <View style={styles.userInfoSection}>
+                    {/* <View style={{flexDirection: "row" ,  justifyContent: 'space-between', padding: 10,}}><Text>1</Text><Text>1</Text></View> */}
+                    <View style={{ flexDirection: 'row', marginTop: 15 }}>
+                        <Avatar.Image
+                            source={{
+                                uri: 'https://i.ibb.co/N2zmVHw/IMG-20221223-122434.jpg',
+                            }}
+                            size={80}
+                        />
+                        <View style={{ marginLeft: 20 }}>
+                            <Title style={[styles.title, {
+                                marginTop: 15,
+                                marginBottom: 0,
+
+                            }]}>{customer ? customer.firstName : null}</Title>
+                            <Caption style={styles.Caption}>{customer ? customer.userName : null}</Caption>
+                        </View>
+                    </View>
                 </View>
-                <View style={styles.row}>
-                    <Ionicons name="phone-portrait-outline" size={20} color='#777777' />
-                    <Text style={{ color: 'green', marginLeft: 10, fontWeight: 'bold' }}>{userInfo.phone}</Text>
+                <View style={styles.userInfoSection}>
+                    <View style={styles.row}>
+                        <Icon name="map-marker-radius" size={20} color='#777777' />
+                        <Text style={{ color: 'green', marginLeft: 10, fontWeight: 'bold' }}>Banglore, India</Text>
+                    </View>
+                    <View style={styles.row}>
+                        <Ionicons name="phone-portrait-outline" size={20} color='#777777' />
+                        <Text style={{ color: 'green', marginLeft: 10, fontWeight: 'bold' }}>{customer ? customer.phone : null}</Text>
+                    </View>
+                    <View style={styles.row}>
+                        <Icon name="email" size={20} color='#777777' />
+                        <Text style={{ color: 'green', marginLeft: 10, fontWeight: 'bold' }}> {customer ? customer.email : null}</Text>
+                    </View>
                 </View>
-                <View style={styles.row}>
-                    <Icon name="email" size={20} color='#777777' />
-                    <Text style={{ color: 'green', marginLeft: 10, fontWeight: 'bold' }}>{userInfo.email}</Text>
+                <View style={styles.amountBoxWrapper}>
+                    <View style={[styles.amountBox, {
+                        borderRightColor: "#dddddd",
+                        borderRightWidth: 1,
+                    }]}>
+                        <Title >$ 2454</Title>
+                        <Caption>Credit Amount</Caption>
+                    </View>
+                    <View style={styles.amountBox}>
+                        <Title>$ 5454</Title>
+                        <Caption>Debit Amount</Caption>
+                    </View>
+
                 </View>
-            </View>
-            <View style={styles.amountBoxWrapper}>
-                <View style={[styles.amountBox, {
-                    borderRightColor: "#dddddd",
-                    borderRightWidth: 1,
-                }]}>
-                    <Title >$ 2454</Title>
-                    <Caption>Credit Amount</Caption>
+                <View style={styles.menuWrapper}>
+                    <TouchableRipple onPress={onPressFavorites}>
+                        <View style={styles.menueItem}>
+
+                            <Icon name="heart-outline" color="#FF6347" size={25} />
+                            <Text style={styles.menuItemText}>Your Favorites </Text>
+
+                        </View>
+                    </TouchableRipple>
+                    <TouchableRipple onPress={onPressFavorites}>
+                        <View style={styles.menueItem}>
+
+                            <Icon name="credit-card" color="#FF6347" size={25} />
+                            <Text style={styles.menuItemText}>Payment </Text>
+
+                        </View>
+                    </TouchableRipple>
+                    <TouchableRipple onPress={onPressFavorites}>
+                        <View style={styles.menueItem}>
+
+                            <Icon name="share-outline" color="#FF6347" size={25} />
+                            <Text style={styles.menuItemText}>Tell Your Friends</Text>
+
+                        </View>
+                    </TouchableRipple>
+                    <TouchableRipple onPress={onPressFavorites}>
+                        <View style={styles.menueItem}>
+
+                            <Icon name="account-check-outline" color="#FF6347" size={25} />
+                            <Text style={styles.menuItemText}>Support </Text>
+
+                        </View>
+                    </TouchableRipple>
+                    <TouchableRipple onPress={onPressFavorites}>
+                        <View style={styles.menueItem}>
+
+                            <Ionicons name="settings-outline" color="#FF6347" size={25} />
+                            <Text style={styles.menuItemText}>Setting </Text>
+
+                        </View>
+                    </TouchableRipple>
+                    <TouchableRipple onPress={onPressFavorites}>
+                        <View style={styles.menueItem}>
+
+                            <Ionicons name="settings-outline" color="#FF6347" size={25} />
+                            <Text style={styles.menuItemText}>Setting </Text>
+
+                        </View>
+                    </TouchableRipple>
+                    <TouchableRipple onPress={onPressFavorites}>
+                        <View style={styles.menueItem}>
+
+                            <Ionicons name="settings-outline" color="#FF6347" size={25} />
+                            <Text style={styles.menuItemText}>Setting </Text>
+
+                        </View>
+                    </TouchableRipple>
+                    <TouchableRipple onPress={onPressFavorites}>
+                        <View style={styles.menueItem}>
+
+                            <Ionicons name="settings-outline" color="#FF6347" size={25} />
+                            <Text style={styles.menuItemText}>Setting </Text>
+
+                        </View>
+                    </TouchableRipple>
+
                 </View>
-                <View style={styles.amountBox}>
-                    <Title>$ 5454</Title>
-                    <Caption>Debit Amount</Caption>
-                </View>
-
-            </View>
-            <View style={styles.menuWrapper}>
-                <TouchableRipple onPress={onPressFavorites}>
-                    <View style={styles.menueItem}>
-
-                        <Icon name="heart-outline" color="#FF6347" size={25} />
-                        <Text style={styles.menuItemText}>Your Favorites </Text>
-
-                    </View>
-                </TouchableRipple>
-                <TouchableRipple onPress={onPressFavorites}>
-                    <View style={styles.menueItem}>
-
-                        <Icon name="credit-card" color="#FF6347" size={25} />
-                        <Text style={styles.menuItemText}>Payment </Text>
-
-                    </View>
-                </TouchableRipple>
-                <TouchableRipple onPress={onPressFavorites}>
-                    <View style={styles.menueItem}>
-
-                        <Icon name="share-outline" color="#FF6347" size={25} />
-                        <Text style={styles.menuItemText}>Tell Your Friends</Text>
-
-                    </View>
-                </TouchableRipple>
-                <TouchableRipple onPress={onPressFavorites}>
-                    <View style={styles.menueItem}>
-
-                        <Icon name="account-check-outline" color="#FF6347" size={25} />
-                        <Text style={styles.menuItemText}>Support </Text>
-
-                    </View>
-                </TouchableRipple>
-                <TouchableRipple onPress={onPressFavorites}>
-                    <View style={styles.menueItem}>
-
-                        <Ionicons name="settings-outline" color="#FF6347" size={25} />
-                        <Text style={styles.menuItemText}>Setting </Text>
-
-                    </View>
-                </TouchableRipple>
-                <TouchableRipple onPress={onPressFavorites}>
-                    <View style={styles.menueItem}>
-
-                        <Ionicons name="settings-outline" color="#FF6347" size={25} />
-                        <Text style={styles.menuItemText}>Setting </Text>
-
-                    </View>
-                </TouchableRipple>
-                <TouchableRipple onPress={onPressFavorites}>
-                    <View style={styles.menueItem}>
-
-                        <Ionicons name="settings-outline" color="#FF6347" size={25} />
-                        <Text style={styles.menuItemText}>Setting </Text>
-
-                    </View>
-                </TouchableRipple>
-                <TouchableRipple onPress={onPressFavorites}>
-                    <View style={styles.menueItem}>
-
-                        <Ionicons name="settings-outline" color="#FF6347" size={25} />
-                        <Text style={styles.menuItemText}>Setting </Text>
-
-                    </View>
-                </TouchableRipple>
-
-            </View>
-        </ScrollView>
+            </ScrollView>
+        </SafeAreaView>
     )
 }
 
@@ -140,7 +189,7 @@ const styles = StyleSheet.create({
 
     container: {
         flex: 1,
-        // marginBottom: 25,
+        //    backgroundColor: '#fff' 
 
     },
     userInfoSection: {

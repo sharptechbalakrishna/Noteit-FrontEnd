@@ -44,21 +44,44 @@ const TabNavigator = () => {
             }}>
             <Tab.Screen name='HomeStack' component={HomeScreen}
                 options={{
+                    headerShown: false,
                     tabBarIcon: ({ color, size }) => (
                         <IconIcons name="home-outline" color={color} size={size} />
                     ),
                 }} />
             <Tab.Screen name='Setting' component={SettingScreen}
                 options={{
+                    headerShown: false,
                     tabBarIcon: ({ color, size }) => (
                         <IconIcons name='settings-outline' color={color} size={size} />
                     ),
                 }} />
             <Tab.Screen name='Profile' component={ProfileScreen}
                 options={{
+                    headerTitle: false,
+
+                    // headerLeft: () => (
+                    //     <Icon.Button
+                    //         name="menu"
+                    //         size={25}
+                    //         backgroundColor="#fff"
+                    //         color="grey"
+                    //         onPress={() => navigation.openDrawer()} />
+                    // ),
+                    // headerRight: () => (
+
+                    //     <MaterialCommunityIcons.Button
+                    //         name="account-edit-outline"
+                    //         size={29}
+                    //         backgroundColor="#fff"
+                    //         color="#000"
+                    //         onPress={() => navigation.navigate('ProfileUpdateScreen')} />
+
+                    // ),
                     tabBarIcon: ({ color, size }) => (
                         <IconIcons name="person-outline" color={color} size={size} />
                     ),
+
                 }}
             />
         </Tab.Navigator>
