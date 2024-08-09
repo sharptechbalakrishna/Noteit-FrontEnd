@@ -29,7 +29,7 @@ export default function SettinScreen() {
             <Image
               alt=""
               source={{
-                uri: 'https://images.unsplash.com/photo-1633332755192-727a05c4013d?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=facearea&facepad=2.5&w=256&h=256&q=80',
+                uri: 'https://i.ibb.co/N2zmVHw/IMG-20221223-122434.jpg'
               }}
               style={styles.profileAvatar} />
 
@@ -45,10 +45,10 @@ export default function SettinScreen() {
         </TouchableOpacity>
 
         <View>
-          <Text style={styles.profileName}>John Doe</Text>
+          <Text style={styles.profileName}>Shravankumar</Text>
 
           <Text style={styles.profileAddress}>
-            123 Maple Street. Anytown, PA 17101
+            BTM 2nd Stage Bengaluru - 560076
           </Text>
         </View>
       </View>
