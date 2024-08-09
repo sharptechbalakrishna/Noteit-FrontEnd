@@ -10,6 +10,7 @@ import ExpenseTracker from '../Screens/ExpenseTracker';
 import SelfNotes from '../Screens/SelfNotes';
 import EmiCalculator from '../Screens/EmiCalculator';
 import UpdateExpenseScreen from '../Screens/UpdateExpenseScreen';
+import ProfileUpdateScreen from '../Screens/ProfileUpdateScreen';
 
 const StackNavigation = () => {
     const Stack = createStackNavigator();
@@ -29,6 +30,8 @@ const StackNavigation = () => {
             <Stack.Screen name="SelfNotes" component={SelfNotes} />
             <Stack.Screen name="EmiCalculator" component={EmiCalculator} />
             <Stack.Screen name="UpdateExpenseScreen" component={UpdateExpenseScreen} />
+            <Stack.Screen name="ProfileUpdateScreen" component={ProfileUpdateScreen} />
+
         </Stack.Navigator>
     )
 }
