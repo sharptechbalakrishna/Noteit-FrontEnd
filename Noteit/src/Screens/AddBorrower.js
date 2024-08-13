@@ -73,6 +73,8 @@ const AddBorrower = ({ visible, onClose, addBorrower }) => {
             }
 
             const data = await response.json();
+            console.log('Borrower successfully added:', data);
+
             addBorrower(borrowerData);
             handleClear();
             onClose();
@@ -96,6 +98,9 @@ const AddBorrower = ({ visible, onClose, addBorrower }) => {
         setEndDate(null);
     };
 
+    // const email_validation = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
+
+
     return (
         <Modal
             transparent={true}
@@ -112,13 +117,19 @@ const AddBorrower = ({ visible, onClose, addBorrower }) => {
                             placeholder="Borrower Name"
                             value={borrowerName}
                             onChangeText={setBorrowerName}
+                            rules={{ required: 'Borrower name required' }}
+
                         />
                         <TextInput
                             style={styles.input}
                             placeholder="Phone Number"
-                            keyboardType="phone-pad"
+                            keyboardType='numeric'
                             value={phoneNumber}
                             onChangeText={setPhoneNumber}
+                            rules={{
+                                required: 'Phone Number Required',
+                                minLength: { value: 10, message: 'Phone Number Exactly 10 Digits' },
+                            }}
                         />
                         <TextInput
                             style={styles.input}
@@ -126,6 +137,7 @@ const AddBorrower = ({ visible, onClose, addBorrower }) => {
                             keyboardType="email-address"
                             value={email}
                             onChangeText={setEmail}
+                        // rules={{ required: 'Email required', pattern: { value: Email_Pattern, message: 'Email is Invalid' } }}
                         />
                         <TextInput
                             style={styles.input}
@@ -133,6 +145,8 @@ const AddBorrower = ({ visible, onClose, addBorrower }) => {
                             keyboardType="numeric"
                             value={principalAmount}
                             onChangeText={setPrincipalAmount}
+                            rules={{ required: 'Principal amount required' }}
+
                         />
                         <TextInput
                             style={styles.input}
@@ -140,6 +154,7 @@ const AddBorrower = ({ visible, onClose, addBorrower }) => {
                             keyboardType="numeric"
                             value={interestRate}
                             onChangeText={setInterestRate}
+                            rules={{ required: 'Interest Rate required' }}
                         />
 
                         <TouchableOpacity style={styles.input} onPress={() => setShowBorrowedDatePicker(true)}>

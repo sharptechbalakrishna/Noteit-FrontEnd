@@ -12,7 +12,8 @@ import SettingScreen from '../Screens/SettingScreen';
 import CustomDrawer from '../Components/CustomDrawer';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import TabNavigator from './TabNavigator';
-
+import ExpenseTracker from '../Screens/ExpenseTracker';
+import SplashScreenComponent from '../Screens/SplashScreenComponent';
 import HomeScreen from '../Screens/HomeScreen';
 
 const Stack = createStackNavigator();
@@ -78,6 +79,22 @@ const Navigation = () => {
                 }}
             />
             <Drawer.Screen name="SettingScreen" component={SettingScreen}
+                options={{
+                    drawerIcon: ({ color }) => (
+                        <Ionicons name="settings-outline" size={22} color={color} />
+
+                    ),
+                }}
+            />
+             <Drawer.Screen name="ExpenseTracker" component={ExpenseTracker}
+                options={{
+                    drawerIcon: ({ color }) => (
+                        <Ionicons name="settings-outline" size={22} color={color} />
+
+                    ),
+                }}
+            />
+                 <Drawer.Screen name="SplashScreenComponent" component={SplashScreenComponent}
                 options={{
                     drawerIcon: ({ color }) => (
                         <Ionicons name="settings-outline" size={22} color={color} />
