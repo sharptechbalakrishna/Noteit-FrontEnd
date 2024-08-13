@@ -12,7 +12,7 @@ import { TextInput } from 'react-native-gesture-handler';
 import axios from 'axios';
 import { AuthContext } from '../Context/AuthContext';
 import CustomFlashMessage from '../Components/CustomFlashMessage';
-
+import UserService from '../UserService/UserService';
 
 const SignInScreen = () => {
 

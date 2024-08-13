@@ -1,6 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import React, { createContext, useEffect, useState } from "react";
+import UserService from "../UserService/UserService";
 
 
 export const AuthContext = createContext();
@@ -14,16 +15,10 @@ export const AuthProvider = ({ children }) => {
     const login = async (data) => {
         setIsLoading(true);
         const { phoneNumber, password } = data;
-        const url = `http://192.168.3.53:8080/login`;
 
         try {
-            const response = await axios.get(url, {
-                params: {
-                    phone: phoneNumber,
-                    password: password
-                }
-            });
-            let userInfo = response.data;
+            const response = await UserService.login(phoneNumber, password)
+            let userInfo = response;
             setUserInfo(userInfo);
             setUserToken(userInfo.id);
 
@@ -37,7 +32,7 @@ export const AuthProvider = ({ children }) => {
 
         } catch (error) {
             throw error;
-        }finally{
+        } finally {
             setIsLoading(false);
         }
 

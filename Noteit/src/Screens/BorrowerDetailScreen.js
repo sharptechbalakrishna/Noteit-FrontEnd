@@ -1,13 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity } from 'react-native';
+import { Avatar, Title, Caption, TouchableRipple, } from 'react-native-paper';
 import AddEntryModal from './AddEntryModal';
 import UserService from '../UserService/UserService';
 import BorrowerDetailView from './BorrowerDetailView';
 import FlashMessage, { showMessage } from 'react-native-flash-message';
 import CustomFlashMessage from '../Components/CustomFlashMessage';
+import Icon from 'react-native-vector-icons/Ionicons';
+import { Image } from 'react-native-elements';
+import { useNavigation } from '@react-navigation/native';
 
 const BorrowerDetailScreen = ({ route }) => {
+  const navigation = useNavigation();
   const { barrowerData } = route.params;
+  const [name] = barrowerData.borrowerName;
+  const [imageUrl] = useState(null);
 
   const [ledgerData, setLedgerData] = useState([]);
   const [ledgerId, setledgerId] = useState(null);
@@ -52,7 +59,7 @@ const BorrowerDetailScreen = ({ route }) => {
       await UserService.addEntry(newEntry);
       fetchLedgerData();
       CustomFlashMessage('success', 'Success', 'Entry added successfully!');
-      
+
     } catch (err) {
       CustomFlashMessage('error', 'Error', 'Failed to add entry.');
       console.error('Error adding new entry:', err);
@@ -63,6 +70,31 @@ const BorrowerDetailScreen = ({ route }) => {
 
   return (
     <SafeAreaView style={styles.container}>
+
+      <View style={styles.headerContainer}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Icon name="arrow-back" size={24} color="#fff" />
+        </TouchableOpacity>
+        <View style={styles.profileContainer}>
+          {imageUrl ? (
+            <Image source={{ uri: imageUrl }} style={styles.profileImage} />
+          ) : (
+            <View style={styles.initialsContainer}>
+              <Text style={styles.initialsText}>{name}</Text>
+            </View>
+          )}
+          <View style={styles.profileTextContainer}>
+            <Text style={styles.nameText}>{barrowerData.borrowerName}</Text>
+            {/* <View style={styles.customerBadge}>
+            <Text style={styles.customerBadgeText}>Customer</Text>
+          </View> */}
+            <Text style={styles.viewSettingsText}>Click here for more info</Text>
+          </View>
+        </View>
+        <TouchableOpacity>
+          <Icon name="call" size={24} color="#fff" />
+        </TouchableOpacity>
+      </View>
       <View style={styles.innerContainer}>
         <BorrowerDetailView
           barrowerData={barrowerData}
@@ -114,12 +146,62 @@ const styles = StyleSheet.create({
     shadowRadius: 5,
     elevation: 5,
   },
-  buttonText: {
+  headerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#1976D2', // Blue background
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+  },
+  profileContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginLeft: 10,
+  },
+  profileImage: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+  },
+  initialsContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#64B5F6', // Blue gradient color
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  initialsText: {
     color: '#fff',
     fontSize: 16,
-    fontFamily: 'Roboto-Bold',
-    textAlign: 'center',
+    fontWeight: 'bold',
   },
+  profileTextContainer: {
+    marginLeft: 10,
+  },
+  nameText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  customerBadge: {
+    backgroundColor: '#1E88E5', // Lighter blue for the badge
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 10,
+    marginTop: 2,
+  },
+  customerBadgeText: {
+    color: '#fff',
+    fontSize: 12,
+  },
+  viewSettingsText: {
+    color: '#BBDEFB', // Light blue text color
+    fontSize: 12,
+    marginTop: 2,
+  },
+
 });
 
 export default BorrowerDetailScreen;

@@ -10,6 +10,8 @@ import {
   Image,
 } from 'react-native';
 import FeatherIcon from 'react-native-vector-icons/Feather';
+import AntDesign from 'react-native-vector-icons/MaterialCommunityIcons';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 export default function SettinScreen() {
   const [form, setForm] = useState({
@@ -96,13 +98,13 @@ export default function SettinScreen() {
             }}
             style={styles.row}>
             <View style={[styles.rowIcon, { backgroundColor: '#32c759' }]}>
-              <FeatherIcon
+              <Icon
                 color="#fff"
-                name="navigation"
+                name="password"
                 size={20} />
             </View>
 
-            <Text style={styles.rowLabel}>Location</Text>
+            <Text style={styles.rowLabel}>Change Password</Text>
 
             <View style={styles.rowSpacer} />
 
@@ -147,6 +149,7 @@ export default function SettinScreen() {
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Resources</Text>
+
 
           <TouchableOpacity
             onPress={() => {
@@ -196,6 +199,27 @@ export default function SettinScreen() {
             </View>
 
             <Text style={styles.rowLabel}>Rate in App Store</Text>
+
+            <View style={styles.rowSpacer} />
+
+            <FeatherIcon
+              color="#C6C6C6"
+              name="chevron-right"
+              size={20} />
+          </TouchableOpacity>
+
+          <Text style={styles.sectionTitle}>Account</Text>
+          <TouchableOpacity
+
+            onPress={() => {
+              // handle onPress
+            }}
+            style={styles.row}>
+            <View style={[styles.rowIcon, { backgroundColor: 'crimson' }]}>
+              <AntDesign color="#fff" name="delete" size={20} />
+            </View>
+
+            <Text style={styles.rowLabel}>Delete Account</Text>
 
             <View style={styles.rowSpacer} />
 

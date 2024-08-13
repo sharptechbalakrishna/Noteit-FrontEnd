@@ -4,9 +4,26 @@ import { AuthContext } from '../Context/AuthContext';
 class UserService {
 
 
-    static BASE_URL = 'http://192.168.3.53:8080';
+    static BASE_URL = 'http://192.168.3.60:8080';
 
 
+    // Sign Up for user with Mobile Number and password
+    static async login(phoneNumber, password) {
+        try {
+            console.log("In US :", phoneNumber, password)
+            const response = await axios.get(`${UserService.BASE_URL}/login`, {
+                params: {
+                    phone: phoneNumber,
+                    password: password
+                }
+            })
+            // console.log(response.data);
+             console.log("In US :", phoneNumber, password)
+            return response.data;
+        } catch (err) {
+            throw err;
+        }
+    }
     // Register for the new Person and Update by Passing the User iD
     static async register(register) {
         try {
