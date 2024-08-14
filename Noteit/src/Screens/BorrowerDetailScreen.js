@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, Linking } from 'react-native';
 import { Avatar, Title, Caption, TouchableRipple, } from 'react-native-paper';
 import AddEntryModal from './AddEntryModal';
 import UserService from '../UserService/UserService';
@@ -9,19 +9,30 @@ import CustomFlashMessage from '../Components/CustomFlashMessage';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { Image } from 'react-native-elements';
 import { useNavigation } from '@react-navigation/native';
+import { color } from 'react-native-elements/dist/helpers';
+import EditEntryModel from '../Components/EditEntryModel';
 
 const BorrowerDetailScreen = ({ route }) => {
+
   const navigation = useNavigation();
   const { barrowerData } = route.params;
-  const [name] = barrowerData.borrowerName;
+  const [name] = barrowerData.borrowerName.toUpperCase();
   const [imageUrl] = useState(null);
-
   const [ledgerData, setLedgerData] = useState([]);
   const [ledgerId, setledgerId] = useState(null);
   const [loading, setLoading] = useState(false);
-
   const reversedLedgerData = [...ledgerData].reverse();
+  const [modalVisible, setModalVisible] = useState(false);
+  const [editModula, setEditModula] = useState(false);
+  const [selectedTab, setSelectedTab] = useState('card');
 
+  // Load the Ledger data 
+  useEffect(() => {
+    fetchLedgerData();
+  }, []);
+
+
+  // Ledger Data will be Loaded
   const fetchLedgerData = async () => {
     try {
       const data = await UserService.ledgerData(barrowerData.id);
@@ -31,26 +42,8 @@ const BorrowerDetailScreen = ({ route }) => {
     }
   };
 
-  useEffect(() => {
-    fetchLedgerData();
-  }, []);
 
-  useEffect(() => {
-    if (ledgerData.length > 0) {
-      const reversedLedgerData = [...ledgerData].reverse();
-      setledgerId(reversedLedgerData[0].id);
-    }
-  }, [ledgerData]);
-
-  useEffect(() => {
-    if (ledgerId !== null) {
-      console.log('ID of the last entry:', ledgerId);
-    }
-  }, [ledgerId]);
-
-  const [modalVisible, setModalVisible] = useState(false);
-  const [selectedTab, setSelectedTab] = useState('card');
-
+  // adding the new Entry and Call the ledgerData Api
   const handleAddEntry = async (newEntry) => {
     console.log('New Entry:', newEntry);
     setLoading(true);
@@ -67,6 +60,78 @@ const BorrowerDetailScreen = ({ route }) => {
       setLoading(false);
     }
   };
+  // adding the new Entry and Call the ledgerData Api
+  const edithandleAddEntry = async (newEntry) => {
+    console.log('New Entry:', newEntry);
+    setLoading(true);
+    try {
+      setEditModula(false);
+
+      // await UserService.addEntry(newEntry);
+      fetchLedgerData();
+      CustomFlashMessage('success', 'Success', 'Entry added successfully!');
+
+    } catch (err) {
+      CustomFlashMessage('error', 'Error', 'Failed to add entry.');
+      console.error('Error adding new entry:', err);
+    } finally {
+      setLoading(false);
+    }
+
+  };
+
+  // Reversing the Ledger data to display the latest entery
+  useEffect(() => {
+    if (ledgerData.length > 0) {
+      const reversedLedgerData = [...ledgerData].reverse();
+      setledgerId(reversedLedgerData[0].id);
+    }
+  }, [ledgerData]);
+
+
+  useEffect(() => {
+    if (ledgerId !== null) {
+      console.log('ID of the last entry:', ledgerId);
+    }
+  }, [ledgerId]);
+
+  // Function to handle the phone call
+  const handleCallPress = () => {
+    console.warn("Phone Pressend");
+  };
+
+
+
+  // Editing the Latest Entry
+  const handleEdit = async () => {
+    setEditModula(true);
+
+
+  }
+
+
+  // Deleteing the Latest Entry
+  const handleDelete = async (latestledgerID) => {
+
+    try {
+      console.warn('Delete Pressed', latestledgerID);
+      // const response = await UserService.deleteLedger(latestledgerID);
+      CustomFlashMessage('success', 'Success', 'Sucessfully Edited Data!');
+      fetchLedgerData();
+
+    } catch (error) {
+      console.log("Error", err);
+      CustomFlashMessage('error', 'Error', 'Failed to add entry.');
+
+    } finally {
+      console.log('delete')
+   
+
+    }
+
+  }
+
+
 
   return (
     <SafeAreaView style={styles.container}>
@@ -83,26 +148,27 @@ const BorrowerDetailScreen = ({ route }) => {
               <Text style={styles.initialsText}>{name}</Text>
             </View>
           )}
-          <View style={styles.profileTextContainer}>
-            <Text style={styles.nameText}>{barrowerData.borrowerName}</Text>
-            {/* <View style={styles.customerBadge}>
-            <Text style={styles.customerBadgeText}>Customer</Text>
-          </View> */}
-            <Text style={styles.viewSettingsText}>Click here for more info</Text>
-          </View>
+          <TouchableOpacity onPress={() => navigation.navigate('BarrowerProfileScreen', { barrowerData: barrowerData })}  >
+            <View style={styles.profileTextContainer}>
+              <Text style={styles.nameText}>{barrowerData.borrowerName}</Text>
+              <Text style={styles.viewSettingsText}>Click here for more info</Text>
+            </View>
+          </TouchableOpacity>
         </View>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={handleCallPress}>
           <Icon name="call" size={24} color="#fff" />
         </TouchableOpacity>
       </View>
       <View style={styles.innerContainer}>
         <BorrowerDetailView
-          barrowerData={barrowerData}
           selectedTab={selectedTab}
           setSelectedTab={setSelectedTab}
           reversedLedgerData={reversedLedgerData}
           ledgerData={ledgerData}
           setModalVisible={setModalVisible}
+          onhandleEdit={handleEdit}
+          onhandleDelete={handleDelete}
+          latestledgerID={ledgerId}
         />
 
         <AddEntryModal
@@ -113,8 +179,16 @@ const BorrowerDetailScreen = ({ route }) => {
           ledgerId={ledgerId}
           loading={loading}
         />
+        <EditEntryModel
+          visible={editModula}
+          onClose={() => setEditModula(false)}
+          onEditHandleAddEntry={edithandleAddEntry}
+          borrowerName={barrowerData.borrowerName}
+          ledgerId={ledgerId}
+          loading={loading}
+        />
       </View>
-      {!modalVisible && (
+      {(!modalVisible && !editModula) && (
         <TouchableOpacity style={styles.floatingButton} onPress={() => setModalVisible(true)}>
           <Text style={styles.buttonText}>Entry Interest</Text>
         </TouchableOpacity>
