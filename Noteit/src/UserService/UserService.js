@@ -4,7 +4,7 @@ import { AuthContext } from '../Context/AuthContext';
 class UserService {
 
 
-    static BASE_URL = 'http://192.168.3.60:8080';
+    static BASE_URL = 'http://192.168.3.53:8080';
 
 
     // Sign Up for user with Mobile Number and password
@@ -18,7 +18,7 @@ class UserService {
                 }
             })
             // console.log(response.data);
-             console.log("In US :", phoneNumber, password)
+            console.log("In US :", phoneNumber, password)
             return response.data;
         } catch (err) {
             throw err;
@@ -73,6 +73,7 @@ class UserService {
         }
     }
 
+    /*------------------expense tracker----------------------*/
 
     // Fetching Expense Tracker Data
     static async fetchExpenseTrackerData(customerId) {
@@ -95,9 +96,91 @@ class UserService {
             throw err;
         }
     }
+    /*------------------Borrower screen----------------------*/
+
+    // Adding borrower details 
+    // static async borrowerdetails(customerId, borrowerData) {
+    //     try {
+    //         console.log('customerId checking:', customerId);
+    //         console.log('customerId borrowerData:', borrowerData);
+    //         const response = await axios.fetch(`http://192.168.3.53:8080/${customerId}/borrowers`,
+    //             {
+    //                 method: 'POST',
+    //                 headers: {
+    //                     'Content-Type': 'application/json',
+    //                 },
+    //                 body: JSON.stringify(borrowerData),
+    //             });
+    //         return response;
+    //     }
+    //     catch (err) {
+    //         throw err;
+
+    //     }
+    // }
 
 
+    // displaying details in BorowerScreen
+    static async displayBorrowers(customerId) {
+        try {
+            console.log('displayBorrowersa :', customerId); //While Deploying need to Commit this line
+            const response = await axios.get(`${UserService.BASE_URL}/${customerId}/borrowers`);
+            return response.data; // Returning data directly
+        } catch (err) {
+            throw err;
+        }
+    }
+
+    /*------------------Self Notes----------------------*/
+
+
+    //displaySelfNotes
+    static async displaySelfNotes(customerId) {
+        try {
+            console.log('displaySelfNotes :', customerId); //While Deploying need to Commit this line
+            const response = await axios.get(`${UserService.BASE_URL}/${customerId}/selfnotes`);
+            return response.data; // Returning data directly
+        } catch (err) {
+            throw err;
+        }
+    }
+    //addSelfNotes
+    static async addSelfNotes(customerId, newNote) {
+        try {
+            console.log(customerId,newNote)
+            const response = await axios.post(`${UserService.BASE_URL}/${customerId}/selfnotes`, newNote);
+            console.log(response.data);
+            return response.data;
+        } catch (err) {
+            throw err;
+        }
+    }
+    //updateSelfNotes
+    static async updateSelfNotes(customerId, updatedNote) {
+        try {
+            console.log(customerId,updatedNote)
+            const response = await axios.post(`${UserService.BASE_URL}/${customerId}/selfnotes`, updatedNote);
+            console.log(response.data);
+            return response.data;
+        } catch (err) {
+            throw err;
+        }
+    }
+    //deleteSelfNotes
+    static async deleteSelfNotes(customerId, id) {
+        try {
+            console.log(customerId,id)
+            const response = await axios.delete(`${UserService.BASE_URL}/${customerId}/selfnotes`, id);
+            console.log(response.data);
+            return response.data;
+        } catch (err) {
+            throw err;
+        }
+    }
 
 }
+
+
+
 
 export default UserService;

@@ -5,7 +5,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import axios from 'axios';
 import AddBorrower from './AddBorrower'; // Import your AddBorrower component
 import { AuthContext } from '../Context/AuthContext';
-import SelfNotes from './SelfNotes';
+import UserService from '../UserService/UserService';
 
 const BorrowerScreen = ({ navigation }) => {
   const { userInfo } = useContext(AuthContext); // Get userInfo from AuthContext
@@ -25,19 +25,25 @@ const BorrowerScreen = ({ navigation }) => {
 
   const fetchBorrowers = async () => {
     setIsLoading(true);
-    try {
-      const response = await axios.get(`http://192.168.3.53:8080/${userInfo.id}/borrowers`);
-      const borrowersData = response.data;
-        // borrowersData = borrowersData.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-        borrowersData.sort((a, b) => b.id - a.id);
 
+
+
+    try {
+
+
+      // const response = await axios.get(`http://192.168.3.53:8080/${userInfo.id}/borrowers`);
+
+      const response = await UserService.displayBorrowers(userInfo.id);
+      const borrowersData = response;
+      borrowersData.sort((a, b) => b.id - a.id);
       borrowersData.forEach(borrower => {
-       console.log('gayathi',response.data);
-        console.log('Borrower Name:', borrower.borrowerName,'Principal Amount:', parseFloat(borrower.principalAmount),'Interest Rate:', parseFloat(borrower.interestRate));
+        // below 3 lines should commit while deploye
+        console.log('gayathi', response.data);
+        console.log('Borrower Name:', borrower.borrowerName, 'Principal Amount:', parseFloat(borrower.principalAmount), 'Interest Rate:', parseFloat(borrower.interestRate));
         console.log('---------------------------');
-       
+
       });
-      
+
       setBorrowers(borrowersData);
       setFilteredBorrowers(borrowersData);
 
@@ -52,7 +58,7 @@ const BorrowerScreen = ({ navigation }) => {
     try {
       console.log('New Borrower Added:', newBorrower);
       await fetchBorrowers();
-      setModalVisible(false);  
+      setModalVisible(false);
     } catch (error) {
       console.error('Error adding borrower:', error);
     }
@@ -66,7 +72,7 @@ const BorrowerScreen = ({ navigation }) => {
       const filtered = borrowers.filter(borrower =>
         borrower.borrowerName?.toLowerCase().includes(query.toLowerCase()) ||
         borrower.principalAmount?.toString().includes(query) ||
-        borrower.interestRate?.toString().includes(query)||
+        borrower.interestRate?.toString().includes(query) ||
         borrower.creditStatus?.toString().includes(query)
       );
       setFilteredBorrowers(filtered);
@@ -77,10 +83,10 @@ const BorrowerScreen = ({ navigation }) => {
     return name.length > 8 ? `${name.substring(0, 8)}...` : name;
   };
 
-   const NavigationSelfNotes=()=>{
+  const NavigationSelfNotes = () => {
     navigation.navigate('SelfNotes');
 
-   }
+  }
 
 
   const renderItem = ({ item }) => (
@@ -116,7 +122,7 @@ const BorrowerScreen = ({ navigation }) => {
       <View style={styles.header}>
         <Text style={styles.headerTitle}>{userInfo.firstName}</Text>
         <TouchableOpacity onPress={NavigationSelfNotes}>
-        <Icon name='bell' size={20} color='#fff' />
+          <Icon name='bell' size={20} color='#fff' />
         </TouchableOpacity>
       </View>
 
@@ -198,7 +204,7 @@ const styles = StyleSheet.create({
     color: '#333',
   },
   rowContainer: {
-    flexDirection:'row',
+    flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 10,
     borderBottomWidth: 1,
@@ -236,3 +242,7 @@ const styles = StyleSheet.create({
 });
 
 export default BorrowerScreen;
+
+
+// reactive native render items 
+// handle active

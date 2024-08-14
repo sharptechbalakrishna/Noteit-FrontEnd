@@ -41,6 +41,10 @@ const HomeScreen = ({ navigation }) => {
     navigation.navigate('EmiCalculator');
 
   }
+  const onDraggableBox =()=>{
+    navigation.navigate('DraggableBox');
+
+  }
 
   const { control, handleSubmit, formState: { errors } } = useForm();
   return (
@@ -86,6 +90,12 @@ const HomeScreen = ({ navigation }) => {
           <TouchableOpacity style={styles.box} onPress={onemiCalculator}>
            
             <Text style={styles.boxText}>EMI Calculator</Text>
+
+
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.box} onPress={onDraggableBox}>
+           
+            <Text style={styles.boxText}>DraggableBox</Text>
           </TouchableOpacity>
 
         </View>

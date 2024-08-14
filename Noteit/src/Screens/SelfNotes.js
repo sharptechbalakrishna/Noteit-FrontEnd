@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Modal 
 import Icon from 'react-native-vector-icons/FontAwesome';
 import axios from 'axios';
 import { AuthContext } from '../Context/AuthContext';
+import UserService from '../UserService/UserService';
 
 // Helper function to format date
 const formatDate = (date) => {
@@ -52,15 +53,20 @@ const SelfNotes = () => {
   useEffect(() => {
     const fetchNotes = async () => {
       try {
-        const response = await axios.get(`http://192.168.3.53:8080/${userInfo.id}/selfnotes`);
-        const notesData = response.data;
+
+
+        // const response = await axios.get(`http://192.168.3.53:8080/${userInfo.id}/selfnotes`);
+
+        const response = await UserService.displaySelfNotes(userInfo.id);
+
+        const notesData = response;
         console.log('Fetched Notes:', notesData);
         setNotes(notesData);
       } catch (error) {
-        console.error('Error fetching notes:', error.message);
+        console.error('Error fetching notes:',error);
         if (error.response) {
-          console.error('Error Response Data:', error.response.data);
-          console.error('Error Response Status:', error.response.status);
+          console.error('Error Response Data:', error);
+          console.error('Error Response Status:', error);
         }
       }
     };
@@ -91,14 +97,17 @@ const SelfNotes = () => {
     };
 
     try {
-      const response = await axios.post(`http://192.168.3.53:8080/${userInfo.id}/selfnotes`, newNote);
-      console.log('Note Saved:', response.data);
-      setNotes([...notes, response.data]);
+      // const response = await axios.post(`http://192.168.3.53:8080/${userInfo.id}/selfnotes`, newNote);
+
+      const response = await UserService.addSelfNotes(userInfo.id,newNote);
+
+      console.log('Note Saved:', response20);
+      setNotes([...notes, response]);
     } catch (error) {
-      console.error('Error saving note:', error.message);
+      console.error('Error saving note:', error);
       if (error.response) {
-        console.error('Error Response Data:', error.response.data);
-        console.error('Error Response Status:', error.response.status);
+        console.error('Error Response Data:', error);
+        console.error('Error Response Status:', error);
       }
     }
 
@@ -126,7 +135,10 @@ const SelfNotes = () => {
     };
 
     try {
-      await axios.post(`http://192.168.3.53:8080/${userInfo.id}/selfnotes`, updatedNote);
+      // await axios.post(`http://192.168.3.53:8080/${userInfo.id}/selfnotes`, updatedNote);
+
+      const response = await UserService.updateSelfNotes(userInfo.id, updatedNote);
+
       const updatedNotes = notes.map(note =>
         note.id === editNoteId
           ? updatedNote
@@ -139,25 +151,29 @@ const SelfNotes = () => {
       setEditNoteId(null);
       setEditText('');
     } catch (error) {
-      console.error('Error updating note:', error.message);
+      console.error('Error updating note:', error);
       if (error.response) {
-        console.error('Error Response Data:', error.response.data);
-        console.error('Error Response Status:', error.response.status);
+        console.error('Error Response Data:', error);
+        console.error('Error Response Status:', error);
       }
     }
   };
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://192.168.3.53:8080/${userInfo.id}/selfnotes/${id}`);
+      // await axios.delete(`http://192.168.3.53:8080/${userInfo.id}/selfnotes/${id}`);
+
+      const response = await UserService.deleteSelfNotes(userInfo.id, id);
+
       const updatedNotes = notes.filter(note => note.id !== id);
+
       setNotes(updatedNotes);
       setOptionsVisible(false);
     } catch (error) {
-      console.error('Error deleting note:', error.message);
+      console.error('Error deleting note:', error);
       if (error.response) {
-        console.error('Error Response Data:', error.response.data);
-        console.error('Error Response Status:', error.response.status);
+        console.error('Error Response Data:', error);
+        console.error('Error Response Status:', error);
       }
     }
   };

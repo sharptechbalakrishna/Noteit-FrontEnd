@@ -2,11 +2,11 @@ import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Modal, ScrollView, StyleSheet } from 'react-native';
 import DatePicker from 'react-native-date-picker';
 import { AuthContext } from '../Context/AuthContext';
+import UserService from '../UserService/UserService';
 
 
 const AddBorrower = ({ visible, onClose, addBorrower }) => {
     const { userInfo } = useContext(AuthContext);
-
     const [borrowerName, setBorrowerName] = useState('');
     const [phoneNumber, setPhoneNumber] = useState('');
     const [email, setEmail] = useState('');
@@ -60,14 +60,10 @@ const AddBorrower = ({ visible, onClose, addBorrower }) => {
         };
 
         try {
-            const response = await fetch(`http://192.168.3.53:8080/${userInfo.id}/borrowers`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(borrowerData),
-            });
+            const response = await UserService.borrowerdetails(userInfo.id, borrowerData);
 
+            // const response = await fetch(`http://192.168.3.53:8080/${userInfo.id}/borrowers`)
+            console.log('gayathri', response.data);
             if (!response.ok) {
                 throw new Error('Failed to add borrower');
             }
@@ -83,6 +79,28 @@ const AddBorrower = ({ visible, onClose, addBorrower }) => {
             alert('Failed to add borrower. Please check your network connection and try again.');
         }
     };
+
+//     try {
+//         const response = await UserService.borrowerdetails(userInfo.id, borrowerData);
+
+//         // const response = await fetch(`http://192.168.3.53:8080/${userInfo.id}/borrowers`)
+//         console.log('gayathri', response.data);
+//         if (!response.ok) {
+//             throw new Error('Failed to add borrower');
+//         }
+
+//         const data = await response.json();
+//         console.log('Borrower successfully added:', data);
+
+//         addBorrower(borrowerData);
+//         handleClear();
+//         onClose();
+//     } catch (error) {
+//         console.error('Error adding borrower:', error);
+//         alert('Failed to add borrower. Please check your network connection and try again.');
+//     }
+// };
+    
 
     const handleClear = () => {
         setBorrowerName('');
