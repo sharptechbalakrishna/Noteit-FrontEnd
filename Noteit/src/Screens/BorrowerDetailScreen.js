@@ -116,7 +116,7 @@ const BorrowerDetailScreen = ({ route }) => {
     try {
       console.warn('Delete Pressed', latestledgerID);
       // const response = await UserService.deleteLedger(latestledgerID);
-      CustomFlashMessage('success', 'Success', 'Sucessfully Edited Data!');
+      CustomFlashMessage('success', 'Success', 'Deleted Sucessfully!');
       fetchLedgerData();
 
     } catch (error) {

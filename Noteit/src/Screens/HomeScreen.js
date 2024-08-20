@@ -41,7 +41,7 @@ const HomeScreen = ({ navigation }) => {
     navigation.navigate('EmiCalculator');
 
   }
-  const onDraggableBox =()=>{
+  const onDraggableBox = () => {
     navigation.navigate('DraggableBox');
 
   }
@@ -79,22 +79,22 @@ const HomeScreen = ({ navigation }) => {
             <Entypo name="wallet" color="#45D48D" size={100} />
             <Text style={styles.boxText}>Expense Tracker</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.box} onPress={onInterestCalculator}>
+          <TouchableOpacity onPress={onInterestCalculator}>
             <ImageBackground
-              source={require('../assets/images/Logo_2.png')}
+              source={require('../assets/images/Cal.png')}
               style={styles.boxIcon}
             />
             <Text style={styles.boxText}>Interest Calculator</Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.box} onPress={onemiCalculator}>
-           
+
             <Text style={styles.boxText}>EMI Calculator</Text>
 
 
           </TouchableOpacity>
           <TouchableOpacity style={styles.box} onPress={onDraggableBox}>
-           
+
             <Text style={styles.boxText}>DraggableBox</Text>
           </TouchableOpacity>
 
@@ -127,7 +127,7 @@ const styles = StyleSheet.create({
   },
   boxIcon: {
     width: 150,
-    height: 100,
+    height: 150,
     marginBottom: 10,
   },
   boxText: {

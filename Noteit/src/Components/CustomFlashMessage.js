@@ -22,7 +22,7 @@ const CustomFlashMessage = (type, title, description) => {
     backgroundColor: customStyles[type].backgroundColor,
     color: customStyles[type].color,
     icon: { icon: customStyles[type].icon, position: 'left' },
-    duration: 4000,  // Display duration in milliseconds
+    duration: 2000,  // Display duration in milliseconds
     floating: true,  // Make the toast floating above the content
     style: {
       paddingVertical: 15,

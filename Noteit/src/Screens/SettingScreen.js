@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import {
   StyleSheet,
   SafeAreaView,
@@ -6,19 +6,74 @@ import {
   View,
   Text,
   TouchableOpacity,
-  Switch,
   Image,
+  Linking
 } from 'react-native';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import AntDesign from 'react-native-vector-icons/MaterialCommunityIcons';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import Share from 'react-native-share';
+import files from '../assets/filesBase64';
+import { AuthContext } from '../Context/AuthContext';
+import { Caption } from 'react-native-paper';
 
-export default function SettinScreen() {
+export default function SettinScreen({ navigation }) {
+
+  const { userInfo } = useContext(AuthContext); // Get userInfo from AuthContext
   const [form, setForm] = useState({
     darkMode: false,
     emailNotifications: true,
     pushNotifications: false,
   });
+
+  const contactUs = () => {
+    const email = 'shravankumarmca2023@gmail.com';
+    const subject = 'Inquiry';
+    const mailtoUrl = `mailto:${email}?subject=${encodeURIComponent(subject)}`;
+
+    Linking.openURL(mailtoUrl)
+      .catch(err => console.error('Error opening email client', err));
+  };
+  const handleRateApp = () => {
+    const appStoreUrl = 'https://play.google.com/store/apps/details?id=com.pubg.imobile';
+
+    Linking.openURL(appStoreUrl)
+      .catch(err => console.error("Couldn't load page", err));
+  };
+
+  const myCustomShare = async () => {
+
+
+
+
+    const appStoreLink = "https://play.google.com/store/apps/details?id=com.pubg.imobile"; // Replace with actual app download link
+    const googlePlayLink = "https://play.google.com/store/apps/details?id=com.pubg.imobile"; // Replace with actual app download link
+
+    const shareOption = {
+      message: `
+      Hi there!
+
+I’m using a great finance app called *Noteit* to manage money I’ve lent to others. It lets you track loans, set reminders, and keep everything organized in one place.
+
+Give it a try and simplify your finances!
+
+Download here: ${appStoreLink} or ${googlePlayLink}
+
+Best,
+${userInfo.firstName}
+      `,
+      url: files.appLogo
+    }
+    try {
+      const ShareResponse = await Share.open(shareOption)
+      console.log("ShareResponse", JSON.stringify(ShareResponse));
+      console.warn("Shared");
+    } catch (error) {
+      console.log("Error :", error);
+    }
+
+
+  }
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
@@ -69,6 +124,7 @@ export default function SettinScreen() {
             </View>
 
             <Text style={styles.rowLabel}>Language</Text>
+            
 
             <View style={styles.rowSpacer} />
 
@@ -78,7 +134,7 @@ export default function SettinScreen() {
               size={20} />
           </TouchableOpacity>
 
-          <View style={styles.row}>
+          {/* <View style={styles.row}>
             <View style={[styles.rowIcon, { backgroundColor: '#007afe' }]}>
               <FeatherIcon color="#fff" name="moon" size={20} />
             </View>
@@ -90,12 +146,10 @@ export default function SettinScreen() {
             <Switch
               onValueChange={darkMode => setForm({ ...form, darkMode })}
               value={form.darkMode} />
-          </View>
+          </View> */}
 
           <TouchableOpacity
-            onPress={() => {
-              // handle onPress
-            }}
+             onPress={() => { navigation.navigate('ChangePasswordScreen'); }}
             style={styles.row}>
             <View style={[styles.rowIcon, { backgroundColor: '#32c759' }]}>
               <Icon
@@ -114,7 +168,7 @@ export default function SettinScreen() {
               size={20} />
           </TouchableOpacity>
 
-          <View style={styles.row}>
+          {/* <View style={styles.row}>
             <View style={[styles.rowIcon, { backgroundColor: '#38C959' }]}>
               <FeatherIcon color="#fff" name="at-sign" size={20} />
             </View>
@@ -128,23 +182,24 @@ export default function SettinScreen() {
                 setForm({ ...form, emailNotifications })
               }
               value={form.emailNotifications} />
-          </View>
+          </View> */}
 
-          <View style={styles.row}>
-            <View style={[styles.rowIcon, { backgroundColor: '#38C959' }]}>
-              <FeatherIcon color="#fff" name="bell" size={20} />
+          <TouchableOpacity onPress={myCustomShare}>
+            <View style={styles.row}>
+              <View style={[styles.rowIcon, { backgroundColor: '#38C959' }]}>
+                <AntDesign color="#fff" name="share-outline" size={20} />
+              </View>
+
+              <Text style={styles.rowLabel}>Tell Your Friends</Text>
+
+              <View style={styles.rowSpacer} />
+              <FeatherIcon
+                color="#C6C6C6"
+                name="chevron-right"
+                size={20} />
+
             </View>
-
-            <Text style={styles.rowLabel}>Push Notifications</Text>
-
-            <View style={styles.rowSpacer} />
-
-            <Switch
-              onValueChange={pushNotifications =>
-                setForm({ ...form, pushNotifications })
-              }
-              value={form.pushNotifications} />
-          </View>
+          </TouchableOpacity>
         </View>
 
         <View style={styles.section}>
@@ -152,9 +207,7 @@ export default function SettinScreen() {
 
 
           <TouchableOpacity
-            onPress={() => {
-              // handle onPress
-            }}
+            onPress={() => { navigation.navigate('BugReportScreen'); }}
             style={styles.row}>
             <View style={[styles.rowIcon, { backgroundColor: '#8e8d91' }]}>
               <FeatherIcon color="#fff" name="flag" size={20} />
@@ -171,9 +224,7 @@ export default function SettinScreen() {
           </TouchableOpacity>
 
           <TouchableOpacity
-            onPress={() => {
-              // handle onPress
-            }}
+            onPress={contactUs}
             style={styles.row}>
             <View style={[styles.rowIcon, { backgroundColor: '#007afe' }]}>
               <FeatherIcon color="#fff" name="mail" size={20} />
@@ -190,9 +241,7 @@ export default function SettinScreen() {
           </TouchableOpacity>
 
           <TouchableOpacity
-            onPress={() => {
-              // handle onPress
-            }}
+            onPress={handleRateApp}
             style={styles.row}>
             <View style={[styles.rowIcon, { backgroundColor: '#32c759' }]}>
               <FeatherIcon color="#fff" name="star" size={20} />
