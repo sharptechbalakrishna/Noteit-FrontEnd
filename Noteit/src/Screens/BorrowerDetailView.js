@@ -10,7 +10,7 @@ const BorrowerDetailView = ({
     ledgerData,
     onhandleEdit,
     onhandleDelete,
-    latestledgerID
+    lastBefore
 }) => {
 
     const [visible, setVisible] = useState(null);
@@ -25,7 +25,7 @@ const BorrowerDetailView = ({
     const handleDelete = () => {
         // Your delete logic here
         closeMenu();
-        onhandleDelete(latestledgerID,)
+        onhandleDelete(lastBefore)
 
     };
 
@@ -55,7 +55,7 @@ const BorrowerDetailView = ({
                             <View style={styles.card} key={index}>
                                 <View style={styles.cardHeader}>
                                     <Text style={styles.cardMonth}>{item.month}</Text>
-                                    {(item.id === latestledgerID && reversedLedgerData.length > 1) && (
+                                    {(item.id === lastBefore && reversedLedgerData.length > 1) && (
                                         <Menu
                                             visible={visible === index}
                                             onDismiss={closeMenu}

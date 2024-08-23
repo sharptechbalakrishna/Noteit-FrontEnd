@@ -4,7 +4,7 @@ import { AuthContext } from '../Context/AuthContext';
 class UserService {
 
 
-    static BASE_URL = 'http://192.168.3.53:8080';
+    static BASE_URL = 'http://192.168.3.104:8080';
 
 
     // Sign Up for user with Mobile Number and password
@@ -24,6 +24,18 @@ class UserService {
             throw err;
         }
     }
+    static async logout(customerId) {
+        try {
+            console.log("In USL :", customerId)
+            // const response = await axios.post(`${UserService.BASE_URL}${customerId}/logout`)
+            // console.log(response.data);
+            // return response.data;
+        } catch (err) {
+            throw err;
+        }
+    }
+
+
     // Register for the new Person and Update by Passing the User iD
     static async register(register) {
         try {
@@ -52,7 +64,7 @@ class UserService {
         try {
             console.log('US B_Id', borrowerId); // While Deploying need to Commit this line
             const response = await axios.get(`${UserService.BASE_URL}/ledger/${borrowerId}`);
-            console.log(response.data);
+            // console.log(response.data);
             // console.log('name', response.data.borrowerName); // While Deploying need to Commit this line
             // console.log('In User Service', response.data); // While Deploying need to Commit this line
             return response.data;
@@ -64,8 +76,18 @@ class UserService {
     // Collecting the interest for the particular ledger id
     static async addEntry(interest) {
         try {
-            // console.log(entry);
+            console.log("IN Us:", interest);
             const response = await axios.post(`${UserService.BASE_URL}/ledger/update`, interest);
+            // console.log(response.data);
+            return response.data;
+        } catch (err) {
+            throw err;
+        }
+    }
+    static async editEntry(editInterest) {
+        try {
+            console.log(editInterest);
+            const response = await axios.post(`${UserService.BASE_URL}/edger/update`, editInterest);
             console.log(response.data);
             return response.data;
         } catch (err) {
@@ -99,25 +121,19 @@ class UserService {
     /*------------------Borrower screen----------------------*/
 
     // Adding borrower details 
-    // static async borrowerdetails(customerId, borrowerData) {
-    //     try {
-    //         console.log('customerId checking:', customerId);
-    //         console.log('customerId borrowerData:', borrowerData);
-    //         const response = await axios.fetch(`http://192.168.3.53:8080/${customerId}/borrowers`,
-    //             {
-    //                 method: 'POST',
-    //                 headers: {
-    //                     'Content-Type': 'application/json',
-    //                 },
-    //                 body: JSON.stringify(borrowerData),
-    //             });
-    //         return response;
-    //     }
-    //     catch (err) {
-    //         throw err;
+    static async borrowerdetails(customerId, borrowerData) {
+        try {
+            console.log('customerId checking:', customerId);
+            console.log('customerId borrowerData:', borrowerData);
+            const response = await axios.post(`${UserService.BASE_URL}/${customerId}/borrowers`, borrowerData);
 
-    //     }
-    // }
+            return response;
+        }
+        catch (err) {
+            throw err;
+
+        }
+    }
 
 
     // displaying details in BorowerScreen
@@ -147,7 +163,7 @@ class UserService {
     //addSelfNotes
     static async addSelfNotes(customerId, newNote) {
         try {
-            console.log(customerId,newNote)
+            console.log(customerId, newNote)
             const response = await axios.post(`${UserService.BASE_URL}/${customerId}/selfnotes`, newNote);
             console.log(response.data);
             return response.data;
@@ -158,7 +174,7 @@ class UserService {
     //updateSelfNotes
     static async updateSelfNotes(customerId, updatedNote) {
         try {
-            console.log(customerId,updatedNote)
+            console.log(customerId, updatedNote)
             const response = await axios.post(`${UserService.BASE_URL}/${customerId}/selfnotes`, updatedNote);
             console.log(response.data);
             return response.data;
@@ -169,7 +185,7 @@ class UserService {
     //deleteSelfNotes
     static async deleteSelfNotes(customerId, id) {
         try {
-            console.log(customerId,id)
+            console.log(customerId, id)
             const response = await axios.delete(`${UserService.BASE_URL}/${customerId}/selfnotes`, id);
             console.log(response.data);
             return response.data;
@@ -177,6 +193,58 @@ class UserService {
             throw err;
         }
     }
+
+    // Changing The Password From Setting Screen
+    static async changePassword(data) {
+        try {
+            console.log("IN US", data)
+            const response = await axios.post(`${UserService.BASE_URL}/${customerId}/changePassword`, data);
+            console.log(response.data);
+            return response.data;
+        } catch (err) {
+            throw err;
+        }
+    }
+
+
+    // All data of the particular customer will be deleted
+    static async deleteAccount(customerId) {
+        try {
+
+            console.log("IN US", customerId)
+            const response = await axios.post(`${UserService.BASE_URL}/${customerId}`);
+            console.log(response.data);
+            return response.data;
+        } catch (err) {
+            throw err;
+        }
+    }
+    static async deleteLedger(lastBeforeId, borrowerId) {
+        try {
+
+            console.log("IN US -> ", lastBeforeId);
+            console.log("IN US -> ", borrowerId);
+            const response = await axios.delete(`${UserService.BASE_URL}/borrower/${borrowerId}/ledger/${lastBeforeId}`);
+            console.log(response.data);
+            return response.data;
+        } catch (err) {
+            throw err;
+        }
+    }
+    static async deleteBorrower(customerId, borrowerId) {
+        try {
+
+            console.log("In US", customerId, borrowerId);
+            const response = await axios.delete(`${UserService.BASE_URL}/${customerId}/borrowers/${borrowerId}`);
+            console.log(response.data);
+            return response.data;
+        } catch (err) {
+            throw err;
+        }
+    }
+
+
+
 
 }
 

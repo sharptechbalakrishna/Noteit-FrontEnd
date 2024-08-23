@@ -63,7 +63,7 @@ const SelfNotes = () => {
         console.log('Fetched Notes:', notesData);
         setNotes(notesData);
       } catch (error) {
-        console.error('Error fetching notes:',error);
+        console.error('Error fetching notes:', error);
         if (error.response) {
           console.error('Error Response Data:', error);
           console.error('Error Response Status:', error);
@@ -99,9 +99,9 @@ const SelfNotes = () => {
     try {
       // const response = await axios.post(`http://192.168.3.53:8080/${userInfo.id}/selfnotes`, newNote);
 
-      const response = await UserService.addSelfNotes(userInfo.id,newNote);
+      const response = await UserService.addSelfNotes(userInfo.id, newNote);
 
-      console.log('Note Saved:', response20);
+      console.log('In SN:', response);
       setNotes([...notes, response]);
     } catch (error) {
       console.error('Error saving note:', error);
@@ -325,7 +325,7 @@ const SelfNotes = () => {
               <TouchableOpacity style={styles.cancelButton} onPress={() => setEditNoteId(null)}>
                 <Text style={styles.cancelButtonText}>Cancel</Text>
               </TouchableOpacity>
-              
+
             </View>
           </View>
         </Modal>
@@ -375,8 +375,8 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#333',
     marginVertical: 10,
-    justifyContent:'center',
-    textAlign:'center'
+    justifyContent: 'center',
+    textAlign: 'center'
   },
   noteContainer: {
     backgroundColor: '#fff',
@@ -396,7 +396,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     // fontWeight: 'bold',
     color: '#333',
-    
+
   },
   noteBody: {
     fontSize: 18,
@@ -418,7 +418,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginBottom: 10,
     elevation: 2,
-  
+
   },
   textArea: {
     minHeight: 80, // Set a minimum height
@@ -469,19 +469,19 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     borderRadius: 8,
     // backgroundColor: '#007bff',
-    
+
   },
   modalButtonText: {
-    color:'black',
-        fontSize: 16,
+    color: 'black',
+    fontSize: 16,
   },
- 
+
   cancelButton: {
     backgroundColor: '#ccc',
     padding: 10,
     borderRadius: 8,
     alignItems: 'center',
-    margin:10
+    margin: 10
   },
   cancelButtonText: {
     color: 'black',
@@ -492,7 +492,7 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 8,
     alignItems: 'center',
-    margin:10
+    margin: 10
   },
   updateButtonText: {
     color: 'black',

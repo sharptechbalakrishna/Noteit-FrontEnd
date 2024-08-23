@@ -64,12 +64,14 @@ const AddBorrower = ({ visible, onClose, addBorrower }) => {
 
             // const response = await fetch(`http://192.168.3.53:8080/${userInfo.id}/borrowers`)
             console.log('gayathri', response.data);
-            if (!response.ok) {
+            console.log('gayathri', response.status);
+            
+            if (response.status !== 200) {
                 throw new Error('Failed to add borrower');
             }
 
-            const data = await response.json();
-            console.log('Borrower successfully added:', data);
+            // const data = await response.json();
+            // console.log('Borrower successfully added:', data);
 
             addBorrower(borrowerData);
             handleClear();
@@ -80,27 +82,27 @@ const AddBorrower = ({ visible, onClose, addBorrower }) => {
         }
     };
 
-//     try {
-//         const response = await UserService.borrowerdetails(userInfo.id, borrowerData);
+    //     try {
+    //         const response = await UserService.borrowerdetails(userInfo.id, borrowerData);
 
-//         // const response = await fetch(`http://192.168.3.53:8080/${userInfo.id}/borrowers`)
-//         console.log('gayathri', response.data);
-//         if (!response.ok) {
-//             throw new Error('Failed to add borrower');
-//         }
+    //         // const response = await fetch(`http://192.168.3.53:8080/${userInfo.id}/borrowers`)
+    //         console.log('gayathri', response.data);
+    //         if (!response.ok) {
+    //             throw new Error('Failed to add borrower');
+    //         }
 
-//         const data = await response.json();
-//         console.log('Borrower successfully added:', data);
+    //         const data = await response.json();
+    //         console.log('Borrower successfully added:', data);
 
-//         addBorrower(borrowerData);
-//         handleClear();
-//         onClose();
-//     } catch (error) {
-//         console.error('Error adding borrower:', error);
-//         alert('Failed to add borrower. Please check your network connection and try again.');
-//     }
-// };
-    
+    //         addBorrower(borrowerData);
+    //         handleClear();
+    //         onClose();
+    //     } catch (error) {
+    //         console.error('Error adding borrower:', error);
+    //         alert('Failed to add borrower. Please check your network connection and try again.');
+    //     }
+    // };
+
 
     const handleClear = () => {
         setBorrowerName('');

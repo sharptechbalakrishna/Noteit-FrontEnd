@@ -28,7 +28,6 @@ export const AuthProvider = ({ children }) => {
 
             console.log("User Info", userInfo);
             console.log("User Token by id ", userInfo.id);
-            console.log("User Token by id ", userToken);
 
         } catch (error) {
             throw error;
@@ -40,13 +39,22 @@ export const AuthProvider = ({ children }) => {
         // AsyncStorage.setItem('userToken', 'token');
         setIsLoading(false);
     }
-    const logout = () => {
+    const logout = async () => {
 
         setIsLoading(true);
-        setUserToken(null);
-        AsyncStorage.removeItem('userInfo');
-        AsyncStorage.removeItem('userToken');
-        setIsLoading(false);
+        try {
+
+            await UserService.logout(userInfo.id);
+            setUserToken(null);
+            AsyncStorage.removeItem('userInfo');
+            AsyncStorage.removeItem('userToken');
+        } catch (error) {
+            console.log("Error : ", error);
+
+        } finally {
+            setIsLoading(false);
+        }
+
     }
 
     const isLoggedIn = async () => {

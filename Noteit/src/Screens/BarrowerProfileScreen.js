@@ -1,15 +1,64 @@
-import React from 'react';
-import { View, Text, Image, StyleSheet, ScrollView } from 'react-native';
+import React, { useContext, useEffect } from 'react';
+import { View, Text, Image, StyleSheet, ScrollView, Alert, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import axios from 'axios';
+import { AuthContext } from '../Context/AuthContext'; // Ensure AuthContext is correctly imported
+import UserService from '../UserService/UserService';
+import CustomFlashMessage from '../Components/CustomFlashMessage';
+import { CommonActions } from '@react-navigation/native';
 
-// Function to format date
 const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString(); // Formats to "MM/DD/YYYY" or "DD/MM/YYYY" depending on locale
 };
 
-const BarrowerProfileScreen = ({ route }) => {
+const BarrowerProfileScreen = ({ route, navigation }) => {
     const { barrowerData } = route.params;
+    const { userInfo } = useContext(AuthContext); // Get userInfo from AuthContext
+
+    useEffect(() => {
+        if (userInfo && userInfo.id) {
+            // Perform any setup or fetch operations if needed
+        }
+    }, [userInfo]);
+
+    const deleteBorrower = async () => {
+        Alert.alert(
+            'Confirm Deletion',
+            `Are you sure you want to delete this borrower ${barrowerData.borrowerName}?`,
+            [
+                {
+                    text: 'Cancel',
+                    style: 'cancel'
+                },
+                {
+                    text: 'Yes',
+                    onPress: async () => {
+                        try {
+                            const response = await UserService.deleteBorrower(userInfo.id, barrowerData.id);
+                            console.log(response);
+                            
+                            // Navigate back two steps and then to BorrowerScreen
+                            navigation.dispatch(
+                                CommonActions.reset({
+                                    index: 1,
+                                    routes: [
+                                        { name: 'BorrowerScreen' }, // Adjust this name if it's different in your navigation setup
+                                    ],
+                                })
+                            );
+
+                            CustomFlashMessage('success', 'Success', 'Borrower deleted successfully!');
+                        } catch (error) {
+                            console.error('Error deleting borrower:', error.response ? error.response.data : error.message);
+                            CustomFlashMessage('error', 'Error', 'Failed to delete Borrower.');
+                        }
+                    }
+                }
+            ],
+            { cancelable: false }
+        );
+    };
 
     return (
         <View style={styles.container}>
@@ -21,9 +70,9 @@ const BarrowerProfileScreen = ({ route }) => {
             <ScrollView contentContainerStyle={styles.scrollContainer}>
                 <View style={styles.profileHeader}>
                     {barrowerData.profileImageUrl ? (
-                        <Image 
-                            source={{ uri: barrowerData.profileImageUrl }} 
-                            style={styles.profileImage} 
+                        <Image
+                            source={{ uri: barrowerData.profileImageUrl }}
+                            style={styles.profileImage}
                         />
                     ) : (
                         <View style={styles.initialsContainer}>
@@ -101,6 +150,11 @@ const BarrowerProfileScreen = ({ route }) => {
                         <Text style={styles.infoText}>{barrowerData.creditBasis || "N/A"}</Text>
                     </View>
                 </View>
+
+                <TouchableOpacity style={styles.deleteButton} onPress={deleteBorrower}>
+                    <Icon name="trash-outline" size={24} color="#fff" />
+                    <Text style={styles.deleteButtonText}>Delete Borrower</Text>
+                </TouchableOpacity>
             </ScrollView>
         </View>
     );
@@ -133,7 +187,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         borderBottomLeftRadius: 20,
         borderBottomRightRadius: 20,
-        
+
     },
     profileImage: {
         width: 100,
@@ -207,6 +261,26 @@ const styles = StyleSheet.create({
     infoText: {
         fontSize: 16,
         color: '#333',
+    },
+    deleteButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#D32F2F',
+        paddingVertical: 15,
+        borderRadius: 25,
+        marginTop: 20,
+        shadowColor: '#000',
+        shadowOpacity: 0.2,
+        shadowOffset: { width: 0, height: 4 },
+        shadowRadius: 5,
+        elevation: 3,
+    },
+    deleteButtonText: {
+        fontSize: 18,
+        color: '#fff',
+        fontWeight: 'bold',
+        marginLeft: 10,
     },
 });
 

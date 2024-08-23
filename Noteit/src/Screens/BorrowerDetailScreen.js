@@ -20,6 +20,7 @@ const BorrowerDetailScreen = ({ route }) => {
   const [imageUrl] = useState(null);
   const [ledgerData, setLedgerData] = useState([]);
   const [ledgerId, setledgerId] = useState(null);
+  const [lastBefore, setLastBefore] = useState(null);
   const [loading, setLoading] = useState(false);
   const reversedLedgerData = [...ledgerData].reverse();
   const [modalVisible, setModalVisible] = useState(false);
@@ -34,6 +35,7 @@ const BorrowerDetailScreen = ({ route }) => {
 
   // Ledger Data will be Loaded
   const fetchLedgerData = async () => {
+
     try {
       const data = await UserService.ledgerData(barrowerData.id);
       setLedgerData(data);
@@ -60,25 +62,8 @@ const BorrowerDetailScreen = ({ route }) => {
       setLoading(false);
     }
   };
-  // adding the new Entry and Call the ledgerData Api
-  const edithandleAddEntry = async (newEntry) => {
-    console.log('New Entry:', newEntry);
-    setLoading(true);
-    try {
-      setEditModula(false);
 
-      // await UserService.addEntry(newEntry);
-      fetchLedgerData();
-      CustomFlashMessage('success', 'Success', 'Entry added successfully!');
 
-    } catch (err) {
-      CustomFlashMessage('error', 'Error', 'Failed to add entry.');
-      console.error('Error adding new entry:', err);
-    } finally {
-      setLoading(false);
-    }
-
-  };
 
   // Reversing the Ledger data to display the latest entery
   useEffect(() => {
@@ -88,10 +73,18 @@ const BorrowerDetailScreen = ({ route }) => {
     }
   }, [ledgerData]);
 
+  useEffect(() => {
+    if (ledgerData.length > 1) {
+      const reversedLedgerData = [...ledgerData].reverse();
+      setLastBefore(reversedLedgerData[1].id);
+    }
+  }, [ledgerData]);
+
 
   useEffect(() => {
     if (ledgerId !== null) {
-      console.log('ID of the last entry:', ledgerId);
+      console.log('last entry ID:', ledgerId);
+      console.log('last Before ID:', lastBefore);
     }
   }, [ledgerId]);
 
@@ -105,33 +98,46 @@ const BorrowerDetailScreen = ({ route }) => {
   // Editing the Latest Entry
   const handleEdit = async () => {
     setEditModula(true);
-
-
   }
 
 
+  // adding the new Entry and Call the ledgerData Api
+  const edithandleAddEntry = async (newEntry) => {
+    console.log('Edit Entry:', newEntry);
+    setLoading(true);
+    try {
+      setEditModula(false);
+      await UserService.addEntry(newEntry);
+      fetchLedgerData();
+      CustomFlashMessage('success', 'Success', 'Entry added successfully!');
+
+    } catch (err) {
+      CustomFlashMessage('error', 'Error', 'Failed to add entry.');
+      console.error('Error adding new entry:', err);
+    } finally {
+      setLoading(false);
+    }
+
+  };
+
+
   // Deleteing the Latest Entry
-  const handleDelete = async (latestledgerID) => {
+  const handleDelete = async (lastBefore) => {
 
     try {
-      console.warn('Delete Pressed', latestledgerID);
-      // const response = await UserService.deleteLedger(latestledgerID);
+      console.log('lastBefore :', lastBefore);
+      console.log('Barrower ID :', barrowerData.id);
+      const response = await UserService.deleteLedger(lastBefore, barrowerData.id);
       CustomFlashMessage('success', 'Success', 'Deleted Sucessfully!');
       fetchLedgerData();
 
     } catch (error) {
-      console.log("Error", err);
+      console.log("Error", error);
       CustomFlashMessage('error', 'Error', 'Failed to add entry.');
-
-    } finally {
-      console.log('delete')
-   
 
     }
 
   }
-
-
 
   return (
     <SafeAreaView style={styles.container}>
@@ -168,7 +174,7 @@ const BorrowerDetailScreen = ({ route }) => {
           setModalVisible={setModalVisible}
           onhandleEdit={handleEdit}
           onhandleDelete={handleDelete}
-          latestledgerID={ledgerId}
+          lastBefore={lastBefore}
         />
 
         <AddEntryModal
@@ -184,7 +190,7 @@ const BorrowerDetailScreen = ({ route }) => {
           onClose={() => setEditModula(false)}
           onEditHandleAddEntry={edithandleAddEntry}
           borrowerName={barrowerData.borrowerName}
-          ledgerId={ledgerId}
+          ledgerId={lastBefore}
           loading={loading}
         />
       </View>

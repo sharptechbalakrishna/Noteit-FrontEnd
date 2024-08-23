@@ -5,25 +5,26 @@ import CustomButton from '../Components/CustomButton';
 import { useNavigation } from '@react-navigation/native';
 import { useForm, Controller } from "react-hook-form";
 import CustomFlashMessage from '../Components/CustomFlashMessage';
+import UserService from '../UserService/UserService';
 
 
 
-const ChangePasswordScreen = ({navigation}) => {
-;
+const ChangePasswordScreen = ({ navigation }) => {
+
 
     const { control, handleSubmit, watch, formState: { errors } } = useForm();
 
     const pwdWatch = watch('password');
-    const onSubmitPressed = (data) => {
+    const onSubmitPressed = async (data) => {
         console.log(data);
 
         try {
 
-            // Need to call the api here
+            const response = await UserService.changePassword(data);
             CustomFlashMessage('success', 'Success', 'Password Changed!');
-
             navigation.navigate('SettingScreen');
         } catch (error) {
+
             CustomFlashMessage('error', 'Error', 'Somthing Went Wrong!');
         }
     }
@@ -36,8 +37,18 @@ const ChangePasswordScreen = ({navigation}) => {
                 <Text style={styles.title}> Change Password </Text>
                 <CustomInput
                     control={control}
+                    name="oldPassowrd"
+                    placeholder='Old Password'
+                    secureTextEntry={true}
+                    rules={{
+                        required: 'Password Required',
+                        minLength: { value: 4, message: 'Password Should be at least 4 charecter' }
+                    }}
+                />
+                <CustomInput
+                    control={control}
                     name="password"
-                    placeholder='Passwowrd'
+                    placeholder='New Passwowrd'
                     secureTextEntry={true}
                     rules={{
                         required: 'Password Required',

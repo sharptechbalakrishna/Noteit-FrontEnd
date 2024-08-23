@@ -165,81 +165,126 @@ const BorrowerScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#a4b9db', // Light gray background for a clean and modern look
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: 15,
-    backgroundColor: '#007bff',
+    paddingHorizontal: 15,
+    paddingVertical: 20,
+    backgroundColor: '#0056b3', // Dark blue background for the header
+    elevation: 4, // Subtle shadow for depth
   },
   headerTitle: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
+    color: '#ffffff',
+    fontSize: 20,
+    fontWeight: '700',
   },
   searchBar: {
-    margin: 10,
-    borderRadius: 10,
+    margin: 15,
+    borderRadius: 20,
+    backgroundColor: '#ffffff',
+    elevation: 2, // Subtle shadow
+    paddingHorizontal: 10, // Padding for text input
   },
   tableHeader: {
     flexDirection: 'row',
-    backgroundColor: '#f4f4f4',
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
-    marginHorizontal: 10,
-    borderTopWidth: 1,
-    borderTopColor: '#ccc',
+    backgroundColor: '#e0e0e0', // Light gray for headers
+    paddingVertical: 12,
+    borderBottomWidth: 2,
+    borderBottomColor: '#bdbdbd',
+    marginHorizontal: 15,
+    borderRadius: 10,
+    elevation: 1, // Light shadow
+    marginBottom:10,
+   
   },
   cellHeader: {
     flex: 1,
     justifyContent: 'center',
-    paddingLeft: 10, // Add padding to align text to the left
+    paddingHorizontal: 15,
+  
   },
   headerText: {
-    fontWeight: 'bold',
-    fontSize: 16,
-    color: '#333',
+    fontWeight: '600',
+    fontSize: 14,
+    color: '#333333',
   },
   rowContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
-    marginHorizontal: 10,
+    paddingVertical: 12,
+    marginHorizontal: 15,
+    marginBottom: 10,
+    backgroundColor: '#ffffff', // White background for rows
+    borderRadius: 8, // Rounded corners for rows
+    elevation: 1, // Light shadow
   },
   cell: {
     flex: 1,
     justifyContent: 'center',
-    paddingLeft: 10, // Add padding to align text to the left
+    paddingHorizontal: 15,
   },
   cellText: {
-    fontSize: 16,
-    color: '#333',
+    fontSize: 14,
+    color: '#444444', // Slightly muted color for text
   },
   addButton: {
     position: 'absolute',
     bottom: 20,
     right: 20,
-    backgroundColor: '#d9534f',
-    paddingVertical: 15,
+    backgroundColor: '#28a745', // Green background for the button
+    paddingVertical: 12,
     paddingHorizontal: 20,
-    borderRadius: 15,
+    borderRadius: 30, // Fully rounded button
     flexDirection: 'row',
-    alignItems: 'center'
+    alignItems: 'center',
+    elevation: 6, // Prominent shadow for the button
   },
   addButtonText: {
-    color: '#fff',
-    fontSize: 15,
-    fontWeight: 'bold',
+    color: '#ffffff',
+    fontSize: 16,
+    fontWeight: '600',
+    marginLeft: 10,
   },
   listContent: {
-    paddingBottom: 80, // To make sure the last items are not covered by the button
+    paddingBottom: 90, // Ensure space for the button
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)', // Semi-transparent background
+  },
+  modalContent: {
+    width: '85%',
+    backgroundColor: '#ffffff',
+    borderRadius: 15,
+    padding: 20,
+    elevation: 5, // Elevated shadow for the modal
+  },
+  modalHeader: {
+    fontSize: 18,
+    fontWeight: '700',
+    marginBottom: 15,
+  },
+  modalButton: {
+    marginTop: 10,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 25,
+    backgroundColor: '#0056b3', // Blue button for modal actions
+  },
+  modalButtonText: {
+    color: '#ffffff',
+    fontSize: 16,
+    fontWeight: '600',
+    textAlign: 'center',
   },
 });
+
+
 
 export default BorrowerScreen;
 

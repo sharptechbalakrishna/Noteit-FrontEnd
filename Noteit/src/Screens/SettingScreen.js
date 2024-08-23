@@ -9,17 +9,21 @@ import {
   Image,
   Linking
 } from 'react-native';
+import { Alert } from 'react-native';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import AntDesign from 'react-native-vector-icons/MaterialCommunityIcons';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import Share from 'react-native-share';
 import files from '../assets/filesBase64';
 import { AuthContext } from '../Context/AuthContext';
-import { Caption } from 'react-native-paper';
+import { Caption, customText } from 'react-native-paper';
+import UserService from '../UserService/UserService';
+import CustomFlashMessage from '../Components/CustomFlashMessage';
+
 
 export default function SettinScreen({ navigation }) {
 
-  const { userInfo } = useContext(AuthContext); // Get userInfo from AuthContext
+  const { userInfo, logout } = useContext(AuthContext); // Get userInfo from AuthContext
   const [form, setForm] = useState({
     darkMode: false,
     emailNotifications: true,
@@ -34,6 +38,7 @@ export default function SettinScreen({ navigation }) {
     Linking.openURL(mailtoUrl)
       .catch(err => console.error('Error opening email client', err));
   };
+
   const handleRateApp = () => {
     const appStoreUrl = 'https://play.google.com/store/apps/details?id=com.pubg.imobile';
 
@@ -41,10 +46,34 @@ export default function SettinScreen({ navigation }) {
       .catch(err => console.error("Couldn't load page", err));
   };
 
+  const deleteAccount = async () => {
+    Alert.alert(
+      'Confirm Delete',
+      'Are you sure you want to delete your account?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'OK',
+          onPress: async () => {
+            try {
+              console.war
+              await UserService.deleteAccount(userInfo.id);
+              logout();
+            } catch (error) {
+              console.log("Error ", error);
+              CustomFlashMessage('error', 'Error', 'Try again later!');
+            }
+          },
+        },
+      ],
+      { cancelable: true }
+    );
+  };
+
   const myCustomShare = async () => {
-
-
-
 
     const appStoreLink = "https://play.google.com/store/apps/details?id=com.pubg.imobile"; // Replace with actual app download link
     const googlePlayLink = "https://play.google.com/store/apps/details?id=com.pubg.imobile"; // Replace with actual app download link
@@ -123,9 +152,9 @@ ${userInfo.firstName}
               <FeatherIcon color="#fff" name="globe" size={20} />
             </View>
 
-            <Text style={styles.rowLabel}>Language</Text>
-            
+            <Text style={[styles.rowLabel, { marginRight: 140 }]}>Language</Text>
 
+            <Caption>English</Caption>
             <View style={styles.rowSpacer} />
 
             <FeatherIcon
@@ -149,7 +178,7 @@ ${userInfo.firstName}
           </View> */}
 
           <TouchableOpacity
-             onPress={() => { navigation.navigate('ChangePasswordScreen'); }}
+            onPress={() => { navigation.navigate('ChangePasswordScreen'); }}
             style={styles.row}>
             <View style={[styles.rowIcon, { backgroundColor: '#32c759' }]}>
               <Icon
@@ -260,9 +289,7 @@ ${userInfo.firstName}
           <Text style={styles.sectionTitle}>Account</Text>
           <TouchableOpacity
 
-            onPress={() => {
-              // handle onPress
-            }}
+            onPress={deleteAccount}
             style={styles.row}>
             <View style={[styles.rowIcon, { backgroundColor: 'crimson' }]}>
               <AntDesign color="#fff" name="delete" size={20} />

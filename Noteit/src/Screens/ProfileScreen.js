@@ -31,6 +31,7 @@ const ProfileScreen = ({ navigation }) => {
             }
         } catch (error) {
             console.error('Failed to fetch user info:', error);
+            CustomFlashMessage('error', 'Error', 'Somthing Went Wrong!');
         }
     };
 
