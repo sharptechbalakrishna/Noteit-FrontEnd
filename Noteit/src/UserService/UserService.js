@@ -4,7 +4,7 @@ import { AuthContext } from '../Context/AuthContext';
 class UserService {
 
 
-    static BASE_URL = 'http://192.168.3.104:8080';
+    static BASE_URL = 'http://192.168.3.165:8080';
 
 
     // Sign Up for user with Mobile Number and password
@@ -231,6 +231,8 @@ class UserService {
             throw err;
         }
     }
+    
+    // particular borrower deleting in borrower profile screen
     static async deleteBorrower(customerId, borrowerId) {
         try {
 

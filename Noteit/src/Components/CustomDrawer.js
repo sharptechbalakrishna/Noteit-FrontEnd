@@ -1,4 +1,4 @@
-import { Image, ImageBackground, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { Image, ImageBackground, StyleSheet, Text, TouchableOpacity, View, Alert } from 'react-native'
 import React, { useContext } from 'react'
 import { DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawer'
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -10,16 +10,30 @@ const CustomDrawer = (props) => {
 
 
     const onLogoutPressed = () => {
-
-        console.warn("LogoutPressed");
-        logout();
+        Alert.alert(
+            "Logout Confirmation",
+            "Are you sure you want to log out?",
+            [
+                {
+                    text: "Cancel",
+                    onPress: () => console.log("Logout Cancelled"),
+                    style: "cancel"
+                },
+                {
+                    text: "Logout",
+                    onPress: () => logout(),
+                    style: "destructive"
+                }
+            ],
+            { cancelable: true }
+        );
     }
     return (
 
         <View style={{ flex: 1, }}>
             <DrawerContentScrollView {...props} contentContainerStyle={{ backgroundColor: '#8200d6' }}>
                 <ImageBackground
-                   
+
                     source={require("../assets/images/menu-bg.jpeg")}
                     style={{ padding: 20 }} >
                     <Image
@@ -43,19 +57,35 @@ const CustomDrawer = (props) => {
                     </View>
 
                 </TouchableOpacity> */}
-                <TouchableOpacity onPress={onLogoutPressed} style={{ paddingVertical: 15 }}>
-                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-
-                        <Ionicons name='exit-outline' size={22} />
-                        <Text style={{ fontSize: 15, fontWeight: 'bold', fontFamily: 'Robot-Medium', marginLeft: 10, }}> Logout</Text>
+                <TouchableOpacity onPress={onLogoutPressed} style={styles.logoutButton}>
+                    <View style={styles.logoutContainer}>
+                        <Ionicons name='exit-outline' size={22} style={styles.logoutIcon} />
+                        <Text style={styles.logoutText}>Logout</Text>
                     </View>
-
                 </TouchableOpacity>
             </View>
         </View>
     )
 }
 
-export default CustomDrawer
+const styles = StyleSheet.create({
+    logoutButton: {
+        paddingVertical: 15,
+    },
+    logoutContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    logoutIcon: {
+        color: '#FF4500', // Customize the color of the icon
+    },
+    logoutText: {
+        fontSize: 15,
+        fontWeight: 'bold',
+        fontFamily: 'Roboto-Medium',
+        marginLeft: 10,
+        color: '#FF4500', // Customize the color of the text
+    },
+});
 
-const styles = StyleSheet.create({})
+export default CustomDrawer;

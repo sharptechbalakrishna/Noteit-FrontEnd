@@ -18,9 +18,10 @@ const Carousel = () => {
             <Image
                 source={item.image}
                 style={{
-                    height: windowHeight * 0.25,
+                    height: windowHeight * 0.20,
                     width: windowWidth,
                     padding: 20,
+                    borderRadius:10,
                 }}
             />
         </View>

@@ -37,16 +37,11 @@ const BorrowerScreen = ({ navigation }) => {
       const borrowersData = response;
       borrowersData.sort((a, b) => b.id - a.id);
       borrowersData.forEach(borrower => {
-        // below 3 lines should commit while deploye
-        console.log('gayathi', response.data);
-        console.log('Borrower Name:', borrower.borrowerName, 'Principal Amount:', parseFloat(borrower.principalAmount), 'Interest Rate:', parseFloat(borrower.interestRate));
-        console.log('---------------------------');
+        console.log('customerid:', userInfo.id, 'borrowersData--->', '&', borrower.id, borrower.borrowerName, parseFloat(borrower.principalAmount), parseFloat(borrower.interestRate));
 
       });
-
       setBorrowers(borrowersData);
       setFilteredBorrowers(borrowersData);
-
     } catch (error) {
       console.error('Error fetching borrowers:', error);
     } finally {
@@ -197,14 +192,14 @@ const styles = StyleSheet.create({
     marginHorizontal: 15,
     borderRadius: 10,
     elevation: 1, // Light shadow
-    marginBottom:10,
-   
+    marginBottom: 10,
+
   },
   cellHeader: {
     flex: 1,
     justifyContent: 'center',
     paddingHorizontal: 15,
-  
+
   },
   headerText: {
     fontWeight: '600',
@@ -287,7 +282,3 @@ const styles = StyleSheet.create({
 
 
 export default BorrowerScreen;
-
-
-// reactive native render items 
-// handle active

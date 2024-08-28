@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Modal, ScrollView, StyleSheet } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Modal, ScrollView, StyleSheet ,Alert } from 'react-native';
 import DatePicker from 'react-native-date-picker';
 import { AuthContext } from '../Context/AuthContext';
 import UserService from '../UserService/UserService';
@@ -44,7 +44,63 @@ const AddBorrower = ({ visible, onClose, addBorrower }) => {
         }
     }, [visible]);
 
+    const validateForm = () => {
+        // Validate Borrower Name
+        if (!borrowerName.trim()) {
+            Alert.alert('Validation Error', 'Borrower Name is required');
+            return false;
+        }
+
+        // Validate Phone Number (Must be exactly 10 digits)
+        const phonePattern = /^\+91\d{10}$/;
+        if (!phonePattern.test(phoneNumber)) {
+            Alert.alert('Validation Error', 'Phone Number must start with +91 and be exactly 10 digits long after the country code');
+            return false;
+        }
+        // Validate Email (Simple email validation)
+        const emailPattern = /^[a-z0-9._]+@[a-z0-9]+\.[a-z]{2,}$/;
+        if (email && !emailPattern.test(email)) {
+            Alert.alert('Validation Error', 'Invalid Email Address. Only lowercase letters, numbers, @, and . are allowed.');
+            return false;
+        }
+
+        // Validate Principal Amount (Must be a positive number)
+        if (!principalAmount || isNaN(principalAmount) || parseFloat(principalAmount) <= 0) {
+            Alert.alert('Validation Error', 'Principal Amount must be a positive number');
+            return false;
+        }
+
+        // Validate Interest Rate (Must be a positive number)
+        if (!interestRate || isNaN(interestRate) || parseFloat(interestRate) <= 0) {
+            Alert.alert('Validation Error', 'Interest Rate must be a positive number');
+            return false;
+        }
+
+        // Validate Borrowed Date
+        if (!borrowedDate) {
+            Alert.alert('Validation Error', 'Borrowed Date is required');
+            return false;
+        }
+
+        // Validate End Date
+        if (!endDate) {
+            Alert.alert('Validation Error', 'End Date is required');
+            return false;
+        }
+
+        // Ensure End Date is after Borrowed Date
+        if (endDate <= borrowedDate) {
+            Alert.alert('Validation Error', 'End Date must be after Borrowed Date');
+            return false;
+        }
+
+        return true;
+    };
+
     const handleSubmit = async () => {
+        if (!validateForm()) {
+            return;
+        }
         const borrowerData = {
             borrowerName,
             phoneNumber,
@@ -61,8 +117,6 @@ const AddBorrower = ({ visible, onClose, addBorrower }) => {
 
         try {
             const response = await UserService.borrowerdetails(userInfo.id, borrowerData);
-
-            // const response = await fetch(`http://192.168.3.53:8080/${userInfo.id}/borrowers`)
             console.log('gayathri', response.data);
             console.log('gayathri', response.status);
             
@@ -70,39 +124,14 @@ const AddBorrower = ({ visible, onClose, addBorrower }) => {
                 throw new Error('Failed to add borrower');
             }
 
-            // const data = await response.json();
-            // console.log('Borrower successfully added:', data);
-
             addBorrower(borrowerData);
             handleClear();
             onClose();
         } catch (error) {
             console.error('Error adding borrower:', error);
-            alert('Failed to add borrower. Please check your network connection and try again.');
+            Alert.alert('Failed to add borrower. Please check your network connection and try again.');
         }
     };
-
-    //     try {
-    //         const response = await UserService.borrowerdetails(userInfo.id, borrowerData);
-
-    //         // const response = await fetch(`http://192.168.3.53:8080/${userInfo.id}/borrowers`)
-    //         console.log('gayathri', response.data);
-    //         if (!response.ok) {
-    //             throw new Error('Failed to add borrower');
-    //         }
-
-    //         const data = await response.json();
-    //         console.log('Borrower successfully added:', data);
-
-    //         addBorrower(borrowerData);
-    //         handleClear();
-    //         onClose();
-    //     } catch (error) {
-    //         console.error('Error adding borrower:', error);
-    //         alert('Failed to add borrower. Please check your network connection and try again.');
-    //     }
-    // };
-
 
     const handleClear = () => {
         setBorrowerName('');
@@ -118,7 +147,6 @@ const AddBorrower = ({ visible, onClose, addBorrower }) => {
         setEndDate(null);
     };
 
-    // const email_validation = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
 
 
     return (
@@ -146,10 +174,7 @@ const AddBorrower = ({ visible, onClose, addBorrower }) => {
                             keyboardType='numeric'
                             value={phoneNumber}
                             onChangeText={setPhoneNumber}
-                            rules={{
-                                required: 'Phone Number Required',
-                                minLength: { value: 10, message: 'Phone Number Exactly 10 Digits' },
-                            }}
+                         
                         />
                         <TextInput
                             style={styles.input}
@@ -157,7 +182,6 @@ const AddBorrower = ({ visible, onClose, addBorrower }) => {
                             keyboardType="email-address"
                             value={email}
                             onChangeText={setEmail}
-                        // rules={{ required: 'Email required', pattern: { value: Email_Pattern, message: 'Email is Invalid' } }}
                         />
                         <TextInput
                             style={styles.input}

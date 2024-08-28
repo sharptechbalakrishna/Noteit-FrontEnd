@@ -15,6 +15,7 @@ import TabNavigator from './TabNavigator';
 import ExpenseTracker from '../Screens/ExpenseTracker';
 import SplashScreenComponent from '../Screens/SplashScreenComponent';
 import HomeScreen from '../Screens/HomeScreen';
+import SelfNotes from '../Screens/SelfNotes';
 
 const Stack = createStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -61,7 +62,15 @@ const Navigation = () => {
                     ),
                 }}
             />
-            <Drawer.Screen name="MessageScreen" component={MessageScreen}
+              <Drawer.Screen name="Setting" component={SettingScreen}
+                options={{
+                    drawerIcon: ({ color }) => (
+                        <Ionicons name="settings-outline" size={22} color={color} />
+
+                    ),
+                }}
+            />
+            <Drawer.Screen name="SelfNotes" component={SelfNotes}
                 options={{
                     drawerIcon: ({ color }) => (
                         <Ionicons name="chatbox-ellipses-outline" size={22} color={color} />
@@ -69,7 +78,7 @@ const Navigation = () => {
                     ),
                 }}
             />
-            <Drawer.Screen name="MovementScreen" component={MovementScreen}
+            <Drawer.Screen name="ExpenseTracker" component={ExpenseTracker}
 
                 options={{
                     drawerIcon: ({ color }) => (
@@ -78,22 +87,15 @@ const Navigation = () => {
                     ),
                 }}
             />
-            <Drawer.Screen name="SettingScreen" component={SettingScreen}
+          
+             {/* <Drawer.Screen name="ExpenseTracker" component={ExpenseTracker}
                 options={{
                     drawerIcon: ({ color }) => (
                         <Ionicons name="settings-outline" size={22} color={color} />
 
                     ),
                 }}
-            />
-             <Drawer.Screen name="ExpenseTracker" component={ExpenseTracker}
-                options={{
-                    drawerIcon: ({ color }) => (
-                        <Ionicons name="settings-outline" size={22} color={color} />
-
-                    ),
-                }}
-            />
+            /> */}
                  <Drawer.Screen name="SplashScreenComponent" component={SplashScreenComponent}
                 options={{
                     drawerIcon: ({ color }) => (

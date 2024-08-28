@@ -205,14 +205,14 @@ const styles = StyleSheet.create({
   summaryContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 20,
+    marginBottom: 10,
   },
   summaryCard: {
     flex: 1,
     marginHorizontal: 5,
     backgroundColor: '#ffffff',
     borderRadius: 10,
-    padding: 15,
+    padding: 10,
     alignItems: 'center',
     shadowColor: '#000',
     shadowOpacity: 0.1,
@@ -227,17 +227,18 @@ const styles = StyleSheet.create({
   },
   balanceText: {
     fontSize: 22,
-    fontWeight: 'bold',
-    color: '#4CAF50',
+    // fontWeight: 'bold',
+    color: '#ff9933',
   },
+  
   incomeText: {
     fontSize: 22,
-    fontWeight: 'bold',
+    // fontWeight: 'bold',
     color: '#4CAF50',
   },
   expenseText: {
     fontSize: 22,
-    fontWeight: 'bold',
+    // fontWeight: 'bold',
     color: '#F44336',
   },
   formRow: {
@@ -246,7 +247,7 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    height: 40,
+    fontSize:20,
     borderRadius: 8,
     borderWidth: 1,
     borderColor: '#d1d5db',
@@ -255,11 +256,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   inputDescription: {
-    flex: 2,
+    flex: 1,
+    height:50,
   },
   inputAmount: {
     flex: 1,
     keyboardType: 'numeric',
+    height:50,
   },
   buttonRow: {
     flexDirection: 'row',
@@ -333,6 +336,9 @@ const styles = StyleSheet.create({
     padding: 10,
     borderTopLeftRadius: 8,
     borderTopRightRadius: 8,
+    justifyContent:'center',
+    alignItems:'center',
+   
   },
   sectionTitle: {
     fontSize: 16,
