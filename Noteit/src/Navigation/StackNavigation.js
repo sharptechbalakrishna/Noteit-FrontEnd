@@ -14,6 +14,8 @@ import ProfileUpdateScreen from '../Screens/ProfileUpdateScreen';
 import BarrowerProfileScreen from '../Screens/BarrowerProfileScreen';
 import BugReportScreen from '../Screens/BugReportScreen';
 import ChangePasswordScreen from '../Screens/ChangePasswordScreen';
+
+import SettingScreen from '../Screens/SettingScreen';
 const StackNavigation = () => {
     const Stack = createStackNavigator();
 
@@ -24,8 +26,7 @@ const StackNavigation = () => {
             }}
         >
             <Stack.Screen name="Drawer" component={Navigation} options={{ headerShown: false }} />
-            <Stack.Screen name="HomeScreen" component={HomeScreen} />
-            <Stack.Screen name="BarrowerScreen" component={BarrowerScreen} />
+            <Stack.Screen name="HomeScreen" component={HomeScreen} />        
             <Stack.Screen name="InterestCalculator" component={InterestCalculator} />
             <Stack.Screen name="BorrowerDetailScreen" component={BorrowerDetailScreen} />
             <Stack.Screen name="ExpenseTracker" component={ExpenseTracker} />
@@ -36,6 +37,13 @@ const StackNavigation = () => {
             <Stack.Screen name="BarrowerProfileScreen" component={BarrowerProfileScreen} />
             <Stack.Screen name="BugReportScreen" component={BugReportScreen} />
             <Stack.Screen name="ChangePasswordScreen" component={ChangePasswordScreen} />
+            <Stack.Screen name="BarrowerScreen" component={BarrowerScreen} />
+            <Stack.Screen name="SettingScreen" component={SettingScreen} />
+        
+
+
+
+
             
 
         </Stack.Navigator>

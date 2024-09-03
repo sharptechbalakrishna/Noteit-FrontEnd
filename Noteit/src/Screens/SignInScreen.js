@@ -28,19 +28,35 @@ const SignInScreen = () => {
 
     const { height } = useWindowDimensions();
 
+    // const onSignInPressed = async (data) => {
+    //     // console.warn("Signed In Successfully");
+
+    //     console.log(data);
+    //     try {
+    //         await login(data);
+    //         CustomFlashMessage('success', 'Success', 'Logged In Sucessfully !');
+    //     } catch (error) {
+    //         console.log("Sign In :", error);
+    //         CustomFlashMessage('error', 'Login Faild', 'Provide valid phone and password !');
+    //     }
+
+    // };
+
+
     const onSignInPressed = async (data) => {
-        // console.warn("Signed In Successfully");
-
-        console.log(data);
         try {
-            await login(data);
-            CustomFlashMessage('success', 'Success', 'Logged In Sucessfully !');
+            await login({
+                phoneNumber: data.phoneNumber,  // Assuming the form field is named phoneNumber
+                password: data.password
+            });
+            CustomFlashMessage('success', 'Success', 'Logged In Successfully!');
         } catch (error) {
-            console.log("Sign In :", error);
-            CustomFlashMessage('error', 'Login Faild', 'Provide valid phone and password !');
+            console.error("Sign In error:", error);
+            CustomFlashMessage('error', 'Login Failed', 'Provide valid phone and password!');
         }
-
     };
+
+    
     const onForgotPasswordPressed = () => {
         console.warn("onForgotPasswordPressed");
         navigation.navigate('ForgetPasswordScreen');
@@ -67,10 +83,10 @@ const SignInScreen = () => {
                     placeholder='PhoneNumber'
                     keyboardType='numeric'
                     secureTextEntry={false}
-                    maxLength={10}
+                     maxLength={13}
                     rules={{
                         required: 'Phone Number Required',
-                        minLength: { value: 10, message: 'Phone Number Exactly 10 Digits' },
+                         minLength: { value: 13, message: 'Phone Number Exactly 10 Digits' },
                     }}
 
                 />

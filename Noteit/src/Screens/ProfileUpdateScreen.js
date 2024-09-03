@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react'; // Correct import of useContext
 import {
   View,
   Text,
@@ -11,7 +10,6 @@ import {
   BackHandler,
   Image,
 } from 'react-native';
-
 import { Avatar } from 'react-native-paper';
 import styles from '../Utils/ProfileUpdateStyles';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -19,13 +17,14 @@ import Back from 'react-native-vector-icons/Ionicons';
 import ImagePicker from 'react-native-image-crop-picker';
 import axios from 'axios';
 import UserService from '../UserService/UserService';
-import { useContext } from 'react';
-import { AuthContext } from '../Context/AuthContext';
+import { AuthContext } from '../Context/AuthContext'; // Correct import of AuthContext
 import { RadioButton } from 'react-native-paper';
 import Toast from 'react-native-toast-message';
 import CustomFlashMessage from '../Components/CustomFlashMessage';
+import Icon from 'react-native-vector-icons/Ionicons';
 
-function ProfileUpdateScreen({ route }) {
+function ProfileUpdateScreen({ route , navigation}) {
+  const { userToken } = useContext(AuthContext); // Use AuthContext
 
   const [id, setId] = useState('');
   const [image, setImage] = useState('');
@@ -51,11 +50,9 @@ function ProfileUpdateScreen({ route }) {
         setGender(customerData.gender || '');
         setImage(customerData.image || '');
     }
-}, [customerData]);;
+  }, [customerData]);
 
-
-
-  const selectPhoto = ({ }) => {
+  const selectPhoto = () => {
     ImagePicker.openPicker({
       width: 300,
       height: 400,
@@ -64,42 +61,41 @@ function ProfileUpdateScreen({ route }) {
       cropperCircleOverlay: true,
       avoidEmptySpaceAroundImage: true,
       freeStyleCropEnabled: true,
-
     }).then(image => {
-      // console.log(image);
-      const data = `data:${image.mime};base64,${image.data}`
+      const data = `data:${image.mime};base64,${image.data}`;
       setImage(data);
-      // console.log("Image :", data);
-      // console.log("Image :", image);
-
     });
   };
 
   const updateProfile = async () => {
     const formData = {
-        id: id, // Ensure this is a number if expected
-        firstName: firstName,
-        lastName: lastName,
-        email: email,
-        phone: phone,
-        userName: userName,
-        gender: gender,
-        image: image,
+      id: id,
+      firstName: firstName,
+      lastName: lastName,
+      email: email,
+      phone: phone,
+      userName: userName,
+      gender: gender,
+      image: image,
     };
 
     try {
-      // console.log("PU S: ",formData);
-        const response = await UserService.register(formData);
-        CustomFlashMessage('success', 'Success', 'Updated Sucessfully!');
-        let userInfo = response;
-        setUserInfo(userInfo);
-        AsyncStorage.setItem('userInfo', JSON.stringify(userInfo));
-        console.log("Response Data:", response);
+      console.log('Request Data:', formData);
+      console.log('User Token:', userToken);
+
+      const response = await UserService.updateCustomer(formData, userToken, customerData.id);
+      console.log('UPC:',response);
+
+      CustomFlashMessage('success', 'Success', 'Updated Successfully!');
+      setUserInfo(response);
+      AsyncStorage.setItem('userInfo', JSON.stringify(response));
+      console.log("Response Data:", response);
     } catch (error) {
-        console.error("Update Error:", error);
-        CustomFlashMessage('error', 'Error', 'Failed To Update!');
+      console.error("Update Error:", error);
+      CustomFlashMessage('error', 'Error', 'Failed To Update!');
     }
-};
+  };
+
   return (
     <ScrollView
       keyboardShouldPersistTaps={'always'}
@@ -107,16 +103,9 @@ function ProfileUpdateScreen({ route }) {
       contentContainerStyle={{ paddingBottom: 40 }}>
       <View>
         <View style={styles.header}>
-          <View style={{ flex: 1 }}>
-            <Back
-              name="arrow-back"
-              size={30}
-              style={styles.backIcon}
-            // onPress={() => {
-            //   this.props.navigation.goBack();
-            // }}
-            />
-          </View>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Icon name="arrow-back" size={24} color="#fff" />
+        </TouchableOpacity>
           <View style={{ flex: 3 }}>
             <Text style={styles.nameText}>Edit Profile</Text>
           </View>
@@ -234,7 +223,7 @@ function ProfileUpdateScreen({ route }) {
               placeholder="Your User Name"
               placeholderTextColor={'#999797'}
               // keyboardType="numeric"
-              // maxLength={10}
+             maxLength={13}
               style={styles.infoEditSecond_text}
 
               onChange={(e) => setUserName(e.nativeEvent.text)}
@@ -248,7 +237,7 @@ function ProfileUpdateScreen({ route }) {
               placeholder="Your Mobile Ndo"
               placeholderTextColor={'#999797'}
               keyboardType="numeric"
-              maxLength={10}
+              maxLength={13}
               style={styles.infoEditSecond_text}
               onChange={(e) => setPhone(e.nativeEvent.text)}
               defaultValue={phone}

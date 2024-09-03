@@ -14,7 +14,7 @@ const formatDate = (dateString) => {
 
 const BarrowerProfileScreen = ({ route, navigation }) => {
     const { barrowerData } = route.params;
-    const { userInfo } = useContext(AuthContext); // Get userInfo from AuthContext
+    const { userInfo,userToken } = useContext(AuthContext); // Get userInfo from AuthContext
 
     useEffect(() => {
         if (userInfo && userInfo.id) {
@@ -35,19 +35,19 @@ const BarrowerProfileScreen = ({ route, navigation }) => {
                     text: 'Yes',
                     onPress: async () => {
                         try {
-                            const response = await UserService.deleteBorrower(userInfo.id, barrowerData.id);
+                            const response = await UserService.deleteBorrower(userInfo.id, barrowerData.id, userToken);
                             console.log(response);
                             
-                            // Navigate back two steps and then to BorrowerScreen
+                            // First go back to the previous screen
+                            navigation.goBack();
+                            
+                            // Then go back to the BorrowerScreen and refresh it
                             navigation.dispatch(
-                                CommonActions.reset({
-                                    index: 1,
-                                    routes: [
-                                        { name: 'BorrowerScreen' }, // Adjust this name if it's different in your navigation setup
-                                    ],
+                                CommonActions.navigate({
+                                    name: 'BarrowerScreen',
                                 })
                             );
-
+    
                             CustomFlashMessage('success', 'Success', 'Borrower deleted successfully!');
                         } catch (error) {
                             console.error('Error deleting borrower:', error.response ? error.response.data : error.message);

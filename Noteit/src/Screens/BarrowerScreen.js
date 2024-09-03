@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useContext } from 'react';
+import React, { useState, useEffect, useRef, useContext, useCallback } from 'react';
 import { View, ActivityIndicator, Text, TouchableOpacity, FlatList, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
 import { Searchbar } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -6,9 +6,10 @@ import axios from 'axios';
 import AddBorrower from './AddBorrower'; // Import your AddBorrower component
 import { AuthContext } from '../Context/AuthContext';
 import UserService from '../UserService/UserService';
+import { useFocusEffect } from '@react-navigation/native'; // Import useFocusEffect
 
 const BorrowerScreen = ({ navigation }) => {
-  const { userInfo } = useContext(AuthContext); // Get userInfo from AuthContext
+  const { userInfo, userToken } = useContext(AuthContext); // Get userInfo from AuthContext
   const [searchQuery, setSearchQuery] = useState('');
   const [borrowers, setBorrowers] = useState([]);
   const [filteredBorrowers, setFilteredBorrowers] = useState([]);
@@ -16,30 +17,12 @@ const BorrowerScreen = ({ navigation }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const flatListRef = useRef(null); // Create a ref for FlatList
 
-
-  useEffect(() => {
-    if (userInfo && userInfo.id) {
-      fetchBorrowers();
-    }
-  }, [userInfo]);
-
   const fetchBorrowers = async () => {
     setIsLoading(true);
-
-
-
     try {
-
-
-      // const response = await axios.get(`http://192.168.3.53:8080/${userInfo.id}/borrowers`);
-
-      const response = await UserService.displayBorrowers(userInfo.id);
+      const response = await UserService.displayBorrowers(userInfo.id, userToken);
       const borrowersData = response;
       borrowersData.sort((a, b) => b.id - a.id);
-      borrowersData.forEach(borrower => {
-        console.log('customerid:', userInfo.id, 'borrowersData--->', '&', borrower.id, borrower.borrowerName, parseFloat(borrower.principalAmount), parseFloat(borrower.interestRate));
-
-      });
       setBorrowers(borrowersData);
       setFilteredBorrowers(borrowersData);
     } catch (error) {
@@ -48,6 +31,15 @@ const BorrowerScreen = ({ navigation }) => {
       setIsLoading(false);
     }
   };
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchBorrowers(); // Fetch borrowers every time the screen is focused
+      return () => {
+        // Cleanup if needed
+      };
+    }, [userInfo]) // Add userInfo as a dependency to ensure it re-fetches when necessary
+  );
 
   const addBorrower = async (newBorrower) => {
     try {
@@ -59,12 +51,12 @@ const BorrowerScreen = ({ navigation }) => {
     }
   };
 
-  const onChangeSearch = query => {
+  const onChangeSearch = (query) => {
     setSearchQuery(query);
     if (query === '') {
       setFilteredBorrowers(borrowers);
     } else {
-      const filtered = borrowers.filter(borrower =>
+      const filtered = borrowers.filter((borrower) =>
         borrower.borrowerName?.toLowerCase().includes(query.toLowerCase()) ||
         borrower.principalAmount?.toString().includes(query) ||
         borrower.interestRate?.toString().includes(query) ||
@@ -80,8 +72,7 @@ const BorrowerScreen = ({ navigation }) => {
 
   const NavigationSelfNotes = () => {
     navigation.navigate('SelfNotes');
-
-  }
+  };
 
 
   const renderItem = ({ item }) => (

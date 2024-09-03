@@ -21,9 +21,9 @@ import UserService from '../UserService/UserService';
 import CustomFlashMessage from '../Components/CustomFlashMessage';
 
 
-export default function SettinScreen({ navigation }) {
+export default function SettingScreen({ navigation }) {
 
-  const { userInfo, logout } = useContext(AuthContext); // Get userInfo from AuthContext
+  const { userToken,userInfo, logout } = useContext(AuthContext); // Get userInfo from AuthContext
   const [form, setForm] = useState({
     darkMode: false,
     emailNotifications: true,
@@ -48,30 +48,29 @@ export default function SettinScreen({ navigation }) {
 
   const deleteAccount = async () => {
     Alert.alert(
-      'Confirm Delete',
-      'Are you sure you want to delete your account?',
-      [
-        {
-          text: 'Cancel',
-          style: 'cancel',
-        },
-        {
-          text: 'OK',
-          onPress: async () => {
-            try {
-              console.war
-              await UserService.deleteAccount(userInfo.id);
-              logout();
-            } catch (error) {
-              console.log("Error ", error);
-              CustomFlashMessage('error', 'Error', 'Try again later!');
-            }
-          },
-        },
-      ],
-      { cancelable: true }
+        'Confirm Delete',
+        'Are you sure you want to delete your account?',
+        [
+            {
+                text: 'Cancel',
+                style: 'cancel',
+            },
+            {
+                text: 'OK',
+                onPress: async () => {
+                    try {
+                        await UserService.deleteAccount(userInfo.id, userToken);
+                        logout();
+                    } catch (error) {
+                        console.log("Error ", error);
+                        CustomFlashMessage('error', 'Error', 'Try again later!');
+                    }
+                },
+            },
+        ],
+        { cancelable: true }
     );
-  };
+};
 
   const myCustomShare = async () => {
 
@@ -106,36 +105,27 @@ ${userInfo.firstName}
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
+
       <View style={styles.profile}>
-        <TouchableOpacity
-          onPress={() => {
-            // handle onPress
-          }}>
+
+        <TouchableOpacity onPress={() => { }}>
           <View style={styles.profileAvatarWrapper}>
-            <Image
-              alt=""
-              source={{
-                uri: 'https://i.ibb.co/N2zmVHw/IMG-20221223-122434.jpg'
-              }}
+            <Image alt="" source={{ uri: 'https://i.ibb.co/N2zmVHw/IMG-20221223-122434.jpg' }}
               style={styles.profileAvatar} />
 
             <TouchableOpacity
-              onPress={() => {
-                // handle onPress
-              }}>
+              onPress={() => { }}>
               <View style={styles.profileAction}>
                 <FeatherIcon color="#fff" name="edit-3" size={15} />
               </View>
             </TouchableOpacity>
+
           </View>
         </TouchableOpacity>
 
         <View>
           <Text style={styles.profileName}>Shravankumar</Text>
-
-          <Text style={styles.profileAddress}>
-            BTM 2nd Stage Bengaluru - 560076
-          </Text>
+          <Text style={styles.profileAddress}>   BTM 2nd Stage Bengaluru - 560076  </Text>
         </View>
       </View>
 
@@ -143,11 +133,8 @@ ${userInfo.firstName}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Preferences</Text>
 
-          <TouchableOpacity
-            onPress={() => {
-              // handle onPress
-            }}
-            style={styles.row}>
+          <TouchableOpacity  onPress={() => { }} style={styles.row}>
+
             <View style={[styles.rowIcon, { backgroundColor: '#fe9400' }]}>
               <FeatherIcon color="#fff" name="globe" size={20} />
             </View>
@@ -157,10 +144,7 @@ ${userInfo.firstName}
             <Caption>English</Caption>
             <View style={styles.rowSpacer} />
 
-            <FeatherIcon
-              color="#C6C6C6"
-              name="chevron-right"
-              size={20} />
+            <FeatherIcon color="#C6C6C6" name="chevron-right" size={20} />
           </TouchableOpacity>
 
           {/* <View style={styles.row}>
@@ -177,25 +161,18 @@ ${userInfo.firstName}
               value={form.darkMode} />
           </View> */}
 
-          <TouchableOpacity
-            onPress={() => { navigation.navigate('ChangePasswordScreen'); }}
-            style={styles.row}>
+          <TouchableOpacity onPress={() => { navigation.navigate('ChangePasswordScreen'); }} style={styles.row}>
             <View style={[styles.rowIcon, { backgroundColor: '#32c759' }]}>
-              <Icon
-                color="#fff"
-                name="password"
-                size={20} />
+              <Icon color="#fff" name="password" size={20} />
             </View>
 
             <Text style={styles.rowLabel}>Change Password</Text>
 
             <View style={styles.rowSpacer} />
 
-            <FeatherIcon
-              color="#C6C6C6"
-              name="chevron-right"
-              size={20} />
+            <FeatherIcon color="#C6C6C6" name="chevron-right" size={20} />
           </TouchableOpacity>
+          
 
           {/* <View style={styles.row}>
             <View style={[styles.rowIcon, { backgroundColor: '#38C959' }]}>
@@ -222,10 +199,7 @@ ${userInfo.firstName}
               <Text style={styles.rowLabel}>Tell Your Friends</Text>
 
               <View style={styles.rowSpacer} />
-              <FeatherIcon
-                color="#C6C6C6"
-                name="chevron-right"
-                size={20} />
+              <FeatherIcon color="#C6C6C6" name="chevron-right" size={20} />
 
             </View>
           </TouchableOpacity>
@@ -236,8 +210,7 @@ ${userInfo.firstName}
 
 
           <TouchableOpacity
-            onPress={() => { navigation.navigate('BugReportScreen'); }}
-            style={styles.row}>
+            onPress={() => { navigation.navigate('BugReportScreen'); }} style={styles.row}>
             <View style={[styles.rowIcon, { backgroundColor: '#8e8d91' }]}>
               <FeatherIcon color="#fff" name="flag" size={20} />
             </View>
@@ -246,15 +219,10 @@ ${userInfo.firstName}
 
             <View style={styles.rowSpacer} />
 
-            <FeatherIcon
-              color="#C6C6C6"
-              name="chevron-right"
-              size={20} />
+            <FeatherIcon color="#C6C6C6" name="chevron-right" size={20} />
           </TouchableOpacity>
 
-          <TouchableOpacity
-            onPress={contactUs}
-            style={styles.row}>
+          <TouchableOpacity onPress={contactUs} style={styles.row}>
             <View style={[styles.rowIcon, { backgroundColor: '#007afe' }]}>
               <FeatherIcon color="#fff" name="mail" size={20} />
             </View>
@@ -263,10 +231,7 @@ ${userInfo.firstName}
 
             <View style={styles.rowSpacer} />
 
-            <FeatherIcon
-              color="#C6C6C6"
-              name="chevron-right"
-              size={20} />
+            <FeatherIcon color="#C6C6C6" name="chevron-right" size={20} />
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -280,17 +245,11 @@ ${userInfo.firstName}
 
             <View style={styles.rowSpacer} />
 
-            <FeatherIcon
-              color="#C6C6C6"
-              name="chevron-right"
-              size={20} />
+            <FeatherIcon color="#C6C6C6" name="chevron-right" size={20} />
           </TouchableOpacity>
 
           <Text style={styles.sectionTitle}>Account</Text>
-          <TouchableOpacity
-
-            onPress={deleteAccount}
-            style={styles.row}>
+          <TouchableOpacity onPress={deleteAccount} style={styles.row}>
             <View style={[styles.rowIcon, { backgroundColor: 'crimson' }]}>
               <AntDesign color="#fff" name="delete" size={20} />
             </View>
@@ -299,10 +258,7 @@ ${userInfo.firstName}
 
             <View style={styles.rowSpacer} />
 
-            <FeatherIcon
-              color="#C6C6C6"
-              name="chevron-right"
-              size={20} />
+            <FeatherIcon color="#C6C6C6" name="chevron-right" size={20} />
           </TouchableOpacity>
         </View>
       </ScrollView>

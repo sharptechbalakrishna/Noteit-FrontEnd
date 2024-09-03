@@ -1,13 +1,12 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { View, Text, TextInput, Button, SectionList, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, SectionList, StyleSheet, TouchableOpacity } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import UserService from '../UserService/UserService';
 import { AuthContext } from '../Context/AuthContext';
 import { format } from 'date-fns';
 
-
 const ExpenseTracker = () => {
-  const { userInfo } = useContext(AuthContext);
+  const { userInfo, userToken } = useContext(AuthContext);
   const [description, setDescription] = useState('');
   const [amount, setAmount] = useState('');
   const [transactions, setTransactions] = useState([]);
@@ -16,7 +15,7 @@ const ExpenseTracker = () => {
   const [spentAmount, setSpentAmount] = useState(0);
   const [income, setIncome] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
-  const [isSearching, setIsSearching] = useState(false);
+  const [expandedItemId, setExpandedItemId] = useState(null); // Track expanded item
 
   useEffect(() => {
     if (userInfo && userInfo.id) {
@@ -30,7 +29,7 @@ const ExpenseTracker = () => {
 
   const fetchExpenseTrackerData = async (customerId) => {
     try {
-      const data = await UserService.fetchExpenseTrackerData(customerId);
+      const data = await UserService.fetchExpenseTrackerData(customerId, userToken);
       const sortedTransactions = (data.transactions || []).sort(
         (a, b) => new Date(b.updatedTs) - new Date(a.updatedTs)
       );
@@ -54,7 +53,6 @@ const ExpenseTracker = () => {
       setFilteredTransactions(filtered);
     }
   };
-
   const handleAddIncome = async () => {
     if (description && amount) {
       const expenseData = {
@@ -63,7 +61,7 @@ const ExpenseTracker = () => {
         income: parseFloat(amount),
       };
       try {
-        await UserService.updateExpense(expenseData);
+        await UserService.updateExpense(expenseData, userToken); // Pass userToken here
         await fetchExpenseTrackerData(userInfo.id); // Refresh data after adding income
         setDescription('');
         setAmount('');
@@ -72,7 +70,7 @@ const ExpenseTracker = () => {
       }
     }
   };
-
+  
   const handleAddExpense = async () => {
     if (description && amount) {
       const expenseData = {
@@ -81,7 +79,7 @@ const ExpenseTracker = () => {
         spentAmount: parseFloat(amount),
       };
       try {
-        await UserService.updateExpense(expenseData);
+        await UserService.updateExpense(expenseData, userToken); // Pass userToken here
         await fetchExpenseTrackerData(userInfo.id); // Refresh data after adding expense
         setDescription('');
         setAmount('');
@@ -90,6 +88,9 @@ const ExpenseTracker = () => {
       }
     }
   };
+
+
+
 
   const groupedTransactions = filteredTransactions.reduce((groups, transaction) => {
     const date = format(new Date(transaction.updatedTs), 'dd MMM yyyy');
@@ -105,6 +106,9 @@ const ExpenseTracker = () => {
     data: groupedTransactions[date],
   }));
 
+  const toggleExpand = (id) => {
+    setExpandedItemId(prevId => (prevId === id ? null : id)); // Toggle expanded item
+  };
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Expense Tracker</Text>
@@ -131,6 +135,8 @@ const ExpenseTracker = () => {
           placeholder="Description"
           value={description}
           onChangeText={setDescription}
+         
+
         />
         <TextInput
           style={[styles.input, styles.inputAmount]}
@@ -138,9 +144,11 @@ const ExpenseTracker = () => {
           keyboardType="numeric"
           value={amount}
           onChangeText={setAmount}
+        
+
         />
       </View>
-      
+
       <View style={styles.buttonRow}>
         <TouchableOpacity style={[styles.button, styles.incomeButton]} onPress={handleAddIncome}>
           <Text style={styles.buttonText}>Income</Text>
@@ -173,7 +181,13 @@ const ExpenseTracker = () => {
         renderItem={({ item }) => (
           <View style={styles.transactionItem}>
             <View style={styles.transactionDetails}>
-              <Text style={styles.transactionDescription}>{item.description}</Text>
+              <TouchableOpacity onPress={() => toggleExpand(item.id)}>
+                <Text style={styles.transactionDescription}>
+                  {expandedItemId === item.id || item.description.length <= 13
+                    ? item.description
+                    : `${item.description.substring(0, 13)}...`}
+                </Text>
+              </TouchableOpacity>
               <Text style={item.income ? styles.incomeAmount : styles.expenseAmount}>
                 {item.income ? `₹${item.income.toFixed(2)}` : `₹${item.spentAmount.toFixed(2)}`}
               </Text>
@@ -230,7 +244,7 @@ const styles = StyleSheet.create({
     // fontWeight: 'bold',
     color: '#ff9933',
   },
-  
+
   incomeText: {
     fontSize: 22,
     // fontWeight: 'bold',
@@ -247,7 +261,7 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    fontSize:20,
+    fontSize: 20,
     borderRadius: 8,
     borderWidth: 1,
     borderColor: '#d1d5db',
@@ -257,12 +271,12 @@ const styles = StyleSheet.create({
   },
   inputDescription: {
     flex: 1,
-    height:50,
+    height: 50,
   },
   inputAmount: {
     flex: 1,
     keyboardType: 'numeric',
-    height:50,
+    height: 50,
   },
   buttonRow: {
     flexDirection: 'row',
@@ -336,9 +350,9 @@ const styles = StyleSheet.create({
     padding: 10,
     borderTopLeftRadius: 8,
     borderTopRightRadius: 8,
-    justifyContent:'center',
-    alignItems:'center',
-   
+    justifyContent: 'center',
+    alignItems: 'center',
+
   },
   sectionTitle: {
     fontSize: 16,

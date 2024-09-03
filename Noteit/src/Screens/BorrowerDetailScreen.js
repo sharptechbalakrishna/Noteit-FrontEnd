@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState,useContext } from 'react';
 import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, Linking } from 'react-native';
 import { Avatar, Title, Caption, TouchableRipple, } from 'react-native-paper';
 import AddEntryModal from './AddEntryModal';
@@ -11,10 +11,13 @@ import { Image } from 'react-native-elements';
 import { useNavigation } from '@react-navigation/native';
 import { color } from 'react-native-elements/dist/helpers';
 import EditEntryModel from '../Components/EditEntryModel';
+import { AuthContext } from '../Context/AuthContext';
 
 const BorrowerDetailScreen = ({ route }) => {
 
   const navigation = useNavigation();
+  const { userInfo, userToken } = useContext(AuthContext); // Get userInfo from AuthContext
+
   const { barrowerData } = route.params;
   const [name] = barrowerData.borrowerName.toUpperCase();
   const [imageUrl] = useState(null);
@@ -37,7 +40,8 @@ const BorrowerDetailScreen = ({ route }) => {
   const fetchLedgerData = async () => {
 
     try {
-      const data = await UserService.ledgerData(barrowerData.id);
+      
+      const data = await UserService.ledgerData(barrowerData.id, userToken);
       setLedgerData(data);
     } catch (err) {
       console.error('Error fetching ledger data:', err);
@@ -51,7 +55,7 @@ const BorrowerDetailScreen = ({ route }) => {
     setLoading(true);
     try {
       setModalVisible(false);
-      await UserService.addEntry(newEntry);
+      await UserService.addEntry(newEntry,userToken);
       fetchLedgerData();
       CustomFlashMessage('success', 'Success', 'Entry added successfully!');
 
@@ -107,7 +111,7 @@ const BorrowerDetailScreen = ({ route }) => {
     setLoading(true);
     try {
       setEditModula(false);
-      await UserService.addEntry(newEntry);
+      await UserService.addEntry(newEntry,userToken);
       fetchLedgerData();
       CustomFlashMessage('success', 'Success', 'Entry added successfully!');
 
@@ -127,7 +131,7 @@ const BorrowerDetailScreen = ({ route }) => {
     try {
       console.log('lastBefore :', lastBefore);
       console.log('Barrower ID :', barrowerData.id);
-      const response = await UserService.deleteLedger(lastBefore, barrowerData.id);
+      const response = await UserService.deleteLedger(lastBefore, barrowerData.id, userToken);
       CustomFlashMessage('success', 'Success', 'Deleted Sucessfully!');
       fetchLedgerData();
 
@@ -185,6 +189,8 @@ const BorrowerDetailScreen = ({ route }) => {
           ledgerId={ledgerId}
           loading={loading}
         />
+
+
         <EditEntryModel
           visible={editModula}
           onClose={() => setEditModula(false)}
@@ -193,7 +199,10 @@ const BorrowerDetailScreen = ({ route }) => {
           ledgerId={lastBefore}
           loading={loading}
         />
+
+
       </View>
+      
       {(!modalVisible && !editModula) && (
         <TouchableOpacity style={styles.floatingButton} onPress={() => setModalVisible(true)}>
           <Text style={styles.buttonText}>Entry Interest</Text>

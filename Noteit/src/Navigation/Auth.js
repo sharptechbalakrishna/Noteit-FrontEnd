@@ -4,7 +4,7 @@ import { NavigationContainer } from '@react-navigation/native'
 import SignInScreen from '../Screens/SignInScreen'
 import SignUpScreen from '../Screens/SignUpScreen'
 import ForgetPasswordScreen from '../Screens/ForgetPasswordScreen'
-import VerifyEmailScreen from '../Screens/VerifyEmailScreen'
+import VerifyOtpScreen from '../Screens/VerifyOtpScreen'
 import NewPasswordScreen from '../Screens/NewPasswordScreen'
 import { createStackNavigator } from '@react-navigation/stack';
 import HomeScreen from '../Screens/HomeScreen'
@@ -24,7 +24,7 @@ const Auth = () => {
                 <Stack.Screen name="SignInScreen" component={SignInScreen} />
                 <Stack.Screen name="SignUpScreen" component={SignUpScreen} />
                 <Stack.Screen name="ForgetPasswordScreen" component={ForgetPasswordScreen} />
-                <Stack.Screen name="VerifyEmailScreen" component={VerifyEmailScreen} />
+                <Stack.Screen name="VerifyOtpScreen" component={VerifyOtpScreen} />
                 <Stack.Screen name="NewPasswordScreen" component={NewPasswordScreen} />
                 <Stack.Screen name="HomeScreen" component={HomeScreen} />
 

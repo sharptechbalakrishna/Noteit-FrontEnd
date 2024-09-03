@@ -35,7 +35,7 @@ const groupByDate = (notes) => {
 };
 
 const SelfNotes = () => {
-  const { userInfo } = useContext(AuthContext);
+  const { userInfo, userToken } = useContext(AuthContext);
   const [inputText, setInputText] = useState('');
   const [isAdding, setIsAdding] = useState(false);
   const [notes, setNotes] = useState([]);
@@ -57,7 +57,7 @@ const SelfNotes = () => {
 
         // const response = await axios.get(`http://192.168.3.53:8080/${userInfo.id}/selfnotes`);
 
-        const response = await UserService.displaySelfNotes(userInfo.id);
+        const response = await UserService.displaySelfNotes(userInfo.id, userToken);
 
         const notesData = response;
         console.log('Fetched Notes:', notesData);
@@ -99,7 +99,7 @@ const SelfNotes = () => {
     try {
       // const response = await axios.post(`http://192.168.3.53:8080/${userInfo.id}/selfnotes`, newNote);
 
-      const response = await UserService.addSelfNotes(userInfo.id, newNote);
+      const response = await UserService.addSelfNotes(userInfo.id, newNote, userToken);
 
       console.log('In SN:', response);
       setNotes([...notes, response]);
@@ -137,8 +137,8 @@ const SelfNotes = () => {
     try {
       // await axios.post(`http://192.168.3.53:8080/${userInfo.id}/selfnotes`, updatedNote);
 
-      const response = await UserService.updateSelfNotes(userInfo.id, updatedNote);
-
+      const response = await UserService.updateSelfNotes(userInfo.id, updatedNote, userToken);
+      console.log(response.date);
       const updatedNotes = notes.map(note =>
         note.id === editNoteId
           ? updatedNote
@@ -163,8 +163,8 @@ const SelfNotes = () => {
     try {
       // await axios.delete(`http://192.168.3.53:8080/${userInfo.id}/selfnotes/${id}`);
 
-      const response = await UserService.deleteSelfNotes(userInfo.id, id);
-
+      const response = await UserService.deleteSelfNotes(userInfo.id, id, userToken);
+      console.log(response.data);
       const updatedNotes = notes.filter(note => note.id !== id);
 
       setNotes(updatedNotes);

@@ -4,26 +4,80 @@ import { AuthContext } from '../Context/AuthContext';
 class UserService {
 
 
-    static BASE_URL = 'http://192.168.3.165:8080';
+    static BASE_URL = 'http://192.168.3.193:8080';
 
 
     // Sign Up for user with Mobile Number and password
+    // static async login(phoneNumber, password) {
+    //     try {
+    //         console.log("In US :", phoneNumber, password)
+    //         const response = await axios.get(`${UserService.BASE_URL}/login`, {
+    //             params: {
+    //                 phone: phoneNumber,
+    //                 password: password
+    //             }
+    //         })
+    //         // console.log(response.data);
+    //         console.log("In US :", phoneNumber, password)
+    //         return response.data;
+    //     } catch (err) {
+    //         throw err;
+    //     }
+    // }
+
+
     static async login(phoneNumber, password) {
         try {
-            console.log("In US :", phoneNumber, password)
-            const response = await axios.get(`${UserService.BASE_URL}/login`, {
-                params: {
-                    phone: phoneNumber,
-                    password: password
-                }
-            })
-            // console.log(response.data);
-            console.log("In US :", phoneNumber, password)
+            console.log("UserService login:", phoneNumber, password);
+            const response = await axios.post(`${UserService.BASE_URL}/auth/login`, {
+                phone: phoneNumber,  // Match this with what your backend expects
+                password: password
+            });
+            console.log("Response data:", response.data);
             return response.data;
         } catch (err) {
+            console.error("Login error:", err);
             throw err;
         }
     }
+
+    static async register(register) {
+        try {
+            const response = await axios.post(`${UserService.BASE_URL}/auth/register`, register);
+            console.log("User Sercive Response:", response.data); // Log the entire response
+            return response.data;
+        } catch (error) {
+            console.error("User Sercive", error); // Log the error details
+            throw error;
+        }
+    }
+
+    static async passwordforgot(email) {
+        try {
+            const response = await axios.post(`${UserService.BASE_URL}/forgot-password`, email);
+            console.log("User Service Response:", response.data);
+            return response.data;
+        } catch (error) {
+            console.error("User Service Error:", error);
+            throw error;
+        }
+    }
+    
+    static async verifyOtpAndSetPassword({ email, otp, newPassword }) {
+        try {
+            const response = await axios.post(`${UserService.BASE_URL}/reset-password`, {
+                email,
+                otp,
+                newPassword
+            });
+            console.log("User Service Response:", response.data);
+            return response.data;
+        } catch (error) {
+            console.error("User Service Error:", error);
+            throw error;
+        }
+    }
+
     static async logout(customerId) {
         try {
             console.log("In USL :", customerId)
@@ -37,16 +91,23 @@ class UserService {
 
 
     // Register for the new Person and Update by Passing the User iD
-    static async register(register) {
+    static async updateCustomer(updateData, userToken, customerData) {
         try {
-            console.log('US Register Data :', register);  // While Deploying need to Commit this line
-            const response = await axios.post(`${UserService.BASE_URL}/register`, register);
-            // console.log('US Register Response :', response.data);
+            console.log('US Update Data :', updateData);  // Debug log
+            const response = await axios.put(`${UserService.BASE_URL}/auth/updateCustomer`, updateData, {
+                headers: {
+                    Authorization: `Bearer ${userToken}`
+                },
+                params: {
+                    customerId: customerData.id // Ensure the correct parameter is passed
+                }
+            });
             return response.data;
         } catch (err) {
             throw err;
         }
     }
+
 
     // Register Data of Perticular loggin person
     static async customerData(customerId) {
@@ -60,34 +121,63 @@ class UserService {
     }
 
     // Gettning the information of the ledger for perticular Barrower
-    static async ledgerData(borrowerId) {
+    static async ledgerData(borrowerId, userToken) {
         try {
             console.log('US B_Id', borrowerId); // While Deploying need to Commit this line
-            const response = await axios.get(`${UserService.BASE_URL}/ledger/${borrowerId}`);
-            // console.log(response.data);
-            // console.log('name', response.data.borrowerName); // While Deploying need to Commit this line
-            // console.log('In User Service', response.data); // While Deploying need to Commit this line
+            const response = await axios.get(`${UserService.BASE_URL}/ledger/${borrowerId}`, {
+                headers: {
+                    Authorization: `Bearer ${userToken}`, // Passing token in Authorization header
+                },
+            });
+
             return response.data;
         } catch (err) {
             throw err;
         }
     }
 
+
     // Collecting the interest for the particular ledger id
-    static async addEntry(interest) {
+    static async addEntry(interest, userToken) {
         try {
             console.log("IN Us:", interest);
-            const response = await axios.post(`${UserService.BASE_URL}/ledger/update`, interest);
+            const response = await axios.post(`${UserService.BASE_URL}/ledger/update`, interest, {
+                headers: {
+                    Authorization: `Bearer ${userToken}`, // Passing token in Authorization header
+                },
+            });
             // console.log(response.data);
             return response.data;
         } catch (err) {
             throw err;
         }
     }
-    static async editEntry(editInterest) {
+
+
+    static async editEntry(editInterest,userToken) {
         try {
             console.log(editInterest);
-            const response = await axios.post(`${UserService.BASE_URL}/edger/update`, editInterest);
+            const response = await axios.post(`${UserService.BASE_URL}/edger/update`, editInterest, {
+                headers: {
+                    Authorization: `Bearer ${userToken}`, // Passing token in Authorization header
+                },
+            });
+            console.log(response.data);
+            return response.data;
+        } catch (err) {
+            throw err;
+        }
+    }
+    static async deleteLedger(lastBeforeId, borrowerId, userToken) {
+        try {
+
+            console.log("IN US -> ", lastBeforeId);
+            console.log("IN US -> ", borrowerId);
+            const response = await axios.delete(`${UserService.BASE_URL}/borrower/${borrowerId}/ledger/${lastBeforeId}`, {
+                headers: {
+                    Authorization: `Bearer ${userToken}`, // Passing token in Authorization header
+                },
+            });
             console.log(response.data);
             return response.data;
         } catch (err) {
@@ -98,10 +188,32 @@ class UserService {
     /*------------------expense tracker----------------------*/
 
     // Fetching Expense Tracker Data
-    static async fetchExpenseTrackerData(customerId) {
+    static async fetchExpenseTrackerData(customerId, userToken) {
         try {
+            console.log("F_Token", userToken);
+            console.log("F_In use", customerId);
             const response = await axios.get(`${UserService.BASE_URL}/get-expense-tracker`, {
                 params: { customerId },
+                headers: {
+                    Authorization: `Bearer ${userToken}`
+                }
+            });
+
+            console.log(response.data);
+            return response.data;
+        } catch (err) {
+            throw err;
+        }
+    }
+
+
+    // Update Expense (either add income or expense)
+    static async updateExpense(expenseData, userToken) {
+        try {
+            const response = await axios.post(`${UserService.BASE_URL}/update-expense`, expenseData, {
+                headers: {
+                    Authorization: `Bearer ${userToken}`, // Passing token in Authorization header
+                },
             });
             return response.data;
         } catch (err) {
@@ -109,24 +221,20 @@ class UserService {
         }
     }
 
-    // Update Expense (either add income or expense)
-    static async updateExpense(expenseData) {
-        try {
-            const response = await axios.post(`${UserService.BASE_URL}/update-expense`, expenseData);
-            return response.data;
-        } catch (err) {
-            throw err;
-        }
-    }
+
+
     /*------------------Borrower screen----------------------*/
 
     // Adding borrower details 
-    static async borrowerdetails(customerId, borrowerData) {
+    static async borrowerdetails(customerId, borrowerData, userToken) {
         try {
-            console.log('customerId checking:', customerId);
-            console.log('customerId borrowerData:', borrowerData);
-            const response = await axios.post(`${UserService.BASE_URL}/${customerId}/borrowers`, borrowerData);
+            console.log('B_S borrowerdetails:', customerId, borrowerData, userToken);
 
+            const response = await axios.post(`${UserService.BASE_URL}/${customerId}/borrowers`, borrowerData, {
+                headers: {
+                    Authorization: `Bearer ${userToken}`, // Passing token in Authorization header
+                },
+            });
             return response;
         }
         catch (err) {
@@ -137,10 +245,14 @@ class UserService {
 
 
     // displaying details in BorowerScreen
-    static async displayBorrowers(customerId) {
+    static async displayBorrowers(customerId, userToken) {
         try {
-            console.log('displayBorrowersa :', customerId); //While Deploying need to Commit this line
-            const response = await axios.get(`${UserService.BASE_URL}/${customerId}/borrowers`);
+            console.log('displayBorrowers :', customerId, userToken); //While Deploying need to Commit this line
+            const response = await axios.get(`${UserService.BASE_URL}/${customerId}/borrowers`, {
+                headers: {
+                    Authorization: `Bearer ${userToken}`, // Passing token in Authorization header
+                },
+            });
             return response.data; // Returning data directly
         } catch (err) {
             throw err;
@@ -151,20 +263,30 @@ class UserService {
 
 
     //displaySelfNotes
-    static async displaySelfNotes(customerId) {
+    static async displaySelfNotes(customerId, userToken) {
         try {
-            console.log('displaySelfNotes :', customerId); //While Deploying need to Commit this line
-            const response = await axios.get(`${UserService.BASE_URL}/${customerId}/selfnotes`);
+            console.log('displaySelfNotes :', customerId, userToken);
+
+            const response = await axios.get(`${UserService.BASE_URL}/${customerId}/selfnotes`, {
+                headers: {
+                    Authorization: `Bearer ${userToken}`,
+                },
+            });
             return response.data; // Returning data directly
         } catch (err) {
             throw err;
         }
     }
+
     //addSelfNotes
-    static async addSelfNotes(customerId, newNote) {
+    static async addSelfNotes(customerId, newNote, userToken) {
         try {
-            console.log(customerId, newNote)
-            const response = await axios.post(`${UserService.BASE_URL}/${customerId}/selfnotes`, newNote);
+            console.log('addSelfNotes:', customerId, newNote, userToken)
+            const response = await axios.post(`${UserService.BASE_URL}/${customerId}/selfnotes`, newNote, {
+                headers: {
+                    Authorization: `Bearer ${userToken}`,
+                },
+            });
             console.log(response.data);
             return response.data;
         } catch (err) {
@@ -172,10 +294,14 @@ class UserService {
         }
     }
     //updateSelfNotes
-    static async updateSelfNotes(customerId, updatedNote) {
+    static async updateSelfNotes(customerId, updatedNote, userToken) {
         try {
-            console.log(customerId, updatedNote)
-            const response = await axios.post(`${UserService.BASE_URL}/${customerId}/selfnotes`, updatedNote);
+            console.log('updateSelfNotes:', customerId, updatedNote, userToken)
+            const response = await axios.post(`${UserService.BASE_URL}/${customerId}/selfnotes`, updatedNote, {
+                headers: {
+                    Authorization: `Bearer ${userToken}`,
+                },
+            });
             console.log(response.data);
             return response.data;
         } catch (err) {
@@ -183,70 +309,71 @@ class UserService {
         }
     }
     //deleteSelfNotes
-    static async deleteSelfNotes(customerId, id) {
+    static async deleteSelfNotes(customerId, id, userToken) {
         try {
-            console.log(customerId, id)
-            const response = await axios.delete(`${UserService.BASE_URL}/${customerId}/selfnotes`, id);
-            console.log(response.data);
+            console.log(customerId, id, userToken);
+            const response = await axios.delete(`${UserService.BASE_URL}/${customerId}/selfnotes/${id}`, {
+                headers: {
+                    Authorization: `Bearer ${userToken}`,
+                },
+            });
+            console.log(response);
             return response.data;
         } catch (err) {
             throw err;
         }
     }
 
+    /*--------------------settings screen------------------------------*/
     // Changing The Password From Setting Screen
-    static async changePassword(data) {
+    static async changePassword(data, userToken) {
         try {
-            console.log("IN US", data)
-            const response = await axios.post(`${UserService.BASE_URL}/${customerId}/changePassword`, data);
-            console.log(response.data);
+            console.log('changePassword', data, userToken);
+            const response = await axios.post(`${UserService.BASE_URL}/change-password`, data, {
+                headers: {
+                    Authorization: `Bearer ${userToken}`,
+                },
+            });
+            console.log("Change Password Response: ", response.data);
             return response.data;
         } catch (err) {
+            console.error("Error in changePassword:", err);
             throw err;
         }
     }
-
 
     // All data of the particular customer will be deleted
-    static async deleteAccount(customerId) {
+    static async deleteAccount(customerId, userToken) {
         try {
-
-            console.log("IN US", customerId)
-            const response = await axios.post(`${UserService.BASE_URL}/${customerId}`);
+            console.log("IN US", customerId, userToken);
+            const response = await axios.delete(`${UserService.BASE_URL}/deleteCustomer/${customerId}`, {
+                headers: {
+                    Authorization: `Bearer ${userToken}`,
+                },
+            });
             console.log(response.data);
             return response.data;
         } catch (err) {
             throw err;
         }
     }
-    static async deleteLedger(lastBeforeId, borrowerId) {
-        try {
 
-            console.log("IN US -> ", lastBeforeId);
-            console.log("IN US -> ", borrowerId);
-            const response = await axios.delete(`${UserService.BASE_URL}/borrower/${borrowerId}/ledger/${lastBeforeId}`);
-            console.log(response.data);
-            return response.data;
-        } catch (err) {
-            throw err;
-        }
-    }
-    
     // particular borrower deleting in borrower profile screen
-    static async deleteBorrower(customerId, borrowerId) {
+    static async deleteBorrower(customerId, borrowerId, userToken) {
         try {
 
-            console.log("In US", customerId, borrowerId);
-            const response = await axios.delete(`${UserService.BASE_URL}/${customerId}/borrowers/${borrowerId}`);
+            console.log("deleteBorrower", customerId, borrowerId, userToken);
+            const response = await axios.delete(`${UserService.BASE_URL}/${customerId}/borrowers/${borrowerId}`, {
+                headers: {
+                    Authorization: `Bearer ${userToken}`,
+                },
+            });
             console.log(response.data);
             return response.data;
         } catch (err) {
             throw err;
         }
     }
-
-
-
 
 }
 

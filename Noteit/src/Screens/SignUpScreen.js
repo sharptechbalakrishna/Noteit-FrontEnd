@@ -18,7 +18,7 @@ const SignUpScreen = () => {
         //     phoneNumber: "9449983623"
         // }
     });
-    const Email_Pattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
+    const Email_Pattern = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-zA-Z]{2,}$/
     const pwdWatch = watch('password');
 
 
@@ -37,23 +37,37 @@ const SignUpScreen = () => {
     //     }
     // }
 
-
     const onSignUpPressed = async (register) => {
-        console.log("SignUp Successfully");  // While Deploying need to Commit this line
-        console.log("In Sign UP", register);  // While Deploying need to Commit this line
+        // console.log("SignUp Successfully");
+        console.log("In Sign UP", register);
         setIsLoading(true);
+        
+    
         try {
-
-            const response = await UserService.register(register);
-            CustomFlashMessage('success', 'Success', 'Registered Sucessfully!');
-            console.log("Response Data in Sign up:", response);
+            const response = await UserService.register({
+               
+                firstName: register.firstName,
+                userName: register.userName,
+                phone: register.phone,
+                email: register.email,
+                password: register.password
+            });
+    
+            CustomFlashMessage('success', 'Success', 'Registered Successfully!');
+            // console.log("Response Data in Sign up:", response);
             navigation.navigate('SignInScreen');
         } catch (error) {
-            CustomFlashMessage('error', 'Error', 'Somthing Went Wrong!');
-            console.error("Signup:", error);
+            console.error("Signup Error:", error);
+            console.error("Error Response:", error.response?.data); // Log the actual error response
+            CustomFlashMessage('error', 'Error', error.response?.data?.message || 'Something Went Wrong!');
         }
+    
         setIsLoading(false);
     };
+
+
+
+
 
     const onSignPressed = () => {
 
@@ -104,10 +118,10 @@ const SignUpScreen = () => {
                     placeholder='PhoneNumber'
                     secureTextEntry={false}
                     keyboardType='numeric'
-                    maxLength={10}
+                    maxLength={13}
                     rules={{
                         required: 'Phone Number Required',
-                        minLength: { value: 10, message: 'Phone Number Exactly 10 Digits' },
+                        minLength: { value: 13, message: 'Phone Number Exactly 10 Digits' },
                     }}
                 />
 

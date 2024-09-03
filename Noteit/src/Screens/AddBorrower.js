@@ -6,7 +6,7 @@ import UserService from '../UserService/UserService';
 
 
 const AddBorrower = ({ visible, onClose, addBorrower }) => {
-    const { userInfo } = useContext(AuthContext);
+    const { userInfo,userToken } = useContext(AuthContext);
     const [borrowerName, setBorrowerName] = useState('');
     const [phoneNumber, setPhoneNumber] = useState('');
     const [email, setEmail] = useState('');
@@ -116,7 +116,7 @@ const AddBorrower = ({ visible, onClose, addBorrower }) => {
         };
 
         try {
-            const response = await UserService.borrowerdetails(userInfo.id, borrowerData);
+            const response = await UserService.borrowerdetails(userInfo.id, borrowerData,userToken);
             console.log('gayathri', response.data);
             console.log('gayathri', response.status);
             

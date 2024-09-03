@@ -1,27 +1,18 @@
-import { StyleSheet, Text, View, ScrollView, SafeAreaView, TouchableOpacity } from 'react-native'
-import React, { useState, useContext, useCallback } from 'react'
-import { Avatar, Title, Caption, TouchableRipple, } from 'react-native-paper';
-import Ionicons from 'react-native-vector-icons/Ionicons'; // Correct import statement
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons'; // Correct import statement
+import React, { useContext, useCallback } from 'react';
+import { StyleSheet, Text, View, ScrollView, SafeAreaView, TouchableOpacity, Image, Dimensions } from 'react-native';
+import { Title } from 'react-native-paper';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { AuthContext } from '../Context/AuthContext';
-import ImagePicker from 'react-native-image-crop-picker';
-import UserService from '../UserService/UserService';
 import { useFocusEffect } from '@react-navigation/native';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
-import ProfileUpdateScreen from './ProfileUpdateScreen';
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
+const { width } = Dimensions.get('window');
 
 const ProfileScreen = ({ navigation }) => {
-
-
     const { userInfo, setUserInfo } = useContext(AuthContext);
 
-    const onPressFavorites = () => {
-        console.warn("FavoratePressed");
-    }
-
-    // Fetch user info from AsyncStorage
     const fetchUserInfo = async () => {
         try {
             const storedUserInfo = await AsyncStorage.getItem('userInfo');
@@ -31,213 +22,163 @@ const ProfileScreen = ({ navigation }) => {
             }
         } catch (error) {
             console.error('Failed to fetch user info:', error);
-            CustomFlashMessage('error', 'Error', 'Somthing Went Wrong!');
         }
     };
 
-    // Fetch user info whenever the screen comes into focus
     useFocusEffect(
         useCallback(() => {
             fetchUserInfo();
         }, [])
     );
-    return (
-        <SafeAreaView style={{ flex: 1 }}>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', padding: 15 }} >
-                <TouchableOpacity onPress={() => navigation.openDrawer()}>
-                    <Icon
-                        name="menu"
-                        size={25}
-                        color="#000"
-                    />
-                </TouchableOpacity>
 
+    return (
+        <SafeAreaView style={styles.safeArea}>
+            <View style={styles.header}>
+                <TouchableOpacity onPress={() => navigation.openDrawer()}>
+                    <Ionicons name="menu-outline" size={28} style={[styles.headerIcon, styles.iconBackground]} />
+                </TouchableOpacity>
                 <TouchableOpacity onPress={() => navigation.navigate('ProfileUpdateScreen', { customerData: userInfo })}>
-                    <Icon
-                        name="account-edit-outline"
-                        size={29}
-                        color="#000"
-                    />
+                    <FontAwesome name="pencil" size={28} style={[styles.headerIcon, styles.iconBackground, { backgroundColor: '#ff5722' }]} />
                 </TouchableOpacity>
             </View>
 
-            <ScrollView style={styles.container}>
-
-                <View style={styles.userInfoSection}>
-                    {/* <View style={{flexDirection: "row" ,  justifyContent: 'space-between', padding: 10,}}><Text>1</Text><Text>1</Text></View> */}
-                    <View style={{ flexDirection: 'row', marginTop: 15 }}>
-                        <Avatar.Image
-                            source={{
-                                uri: 'https://i.ibb.co/N2zmVHw/IMG-20221223-122434.jpg',
-                            }}
-                            size={80}
+            <ScrollView contentContainerStyle={styles.scrollView}>
+                <View style={styles.profileContainer}>
+                    <View style={styles.avatarContainer}>
+                        <Image
+                            source={{ uri: 'https://i.ibb.co/N2zmVHw/IMG-20221223-122434.jpg' }}
+                            style={styles.avatar}
+                            resizeMode="cover"
                         />
-                        <View style={{ marginLeft: 20 }}>
-                            <Title style={[styles.title, {
-                                marginTop: 15,
-                                marginBottom: 0,
-
-                            }]}>{userInfo.firstName}</Title>
-                            <Caption style={styles.Caption}>{userInfo.userName}</Caption>
+                    </View>
+                    <View style={styles.profileInfo}>
+                        <View style={styles.nameContainer}>
+                            <Title style={styles.name}>{userInfo.firstName} {userInfo.lastName}</Title>
                         </View>
                     </View>
                 </View>
-                <View style={styles.userInfoSection}>
-                    <View style={styles.row}>
-                        <Icon name="map-marker-radius" size={20} color='#777777' />
-                        <Text style={{ color: 'green', marginLeft: 10, fontWeight: 'bold' }}>Banglore, India</Text>
-                    </View>
-                    <View style={styles.row}>
-                        <Ionicons name="phone-portrait-outline" size={20} color='#777777' />
-                        <Text style={{ color: 'green', marginLeft: 10, fontWeight: 'bold' }}>{userInfo.phone}</Text>
-                    </View>
-                    <View style={styles.row}>
-                        <Icon name="email" size={20} color='#777777' />
-                        <Text style={{ color: 'green', marginLeft: 10, fontWeight: 'bold' }}> {userInfo.email}</Text>
+
+                {/* Headings for Profile Details */}
+                <Text style={styles.heading}>User Information</Text>
+                <View style={styles.card}>
+                    <View style={styles.detailRow}>
+                        <Ionicons name="person-outline" size={24} style={[styles.detailIcon, styles.iconBackground, { backgroundColor: '#ff9966' }]} />
+                        <Text style={styles.detailText}>{userInfo.userName}</Text>
                     </View>
                 </View>
-                <View style={styles.amountBoxWrapper}>
-                    <View style={[styles.amountBox, {
-                        borderRightColor: "#dddddd",
-                        borderRightWidth: 1,
-                    }]}>
-                        <Title >$ 2454</Title>
-                        <Caption>Credit Amount</Caption>
-                    </View>
-                    <View style={styles.amountBox}>
-                        <Title>$ 5454</Title>
-                        <Caption>Debit Amount</Caption>
-                    </View>
 
+                <Text style={styles.heading}>Contact Information</Text>
+                <View style={styles.card}>
+                    <View style={styles.detailRow}>
+                        <Ionicons name="mail" size={24} style={[styles.detailIcon, styles.iconBackground, { backgroundColor: '#993300' }]} />
+                        <Text style={styles.detailText}>{userInfo.email}</Text>
+                    </View>
                 </View>
-                <View style={styles.menuWrapper}>
-                    <TouchableRipple onPress={onPressFavorites}>
-                        <View style={styles.menueItem}>
+                <View style={styles.card}>
+                    <View style={styles.detailRow}>
+                        <FontAwesome name="phone" size={26} style={[styles.detailIcon, styles.iconBackground, { backgroundColor: '#2196f3' }]} />
+                        <Text style={styles.detailText}>{userInfo.phone}</Text>
+                    </View>
+                </View>
 
-                            <Icon name="heart-outline" color="#FF6347" size={25} />
-                            <Text style={styles.menuItemText}>Your Favorites </Text>
-
-                        </View>
-                    </TouchableRipple>
-                    <TouchableRipple onPress={onPressFavorites}>
-                        <View style={styles.menueItem}>
-
-                            <Icon name="credit-card" color="#FF6347" size={25} />
-                            <Text style={styles.menuItemText}>Payment </Text>
-
-                        </View>
-                    </TouchableRipple>
-                    <TouchableRipple onPress={onPressFavorites}>
-                        <View style={styles.menueItem}>
-
-                            <Icon name="share-outline" color="#FF6347" size={25} />
-                            <Text style={styles.menuItemText}>Tell Your Friends</Text>
-
-                        </View>
-                    </TouchableRipple>
-                    <TouchableRipple onPress={onPressFavorites}>
-                        <View style={styles.menueItem}>
-
-                            <Icon name="account-check-outline" color="#FF6347" size={25} />
-                            <Text style={styles.menuItemText}>Support </Text>
-
-                        </View>
-                    </TouchableRipple>
-                    <TouchableRipple onPress={onPressFavorites}>
-                        <View style={styles.menueItem}>
-
-                            <Ionicons name="settings-outline" color="#FF6347" size={25} />
-                            <Text style={styles.menuItemText}>Setting </Text>
-
-                        </View>
-                    </TouchableRipple>
-                    <TouchableRipple onPress={onPressFavorites}>
-                        <View style={styles.menueItem}>
-
-                            <Ionicons name="settings-outline" color="#FF6347" size={25} />
-                            <Text style={styles.menuItemText}>Setting </Text>
-
-                        </View>
-                    </TouchableRipple>
-                    <TouchableRipple onPress={onPressFavorites}>
-                        <View style={styles.menueItem}>
-
-                            <Ionicons name="settings-outline" color="#FF6347" size={25} />
-                            <Text style={styles.menuItemText}>Setting </Text>
-
-                        </View>
-                    </TouchableRipple>
-                    <TouchableRipple onPress={onPressFavorites}>
-                        <View style={styles.menueItem}>
-
-                            <Ionicons name="settings-outline" color="#FF6347" size={25} />
-                            <Text style={styles.menuItemText}>Setting </Text>
-
-                        </View>
-                    </TouchableRipple>
-
+                <Text style={styles.heading}>Address</Text>
+                <View style={styles.card}>
+                    <View style={styles.detailRow}>
+                        <MaterialCommunityIcons name="map-marker" size={24} style={[styles.detailIcon, styles.iconBackground, { backgroundColor: '#4caf50' }]} />
+                        <Text style={styles.detailText}>Bangalore, India</Text>
+                    </View>
                 </View>
             </ScrollView>
         </SafeAreaView>
-    )
-}
+    );
+};
 
-export default ProfileScreen
+export default ProfileScreen;
 
 const styles = StyleSheet.create({
-
-    container: {
+    safeArea: {
         flex: 1,
-        //    backgroundColor: '#fff' 
-
     },
-    userInfoSection: {
-        paddingHorizontal: 30,
-        marginBottom: 25,
-    },
-    title: {
-
-        fontSize: 25,
-        fontWeight: 'bold',
-    },
-    row: {
+    header: {
         flexDirection: 'row',
-        marginBottom: 10,
-    },
-    amountBoxWrapper: {
-
-        borderBottomColor: '#dddddd',
-        borderBottomWidth: 1,
-        borderTopColor: '#dddddd',
-        borderTopWidth: 1,
-        flexDirection: 'row',
-        height: 100,
-
-    },
-    amountBox: {
-        width: '50%',
+        justifyContent: 'space-between',
         alignItems: 'center',
-        justifyContent: 'center',
+        paddingVertical: 10,
+        paddingHorizontal: 15,
+        backgroundColor: '#0056b3', // Dark blue background for the header
     },
-    menuWrapper: {
-
-        marginTop: 10,
-
+    headerIcon: {
+        color: '#fff',
     },
-    menueItem: {
-
+    iconBackground: {
+        borderRadius: 16,
+        padding: 8,
+    },
+    scrollView: {
+        paddingHorizontal: 15,
+        paddingVertical: 20,
+    },
+    profileContainer: {
+        alignItems: 'center',
+        marginBottom: 20,
+    },
+    avatarContainer: {
+        width: width * 0.4, // Adjust size as needed
+        height: width * 0.4, // Adjust size as needed
+        borderRadius: (width * 0.4) / 2, // Half of width/height to make it circular
+        overflow: 'hidden',
+        borderWidth: 3,
+        borderColor: '#fff', // Border color for better visibility
+    },
+    avatar: {
+        width: '100%',
+        height: '100%',
+        borderRadius: (width * 0.4) / 2,
+        resizeMode: 'cover',
+    },
+    profileInfo: {
+        alignItems: 'center',
+        marginTop: 20,
+    },
+    nameContainer: {
         flexDirection: 'row',
-        paddingHorizontal: 30,
-        paddingVertical: 15,
+        alignItems: 'center',
+        marginBottom: 5,
     },
-    menuItemText: {
-
-        color: '#777777',
-        marginLeft: 10,
-        fontWeight: '600',
+    name: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        color: '#333',
+    },
+    heading: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#333',
+        marginVertical: 10,
+    },
+    card: {
+        backgroundColor: '#fff',
+        borderRadius: 10,
+        padding: 5,
+        marginBottom: 15,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 2,
+        elevation: 2, // This is for Android shadow
+    },
+    detailRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    detailIcon: {
+        color: '#fff',
+        marginRight: 10,
+        padding: 8,
+        borderRadius: 16,
+    },
+    detailText: {
         fontSize: 16,
-        lineHeight: 26,
-    }
-
-
-})
+        color: '#333',
+    },
+});

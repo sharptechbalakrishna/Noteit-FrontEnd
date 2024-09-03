@@ -40,7 +40,7 @@ const HomeScreen = ({ navigation }) => {
         <View style={styles.header}>
           <View>
             <Text style={styles.greeting}> Hello! Welcome back,</Text>
-            <Text style={styles.userName}>{userInfo.firstName}</Text>
+            <Text style={styles.userName}>{userInfo.firstName} {userInfo.lastName}</Text>
           </View>
           <TouchableOpacity onPress={() => navigation.openDrawer()}>
             <ImageBackground
@@ -111,9 +111,10 @@ const styles = StyleSheet.create({
     color: '#ffffff',
   },
   userName: {
-    fontSize: 24,
+    fontSize: 22,
     fontFamily: 'Roboto-Bold',
     color: '#ffffff',
+    paddingLeft:5,
   },
   profileImage: {
     width: 50,
@@ -143,8 +144,8 @@ const styles = StyleSheet.create({
   },
   boxText: {
     fontSize: 16,
-    fontFamily: 'Roboto-Bold',
-    color: '#333',
+
+    color: '#0056b3',
     textAlign: 'center',
   },
 });
