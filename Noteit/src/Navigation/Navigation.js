@@ -16,9 +16,11 @@ import ExpenseTracker from '../Screens/ExpenseTracker';
 import SplashScreenComponent from '../Screens/SplashScreenComponent';
 import HomeScreen from '../Screens/HomeScreen';
 import SelfNotes from '../Screens/SelfNotes';
+import BorrowerScreen from '../Screens/BarrowerScreen';
 
 const Stack = createStackNavigator();
 const Drawer = createDrawerNavigator();
+const DrowerValue = false;
 
 
 const Navigation = () => {
@@ -54,30 +56,40 @@ const Navigation = () => {
                     ),
                 }}
             />
-            <Drawer.Screen name="ProfileScreen" component={ProfileScreen}
+            {/* <Drawer.Screen name="ProfileScreen" component={ProfileScreen}
                 options={{
                     drawerIcon: ({ color }) => (
                         <Ionicons name="person-outline" size={22} color={color} />
 
                     ),
                 }}
-            />
-              <Drawer.Screen name="Setting" component={SettingScreen}
+            /> */}
+              {/* <Drawer.Screen name="Setting" component={SettingScreen}
                 options={{
                     drawerIcon: ({ color }) => (
                         <Ionicons name="settings-outline" size={22} color={color} />
 
                     ),
                 }}
-            />
-            <Drawer.Screen name="SelfNotes" component={SelfNotes}
+            /> */}
+            <Drawer.Screen name="Borrower" component={BorrowerScreen}
                 options={{
                     drawerIcon: ({ color }) => (
-                        <Ionicons name="chatbox-ellipses-outline" size={22} color={color} />
+                        <Ionicons name="cash-outline" size={22} color={color} />
 
                     ),
                 }}
             />
+
+            <Drawer.Screen name="SelfNotes" component={SelfNotes}
+                options={{
+                    drawerIcon: ({ color }) => (
+                        <Ionicons name="clipboard-outline" size={22} color={color} />
+
+                    ),
+                }}
+            />
+            
             <Drawer.Screen name="ExpenseTracker" component={ExpenseTracker}
 
                 options={{
