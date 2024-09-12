@@ -48,7 +48,7 @@ const SignUpScreen = () => {
                
                 firstName: register.firstName,
                 userName: register.userName,
-                phone: register.phone,
+                phone: `+91${register.phone}`,
                 email: register.email,
                 password: register.password
             });
@@ -118,10 +118,11 @@ const SignUpScreen = () => {
                     placeholder='PhoneNumber'
                     secureTextEntry={false}
                     keyboardType='numeric'
-                    maxLength={13}
+                    prefix='+91'  // Add prefix here
+                    maxLength={10}
                     rules={{
                         required: 'Phone Number Required',
-                        minLength: { value: 13, message: 'Phone Number Exactly 10 Digits' },
+                        minLength: { value: 10, message: 'Phone Number Exactly 10 Digits' },
                     }}
                 />
 

@@ -23,7 +23,7 @@ import Toast from 'react-native-toast-message';
 import CustomFlashMessage from '../Components/CustomFlashMessage';
 import Icon from 'react-native-vector-icons/Ionicons';
 
-function ProfileUpdateScreen({ route , navigation}) {
+function ProfileUpdateScreen({ route, navigation }) {
   const { userToken } = useContext(AuthContext); // Use AuthContext
 
   const [id, setId] = useState('');
@@ -41,14 +41,14 @@ function ProfileUpdateScreen({ route , navigation}) {
   useEffect(() => {
     console.log("Customer Data:", customerData); // Inspect the value
     if (customerData) {
-        setId(customerData.id || 0);
-        setFirstName(customerData.firstName || '');
-        setLastName(customerData.lastName || '');
-        setEmail(customerData.email || '');
-        setUserName(customerData.userName || '');
-        setPhone(customerData.phone || '');
-        setGender(customerData.gender || '');
-        setImage(customerData.image || '');
+      setId(customerData.id || 0);
+      setFirstName(customerData.firstName || '');
+      setLastName(customerData.lastName || '');
+      setEmail(customerData.email || '');
+      setUserName(customerData.userName || '');
+      setPhone(customerData.phone || '');
+      setGender(customerData.gender || '');
+      setImage(customerData.image || '');
     }
   }, [customerData]);
 
@@ -84,7 +84,7 @@ function ProfileUpdateScreen({ route , navigation}) {
       console.log('User Token:', userToken);
 
       const response = await UserService.updateCustomer(formData, userToken, customerData.id);
-      console.log('UPC:',response);
+      console.log('UPC:', response);
 
       CustomFlashMessage('success', 'Success', 'Updated Successfully!');
       setUserInfo(response);
@@ -103,9 +103,9 @@ function ProfileUpdateScreen({ route , navigation}) {
       contentContainerStyle={{ paddingBottom: 40 }}>
       <View>
         <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Icon name="arrow-back" size={24} color="#fff" />
-        </TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <Icon name="arrow-back" size={24} color="#fff" />
+          </TouchableOpacity>
           <View style={{ flex: 3 }}>
             <Text style={styles.nameText}>Edit Profile</Text>
           </View>
@@ -123,7 +123,9 @@ function ProfileUpdateScreen({ route , navigation}) {
               style={styles.avatar}
               source={{
                 uri: image === '' || image === null ?
-                  'https://i.ibb.co/N2zmVHw/IMG-20221223-122434.jpg'
+                "https://i.ibb.co/dD9rntL/Untitled-design.png"
+                  // 'https://i.ibb.co/DGWGczW/Screenshot-1722835684.png'
+                // "https://i.ibb.co/4ZJfCxp/New-Profile.png" 
                   : image
               }}
             />
@@ -223,7 +225,7 @@ function ProfileUpdateScreen({ route , navigation}) {
               placeholder="Your User Name"
               placeholderTextColor={'#999797'}
               // keyboardType="numeric"
-             maxLength={13}
+              maxLength={13}
               style={styles.infoEditSecond_text}
 
               onChange={(e) => setUserName(e.nativeEvent.text)}

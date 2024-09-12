@@ -61,7 +61,7 @@ const BugReportScreen = ({ navigation }) => {
         <TouchableOpacity onPress={handleBackPress}>
           <Icon name="arrow-back" size={24} color="#fff" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Report Bug</Text>
+        <Text style={styles.headerTitle}>Report Issue</Text>
         <TouchableOpacity onPress={handleSendPress}>
           <FeatherIcon name="send" size={24} color="#fff" />
         </TouchableOpacity>

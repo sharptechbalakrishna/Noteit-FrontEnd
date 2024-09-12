@@ -110,7 +110,7 @@ ${userInfo.firstName}
 
         <TouchableOpacity onPress={() => { }}>
           <View style={styles.profileAvatarWrapper}>
-            <Image alt="" source={{ uri: 'https://i.ibb.co/N2zmVHw/IMG-20221223-122434.jpg' }}
+            <Image alt="" source={{ uri: 'https://i.ibb.co/dD9rntL/Untitled-design.png' }}
               style={styles.profileAvatar} />
 
             <TouchableOpacity
@@ -124,8 +124,8 @@ ${userInfo.firstName}
         </TouchableOpacity>
 
         <View>
-          <Text style={styles.profileName}>Shravankumar</Text>
-          <Text style={styles.profileAddress}>   BTM 2nd Stage Bengaluru - 560076  </Text>
+          <Text style={styles.profileName}>{userInfo.firstName} {userInfo.lastName}</Text>
+          {/* <Text style={styles.profileAddress}>   BTM 2nd Stage Bengaluru - 560076  </Text> */}
         </View>
       </View>
 
@@ -215,7 +215,7 @@ ${userInfo.firstName}
               <FeatherIcon color="#fff" name="flag" size={20} />
             </View>
 
-            <Text style={styles.rowLabel}>Report Bug</Text>
+            <Text style={styles.rowLabel}>Report Issue </Text>
 
             <View style={styles.rowSpacer} />
 

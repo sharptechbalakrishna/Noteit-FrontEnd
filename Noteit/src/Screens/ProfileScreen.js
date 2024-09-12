@@ -46,7 +46,7 @@ const ProfileScreen = ({ navigation }) => {
                 <View style={styles.profileContainer}>
                     <View style={styles.avatarContainer}>
                         <Image
-                            source={{ uri: 'https://i.ibb.co/N2zmVHw/IMG-20221223-122434.jpg' }}
+                            source={{ uri: "https://i.ibb.co/dD9rntL/Untitled-design.png" }}
                             style={styles.avatar}
                             resizeMode="cover"
                         />
@@ -59,7 +59,7 @@ const ProfileScreen = ({ navigation }) => {
                 </View>
 
                 {/* Headings for Profile Details */}
-                <Text style={styles.heading}>User Information</Text>
+                <Text style={styles.heading}>User Name</Text>
                 <View style={styles.card}>
                     <View style={styles.detailRow}>
                         <Ionicons name="person-outline" size={24} style={[styles.detailIcon, styles.iconBackground, { backgroundColor: '#ff9966' }]} />
@@ -67,13 +67,15 @@ const ProfileScreen = ({ navigation }) => {
                     </View>
                 </View>
 
-                <Text style={styles.heading}>Contact Information</Text>
+                <Text style={styles.heading}>Email</Text>
                 <View style={styles.card}>
                     <View style={styles.detailRow}>
                         <Ionicons name="mail" size={24} style={[styles.detailIcon, styles.iconBackground, { backgroundColor: '#993300' }]} />
                         <Text style={styles.detailText}>{userInfo.email}</Text>
                     </View>
                 </View>
+                <Text style={styles.heading}>Phone Number</Text>
+
                 <View style={styles.card}>
                     <View style={styles.detailRow}>
                         <FontAwesome name="phone" size={26} style={[styles.detailIcon, styles.iconBackground, { backgroundColor: '#2196f3' }]} />
@@ -81,13 +83,13 @@ const ProfileScreen = ({ navigation }) => {
                     </View>
                 </View>
 
-                <Text style={styles.heading}>Address</Text>
+                {/* <Text style={styles.heading}>Address</Text>
                 <View style={styles.card}>
                     <View style={styles.detailRow}>
                         <MaterialCommunityIcons name="map-marker" size={24} style={[styles.detailIcon, styles.iconBackground, { backgroundColor: '#4caf50' }]} />
                         <Text style={styles.detailText}>Bangalore, India</Text>
                     </View>
-                </View>
+                </View> */}
             </ScrollView>
         </SafeAreaView>
     );

@@ -44,7 +44,7 @@ const HomeScreen = ({ navigation }) => {
           </View>
           <TouchableOpacity onPress={() => navigation.openDrawer()}>
             <ImageBackground
-              source={require('../assets/images/user-profile.jpg')}
+              source={require('../assets/images/BOOK.png')}
               style={styles.profileImage}
               imageStyle={{ borderRadius: 25 }}
             />

@@ -1,14 +1,13 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Modal, ScrollView, StyleSheet ,Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Modal, ScrollView, StyleSheet, Alert } from 'react-native';
 import DatePicker from 'react-native-date-picker';
 import { AuthContext } from '../Context/AuthContext';
 import UserService from '../UserService/UserService';
 
-
 const AddBorrower = ({ visible, onClose, addBorrower }) => {
-    const { userInfo,userToken } = useContext(AuthContext);
+    const { userInfo, userToken } = useContext(AuthContext);
     const [borrowerName, setBorrowerName] = useState('');
-    const [phoneNumber, setPhoneNumber] = useState('');
+    const [phoneNumber, setPhoneNumber] = useState('+91');
     const [email, setEmail] = useState('');
     const [principalAmount, setPrincipalAmount] = useState('');
     const [interestRate, setInterestRate] = useState('');
@@ -51,12 +50,13 @@ const AddBorrower = ({ visible, onClose, addBorrower }) => {
             return false;
         }
 
-        // Validate Phone Number (Must be exactly 10 digits)
+        // Validate Phone Number (Must be exactly 13 characters including +91)
         const phonePattern = /^\+91\d{10}$/;
         if (!phonePattern.test(phoneNumber)) {
             Alert.alert('Validation Error', 'Phone Number must start with +91 and be exactly 10 digits long after the country code');
             return false;
         }
+
         // Validate Email (Simple email validation)
         const emailPattern = /^[a-z0-9._]+@[a-z0-9]+\.[a-z]{2,}$/;
         if (email && !emailPattern.test(email)) {
@@ -103,7 +103,7 @@ const AddBorrower = ({ visible, onClose, addBorrower }) => {
         }
         const borrowerData = {
             borrowerName,
-            phoneNumber,
+            phoneNumber, // Includes +91 prefix
             email,
             principalAmount: parseFloat(principalAmount),
             interestRate: parseFloat(interestRate),
@@ -116,10 +116,10 @@ const AddBorrower = ({ visible, onClose, addBorrower }) => {
         };
 
         try {
-            const response = await UserService.borrowerdetails(userInfo.id, borrowerData,userToken);
-            console.log('gayathri', response.data);
-            console.log('gayathri', response.status);
-            
+            const response = await UserService.borrowerdetails(userInfo.id, borrowerData, userToken);
+            console.log('Response:', response.data);
+            console.log('Status:', response.status);
+
             if (response.status !== 200) {
                 throw new Error('Failed to add borrower');
             }
@@ -135,7 +135,7 @@ const AddBorrower = ({ visible, onClose, addBorrower }) => {
 
     const handleClear = () => {
         setBorrowerName('');
-        setPhoneNumber('');
+        setPhoneNumber('+91');
         setEmail('');
         setPrincipalAmount('');
         setInterestRate('');
@@ -146,8 +146,6 @@ const AddBorrower = ({ visible, onClose, addBorrower }) => {
         setBorrowedDate(null);
         setEndDate(null);
     };
-
-
 
     return (
         <Modal
@@ -165,16 +163,13 @@ const AddBorrower = ({ visible, onClose, addBorrower }) => {
                             placeholder="Borrower Name"
                             value={borrowerName}
                             onChangeText={setBorrowerName}
-                            rules={{ required: 'Borrower name required' }}
-
                         />
                         <TextInput
                             style={styles.input}
                             placeholder="Phone Number"
                             keyboardType='numeric'
                             value={phoneNumber}
-                            onChangeText={setPhoneNumber}
-                         
+                            onChangeText={text => setPhoneNumber(`+91${text.replace(/^\+91/, '')}`)}
                         />
                         <TextInput
                             style={styles.input}

@@ -36,11 +36,11 @@ const CustomDrawer = (props) => {
 
                     source={require("../assets/images/menu-bg.jpeg")}
                     style={{ padding: 20 }} >
-                    <Image
-                        source={require('../assets/images/user-profile.jpg')}
+                    <Image  
+                        source={require('../assets/images/BOOK.png')}
                         style={{ height: 80, width: 80, borderRadius: 40, marginBottom: 10 }}
                     />
-                    <Text style={{ color: '#fff', fontSize: 18, fontFamily: 'Robot-Medium' }}>  {userInfo.firstName}</Text>
+                    <Text style={{ color: '#fff', fontSize: 18, fontFamily: 'Robot-Medium' }}>  {userInfo.firstName} {userInfo.lastName}</Text>
 
                 </ImageBackground>
 
