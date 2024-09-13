@@ -1,24 +1,45 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Image } from 'react-native';
+import React, { useState, useContext } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Image, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import { launchImageLibrary } from 'react-native-image-picker';
 import RNFS from 'react-native-fs';
+import UserService from '../UserService/UserService';
+import { AuthContext } from '../Context/AuthContext';
 
 const BugReportScreen = ({ navigation }) => {
+  const { userInfo, userToken } = useContext(AuthContext); // Get userInfo from AuthContext
   const [selectedReport, setSelectedReport] = useState('');
   const [bugDescription, setBugDescription] = useState('');
   const [selectedImage, setSelectedImage] = useState(null);
   const [imageBase64, setImageBase64] = useState('');
 
+
+
   const handleBackPress = () => {
     navigation.goBack();
   };
 
-  const handleSendPress = () => {
-    console.log('Selected Report:', selectedReport);
-    console.log('Bug Description:', bugDescription);
-    console.log('Image Base64:', imageBase64 ? imageBase64 : 'No image selected');
+  const handleSendPress = async () => {
+    if (!selectedReport || !bugDescription) {
+      Alert.alert('Error', 'Please fill out all the fields before submitting.');
+      return;
+    }
+console.log(userInfo,userToken);
+    try {
+      const response = await UserService.reportIssue(
+        userInfo.userId,
+        userToken,
+        selectedReport,
+        bugDescription,
+        imageBase64
+      );
+      Alert.alert('Success', 'Bug report sent successfully!');
+      console.log('API response:', response);
+    } catch (error) {
+      Alert.alert('Error', 'Failed to send bug report.');
+      console.error('Error sending bug report:', error);
+    }
   };
 
   const handleUploadImage = () => {
@@ -41,12 +62,11 @@ const BugReportScreen = ({ navigation }) => {
           try {
             const base64String = await RNFS.readFile(source.uri, 'base64');
             setImageBase64(base64String);
-            // console.log('Image converted to Base64:', base64String);
           } catch (error) {
             console.error('Error converting image to Base64:', error);
           }
         }
-      },
+      }
     );
   };
 
@@ -70,11 +90,10 @@ const BugReportScreen = ({ navigation }) => {
       <View style={styles.content}>
         <Text style={styles.label}>Choose a report</Text>
 
-        {/* Bug Type Options */}
         <View style={styles.options}>
           <TouchableOpacity
             style={[styles.option, selectedReport === 'UI Issue' && styles.selectedOption]}
-            onPress={() => setSelectedReport('UI Issue')}>
+            onPress={() => setSelectedReport('UI Issue')} >
             <Text style={styles.optionText}>UI Issue</Text>
           </TouchableOpacity>
           <TouchableOpacity
@@ -93,8 +112,6 @@ const BugReportScreen = ({ navigation }) => {
             <Text style={styles.optionText}>Other</Text>
           </TouchableOpacity>
         </View>
-
-        {/* Bug Description Input */}
         <TextInput
           style={styles.textInput}
           placeholder="Describe the issue in detail"
@@ -103,13 +120,11 @@ const BugReportScreen = ({ navigation }) => {
           multiline
         />
 
-        {/* Upload Image Button */}
         <TouchableOpacity style={styles.uploadButton} onPress={handleUploadImage}>
           <FeatherIcon name="image" size={24} color="#fff" />
           <Text style={styles.uploadButtonText}>Upload Image</Text>
         </TouchableOpacity>
 
-        {/* Display Selected Image with Cancel Button */}
         {selectedImage && (
           <View style={styles.imageContainer}>
             <Image source={selectedImage} style={styles.previewImage} />

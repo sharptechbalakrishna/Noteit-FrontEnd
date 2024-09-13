@@ -94,9 +94,18 @@ const BorrowerDetailScreen = ({ route }) => {
 
   // Function to handle the phone call
   const handleCallPress = () => {
-    console.warn("Phone Pressend");
-  };
 
+    console.log(barrowerData);
+    const phoneNumber = barrowerData.phoneNumber; // Assuming phone number is stored in barrowerData
+    console.log(phoneNumber);
+    if (phoneNumber) {
+      Linking.openURL(`tel:${phoneNumber}`)
+        .then(() => console.log('Phone dialer opened'))
+        .catch((err) => console.error('Error opening phone dialer', err));
+    } else {
+      CustomFlashMessage('error', 'Error', 'Phone number not available');
+    }
+  };
 
 
   // Editing the Latest Entry

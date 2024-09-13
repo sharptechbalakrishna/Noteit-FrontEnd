@@ -20,6 +20,7 @@ const SignInScreen = () => {
 
     const { height } = useWindowDimensions();
 
+
     const onSignInPressed = async (data) => {
         try {
             await login({
@@ -28,8 +29,10 @@ const SignInScreen = () => {
             });
             CustomFlashMessage('success', 'Success', 'Logged In Successfully!');
         } catch (error) {
-            console.error("Sign In error:", error);
-            CustomFlashMessage('error', 'Login Failed', 'Provide valid phone and password!');
+            // console.error("Sign In error:", error.message);
+            
+            // Display error message to the user
+            CustomFlashMessage('error', 'Login Failed', error.message);
         }
     };
 

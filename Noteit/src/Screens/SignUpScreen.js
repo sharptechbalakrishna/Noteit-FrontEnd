@@ -38,14 +38,11 @@ const SignUpScreen = () => {
     // }
 
     const onSignUpPressed = async (register) => {
-        // console.log("SignUp Successfully");
         console.log("In Sign UP", register);
         setIsLoading(true);
-        
     
         try {
             const response = await UserService.register({
-               
                 firstName: register.firstName,
                 userName: register.userName,
                 phone: `+91${register.phone}`,
@@ -54,19 +51,28 @@ const SignUpScreen = () => {
             });
     
             CustomFlashMessage('success', 'Success', 'Registered Successfully!');
-            // console.log("Response Data in Sign up:", response);
             navigation.navigate('SignInScreen');
         } catch (error) {
             console.error("Signup Error:", error);
             console.error("Error Response:", error.response?.data); // Log the actual error response
-            CustomFlashMessage('error', 'Error', error.response?.data?.message || 'Something Went Wrong!');
+            
+            // Handle different error statuses
+            let errorMessage = 'Something Went Wrong!';
+            if (error.response?.status === 409) {
+                errorMessage = 'Phone number or email already registered.';
+            } else if (error.response?.status === 400) {
+                errorMessage = 'Invalid data. Please check the form.';
+            } else if (error.response?.status === 500) {
+                errorMessage = 'Server error. Please try again later.';
+            }
+    
+            // Display the appropriate error message to the user
+            CustomFlashMessage('error', 'Error', errorMessage);
         }
     
         setIsLoading(false);
     };
-
-
-
+    
 
 
     const onSignPressed = () => {

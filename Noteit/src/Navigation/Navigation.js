@@ -108,14 +108,14 @@ const Navigation = () => {
                     ),
                 }}
             /> */}
-                 <Drawer.Screen name="SplashScreenComponent" component={SplashScreenComponent}
+                 {/* <Drawer.Screen name="SplashScreenComponent" component={SplashScreenComponent}
                 options={{
                     drawerIcon: ({ color }) => (
                         <Ionicons name="settings-outline" size={22} color={color} />
 
                     ),
                 }}
-            />
+            /> */}
             {/* <Drawer.Screen name="SignUpScreen" component={SignUpScreen}
                 options={{
                     drawerIcon: ({ color }) => (

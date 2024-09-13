@@ -36,19 +36,50 @@ class UserService {
             console.log("Response data:", response.data);
             return response.data;
         } catch (err) {
-            console.error("Login error:", err);
-            throw err;
+            // console.error("Login error:", err);
+    
+            // Check if there's a response and status code
+            if (err.response) {
+                const statusCode = err.response.status;
+                let errorMessage = '';
+    
+                switch (statusCode) {
+                    case 401:
+                        errorMessage = 'Invalid credentials. Please check your phone number or password.';
+                        break;
+                    case 403:
+                        errorMessage = 'Net Work error';
+                        break;
+                    case 404:
+                        errorMessage = 'Phone number not found. Please check your number and try again.';
+                        break;
+                    case 500:
+                        errorMessage = 'Server error. Please try again later.';
+                        break;
+                    default:
+                        errorMessage = 'An unexpected error occurred. Please try again.';
+                }
+    
+                // Throw the error with a custom message based on the status code
+                throw new Error(errorMessage);
+            } else if (err.request) {
+                // No response from the server (network error)
+                throw new Error('Network error. Please check your internet connection.');
+            } else {
+                // Other errors
+                throw new Error('An unexpected error occurred. Please try again.');
+            }
         }
     }
 
     static async register(register) {
         try {
             const response = await axios.post(`${UserService.BASE_URL}/auth/register`, register);
-            console.log("User Sercive Response:", response.data); // Log the entire response
+            console.log("User Service Response:", response.data); // Log the entire response
             return response.data;
         } catch (error) {
-            console.error("User Sercive", error); // Log the error details
-            throw error;
+            console.error("User Service Error:", error); // Log the error details
+            throw error;  // Throw error to be caught in `onSignUpPressed`
         }
     }
 
@@ -375,7 +406,29 @@ class UserService {
         }
     }
 
-}
+    static async reportIssue(customerId, userToken, reportType, description, imageBase64) {
+        try {
+          const response = await axios.post(`${this.BASE_URL}/reportIssue/${customerId}`, {
+            reportType,
+            description,
+            imageBase64, // Send the image in Base64 format
+          }, {
+            headers: {
+              Authorization: `Bearer ${userToken}`,
+              'Content-Type': 'application/json',
+            },
+          });
+    
+          console.log('Response from API:', response.data);
+          return response.data;
+        } catch (err) {
+          console.error('Error reporting issue:', err);
+          throw err;
+        }
+      }
+    }
+
+
 
 
 
