@@ -4,6 +4,8 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import axios from 'axios';
 import { AuthContext } from '../Context/AuthContext';
 import UserService from '../UserService/UserService';
+import { ActivityIndicator } from 'react-native';
+
 
 // Helper function to format date
 const formatDate = (date) => {
@@ -48,7 +50,7 @@ const SelfNotes = () => {
   const scrollViewRef = useRef(null); // Ref for ScrollView
   const [expandedNoteId, setExpandedNoteId] = useState(null);
   const [highlightInput, setHighlightInput] = useState(false); // State to highlight input
-
+  const [loading, setLoading] = useState(false); // New state for loading
 
   useEffect(() => {
     const fetchNotes = async () => {
@@ -95,20 +97,16 @@ const SelfNotes = () => {
       createdTs: new Date().toISOString(),
       updatedTs: new Date().toISOString()
     };
+    setLoading(true); // Start loading
 
     try {
-      // const response = await axios.post(`http://192.168.3.53:8080/${userInfo.id}/selfnotes`, newNote);
-
       const response = await UserService.addSelfNotes(userInfo.id, newNote, userToken);
 
-      console.log('In SN:', response);
       setNotes([...notes, response]);
     } catch (error) {
       console.error('Error saving note:', error);
-      if (error.response) {
-        console.error('Error Response Data:', error);
-        console.error('Error Response Status:', error);
-      }
+    } finally {
+      setLoading(false); // End loading
     }
 
     setIsAdding(false);
@@ -125,6 +123,7 @@ const SelfNotes = () => {
   const handleUpdate = async () => {
     const [title, ...bodyLines] = editText.split('\n');
     const body = bodyLines.join('\n').trim();
+
     if (!title.trim() || !body.trim()) return;
 
     const updatedNote = {
@@ -134,49 +133,38 @@ const SelfNotes = () => {
       updatedTs: new Date().toISOString()
     };
 
+    setLoading(true); // Start loading
+
     try {
-      // await axios.post(`http://192.168.3.53:8080/${userInfo.id}/selfnotes`, updatedNote);
-
       const response = await UserService.updateSelfNotes(userInfo.id, updatedNote, userToken);
-      console.log(response.date);
       const updatedNotes = notes.map(note =>
-        note.id === editNoteId
-          ? updatedNote
-          : note
+        note.id === editNoteId ? updatedNote : note
       );
-
-      console.log('Updated Note:', updatedNote);
-
       setNotes(updatedNotes);
       setEditNoteId(null);
       setEditText('');
     } catch (error) {
       console.error('Error updating note:', error);
-      if (error.response) {
-        console.error('Error Response Data:', error);
-        console.error('Error Response Status:', error);
-      }
+    } finally {
+      setLoading(false); // End loading
     }
   };
 
   const handleDelete = async (id) => {
+    setLoading(true); // Start loading
+
     try {
-      // await axios.delete(`http://192.168.3.53:8080/${userInfo.id}/selfnotes/${id}`);
-
       const response = await UserService.deleteSelfNotes(userInfo.id, id, userToken);
-      console.log(response.data);
       const updatedNotes = notes.filter(note => note.id !== id);
-
       setNotes(updatedNotes);
       setOptionsVisible(false);
     } catch (error) {
       console.error('Error deleting note:', error);
-      if (error.response) {
-        console.error('Error Response Data:', error);
-        console.error('Error Response Status:', error);
-      }
+    } finally {
+      setLoading(false); // End loading
     }
   };
+
 
   const handleSearch = (query) => {
     setSearchQuery(query);
@@ -266,8 +254,16 @@ const SelfNotes = () => {
               value={inputText}
               onChangeText={setInputText}
             />
-            <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-              <Text style={styles.saveButtonText}>Save</Text>
+            <TouchableOpacity
+              style={styles.saveButton}
+              onPress={handleSave}
+              disabled={loading} // Disable button while loading
+            >
+              {loading ? (
+                <ActivityIndicator size="small" color="#fff" /> // Show loading spinner
+              ) : (
+                <Text style={styles.saveButtonText}>Save</Text>
+              )}
             </TouchableOpacity>
           </View>
         )}

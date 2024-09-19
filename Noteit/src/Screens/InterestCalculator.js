@@ -254,14 +254,14 @@ const styles = StyleSheet.create({
   buttonCalculate: {
     flex: 1,
     backgroundColor: '#4CAF50',
-    paddingVertical: 15,
+    paddingVertical: 10,
     borderRadius: 5,
     alignItems: 'center',
   },
   buttonReset: {
     flex: 1,
     backgroundColor: '#f44336',
-    paddingVertical: 15,
+    paddingVertical: 10,
     borderRadius: 5,
     alignItems: 'center',
     marginLeft: 10,
@@ -270,6 +270,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
+
   },
   resultTable: {
     marginTop: 20,

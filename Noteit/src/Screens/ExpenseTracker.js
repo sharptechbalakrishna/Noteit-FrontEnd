@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { View, Text, TextInput, SectionList, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, SectionList, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import UserService from '../UserService/UserService';
 import { AuthContext } from '../Context/AuthContext';
@@ -15,7 +15,10 @@ const ExpenseTracker = () => {
   const [spentAmount, setSpentAmount] = useState(0);
   const [income, setIncome] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
-  const [expandedItemId, setExpandedItemId] = useState(null); // Track expanded item
+  const [expandedItemId, setExpandedItemId] = useState(null);
+  const [loadingIncome, setLoadingIncome] = useState(false);
+  const [loadingExpense, setLoadingExpense] = useState(false);
+  const [formError, setFormError] = useState(''); // To show validation error
 
   useEffect(() => {
     if (userInfo && userInfo.id) {
@@ -53,44 +56,57 @@ const ExpenseTracker = () => {
       setFilteredTransactions(filtered);
     }
   };
+
+  const validateForm = () => {
+    if (!description.trim() || !amount.trim()) {
+      setFormError('Both description and amount are required.');
+      return false;
+    }
+    setFormError('');
+    return true;
+  };
+
   const handleAddIncome = async () => {
-    if (description && amount) {
-      const expenseData = {
-        customerId: userInfo.id,
-        description,
-        income: parseFloat(amount),
-      };
-      try {
-        await UserService.updateExpense(expenseData, userToken); // Pass userToken here
-        await fetchExpenseTrackerData(userInfo.id); // Refresh data after adding income
-        setDescription('');
-        setAmount('');
-      } catch (error) {
-        console.error('Error adding income:', error);
-      }
+    if (!validateForm()) return;
+
+    setLoadingIncome(true); // Set loading state for Income button
+    const expenseData = {
+      customerId: userInfo.id,
+      description,
+      income: parseFloat(amount),
+    };
+    try {
+      await UserService.updateExpense(expenseData, userToken);
+      await fetchExpenseTrackerData(userInfo.id);
+      setDescription('');
+      setAmount('');
+    } catch (error) {
+      console.error('Error adding income:', error);
+    } finally {
+      setLoadingIncome(false); // Stop loading state after API call
     }
   };
-  
+
   const handleAddExpense = async () => {
-    if (description && amount) {
-      const expenseData = {
-        customerId: userInfo.id,
-        description,
-        spentAmount: parseFloat(amount),
-      };
-      try {
-        await UserService.updateExpense(expenseData, userToken); // Pass userToken here
-        await fetchExpenseTrackerData(userInfo.id); // Refresh data after adding expense
-        setDescription('');
-        setAmount('');
-      } catch (error) {
-        console.error('Error adding expense:', error);
-      }
+    if (!validateForm()) return;
+
+    setLoadingExpense(true); // Set loading state for Expense button
+    const expenseData = {
+      customerId: userInfo.id,
+      description,
+      spentAmount: parseFloat(amount),
+    };
+    try {
+      await UserService.updateExpense(expenseData, userToken);
+      await fetchExpenseTrackerData(userInfo.id);
+      setDescription('');
+      setAmount('');
+    } catch (error) {
+      console.error('Error adding expense:', error);
+    } finally {
+      setLoadingExpense(false); // Stop loading state after API call
     }
   };
-
-
-
 
   const groupedTransactions = filteredTransactions.reduce((groups, transaction) => {
     const date = format(new Date(transaction.updatedTs), 'dd MMM yyyy');
@@ -107,17 +123,23 @@ const ExpenseTracker = () => {
   }));
 
   const toggleExpand = (id) => {
-    setExpandedItemId(prevId => (prevId === id ? null : id)); // Toggle expanded item
+    setExpandedItemId(prevId => (prevId === id ? null : id));
   };
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Expense Tracker</Text>
+
+      {/* Display form validation error */}
+      {formError ? <Text style={styles.errorText}>{formError}</Text> : null}
+
       <View style={styles.summaryContainer}>
         <View style={styles.summaryCard}>
           <Text style={styles.summaryTitle}>Balance</Text>
           <Text style={styles.balanceText}>{savings ? `₹ ${savings.toFixed(2)}` : '₹ 0.00'}</Text>
         </View>
       </View>
+
       <View style={styles.summaryContainer}>
         <View style={styles.summaryCard}>
           <Text style={styles.summaryTitle}>Income</Text>
@@ -135,8 +157,6 @@ const ExpenseTracker = () => {
           placeholder="Description"
           value={description}
           onChangeText={setDescription}
-         
-
         />
         <TextInput
           style={[styles.input, styles.inputAmount]}
@@ -144,17 +164,32 @@ const ExpenseTracker = () => {
           keyboardType="numeric"
           value={amount}
           onChangeText={setAmount}
-        
-
         />
       </View>
 
       <View style={styles.buttonRow}>
-        <TouchableOpacity style={[styles.button, styles.incomeButton]} onPress={handleAddIncome}>
-          <Text style={styles.buttonText}>Income</Text>
+        <TouchableOpacity
+          style={[styles.button, styles.incomeButton]}
+          onPress={handleAddIncome}
+          disabled={loadingIncome} // Disable button while loading
+        >
+          {loadingIncome ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text style={styles.buttonText}>Income</Text>
+          )}
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.button, styles.expenseButton]} onPress={handleAddExpense}>
-          <Text style={styles.buttonText}>Expense</Text>
+
+        <TouchableOpacity
+          style={[styles.button, styles.expenseButton]}
+          onPress={handleAddExpense}
+          disabled={loadingExpense} // Disable button while loading
+        >
+          {loadingExpense ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text style={styles.buttonText}>Expense</Text>
+          )}
         </TouchableOpacity>
       </View>
 
