@@ -123,7 +123,7 @@ const BorrowerDetailView = ({
                                     <Text style={styles.tableCell}>{item.month}</Text>
                                     <Text style={styles.tableCell}>{item.days}</Text>
                                     <Text style={styles.tableCell}>{item.principalAmount}</Text>
-                                    <Text style={styles.tableCell}>{item.locked ? "True" : "False"}</Text>
+                                    <Text style={styles.tableCell}>{item.interestPaid}</Text>
                                     <Text style={styles.tableCell}>{item.status}</Text>
                                 </View>
                             ))}

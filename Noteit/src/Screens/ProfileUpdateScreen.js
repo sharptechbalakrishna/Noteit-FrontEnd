@@ -117,15 +117,15 @@ function ProfileUpdateScreen({ route, navigation }) {
             <Back name="camera" size={22} onPress={() => selectPhoto()} style={styles.cameraIcon} />
           </View>
 
-          <TouchableOpacity onPress={() => selectPhoto()}>
+          <TouchableOpacity onPress={() => selectPhoto()}>  
             <Avatar.Image
               size={150}
               style={styles.avatar}
               source={{
                 uri: image === '' || image === null ?
-                "https://i.ibb.co/dD9rntL/Untitled-design.png"
+                  "https://i.ibb.co/dD9rntL/Untitled-design.png"
                   // 'https://i.ibb.co/DGWGczW/Screenshot-1722835684.png'
-                // "https://i.ibb.co/4ZJfCxp/New-Profile.png" 
+                  // "https://i.ibb.co/4ZJfCxp/New-Profile.png" 
                   : image
               }}
             />
@@ -225,7 +225,7 @@ function ProfileUpdateScreen({ route, navigation }) {
               placeholder="Your User Name"
               placeholderTextColor={'#999797'}
               // keyboardType="numeric"
-              maxLength={13}
+              maxLength={25}
               style={styles.infoEditSecond_text}
 
               onChange={(e) => setUserName(e.nativeEvent.text)}

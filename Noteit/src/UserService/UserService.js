@@ -185,7 +185,7 @@ class UserService {
     }
 
 
-    static async editEntry(editInterest,userToken) {
+    static async editEntry(editInterest, userToken) {
         try {
             console.log(editInterest);
             const response = await axios.post(`${UserService.BASE_URL}/edger/update`, editInterest, {
@@ -410,7 +410,10 @@ class UserService {
 
     static async reportBug(bugReport, userToken) {
         try {
-            const response = await axios.post(`${UserService.BASE_URL}/send-bug-report`, bugReport, {
+            // console.log("IN US", bugReport);
+            const response = await axios.post(`${UserService.BASE_URL}/send-bug-report`, {
+                bugReport
+            }, {
                 headers: {
                     Authorization: `Bearer ${userToken}`,  // Pass user token for authentication
                     'Content-Type': 'application/json',   // JSON request

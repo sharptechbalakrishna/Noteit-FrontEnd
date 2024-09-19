@@ -18,6 +18,7 @@ const BarrowerProfileScreen = ({ route, navigation }) => {
 
     useEffect(() => {
         if (userInfo && userInfo.id) {
+            console.log("BD",barrowerData);
             // Perform any setup or fetch operations if needed
         }
     }, [userInfo]);

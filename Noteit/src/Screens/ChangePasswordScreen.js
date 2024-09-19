@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import CustomInput from '../Components/CustomInput';
 import CustomButton from '../Components/CustomButton';
@@ -6,17 +6,21 @@ import { useForm } from "react-hook-form";
 import CustomFlashMessage from '../Components/CustomFlashMessage';
 import UserService from '../UserService/UserService';
 import { AuthContext } from '../Context/AuthContext';
+import { ActivityIndicator } from 'react-native';
 
 const ChangePasswordScreen = ({ navigation }) => {
     const { userToken, userInfo } = useContext(AuthContext); // Use AuthContext
 
     const { control, handleSubmit, watch, formState: { errors } } = useForm();
     const pwdWatch = watch('password');
+    const [loading, setLoading] = useState(false);
 
     const onSubmitPressed = async (data) => {
+
+        setLoading(true); // Set loading state
         console.log('-----');
         console.log(data, userToken);
-    
+
         try {
             const response = await UserService.changePassword({
                 customerId: userInfo.id, // Ensure userInfo.id is set correctly
@@ -24,14 +28,18 @@ const ChangePasswordScreen = ({ navigation }) => {
                 newPassword: data.password,
                 confirmPassword: data.passwordRepeat
             }, userToken);
-    
+
             console.log('data', response);
-           
+
             CustomFlashMessage('success', 'Success', 'Password Changed!');
             navigation.goBack();
-          
+
+
         } catch (error) {
             CustomFlashMessage('error', 'Error', 'Something Went Wrong!');
+        } finally {
+            
+            setLoading(false);  // Set loading to false after API call
         }
     };
 
@@ -72,10 +80,11 @@ const ChangePasswordScreen = ({ navigation }) => {
                 <CustomButton
                     text="Change Password"
                     onPress={handleSubmit(onSubmitPressed)}
+                    loading={loading} // Pass loading prop to disable button
                     type="PRIMARY"
                 />
             </View>
-        </ScrollView>
+        </ScrollView >
     );
 };
 

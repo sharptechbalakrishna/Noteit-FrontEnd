@@ -34,7 +34,7 @@ const BugReportScreen = ({ navigation }) => {
       Alert.alert('Error', 'Please provide your email, select a report type, and describe the issue.');
       return;
     }
-    console.log("bug report", userInfo.email,selectedReport ,bugDescription);
+    // console.log("bug report", userInfo.email,selectedReport ,bugDescription);
     setLoading(true); // Set loading state
   
     const bugReport = {

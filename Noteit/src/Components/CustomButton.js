@@ -1,13 +1,22 @@
 import { StyleSheet, Text, View, Pressable } from 'react-native'
 import React from 'react'
+import { ActivityIndicator } from 'react-native';
 
-const CustomButton = ({ onPress, text, type }) => {
+const CustomButton = ({ onPress, text, type, loading }) => {
   return (
-    <Pressable onPress={onPress} style={[styles.container, styles[`container_${type}`]]}>
-      <Text style={[styles.text, styles[`text_${type}`]]}>{text}</Text>
+    <Pressable
+      onPress={onPress}
+      style={[styles.container, styles[`container_${type}`]]}
+      disabled={loading} // Disable the button when loading
+    >
+      {loading ? (
+        <ActivityIndicator size="small" color="#fff" />
+      ) : (
+        <Text style={[styles.text, styles[`text_${type}`]]}>{text}</Text>
+      )}
     </Pressable>
-  )
-}
+  );
+};
 
 export default CustomButton
 

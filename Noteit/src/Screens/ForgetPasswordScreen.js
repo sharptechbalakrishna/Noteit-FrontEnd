@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, Alert } from 'react-native';
+import { useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, Alert, } from 'react-native';
 import CustomInput from '../Components/CustomInput';
 import CustomButton from '../Components/CustomButton';
 import { useNavigation } from '@react-navigation/native';
@@ -10,19 +11,26 @@ const ForgetPasswordScreen = () => {
     const navigation = useNavigation();
     const { control, handleSubmit, formState: { errors } } = useForm();
     const emailRegex = /^[a-z0-9]+@[a-z0-9]+\.[a-z0-9]+$/;
+    const [loading, setLoading] = useState(false);
 
     const onSendPressed = async (data) => {
         const { email } = data;
-    
+
         try {
+            setLoading(true);
             console.log('Email for password reset:', email);
             const response = await UserService.passwordforgot({ email });
             console.log("Response Data:", response);
-            Alert.alert('Success', response.message); 
+            
             navigation.navigate('VerifyOtpScreen', { email });
+            Alert.alert('Success', response.message);
+
         } catch (error) {
             console.error("Error during password reset:", error);
             Alert.alert('Error', 'Something went wrong, please try again!');
+        }
+        finally {
+           setLoading(false);
         }
     };
 
@@ -30,7 +38,7 @@ const ForgetPasswordScreen = () => {
         <ScrollView showsVerticalScrollIndicator={false}>
             <View style={styles.root}>
                 <Text style={styles.title}>Enter your email address</Text>
-                  <CustomInput
+                <CustomInput
                     control={control}
                     name="email"
                     placeholder="Email"
@@ -45,6 +53,7 @@ const ForgetPasswordScreen = () => {
                 />
                 <CustomButton
                     text="Send"
+                    loading={loading} // Pass loading prop to disable button
                     onPress={handleSubmit(onSendPressed)}
                     type="PRIMARY"
                 />
