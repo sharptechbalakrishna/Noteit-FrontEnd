@@ -3,42 +3,56 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Image,
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import { launchImageLibrary } from 'react-native-image-picker';
+import { AuthContext } from '../Context/AuthContext';
 import RNFS from 'react-native-fs';
 import UserService from '../UserService/UserService';
-import { AuthContext } from '../Context/AuthContext';
+import { ActivityIndicator } from 'react-native';
 
 const BugReportScreen = ({ navigation }) => {
-  const { userInfo, userToken } = useContext(AuthContext); // Get userInfo from AuthContext
+  const { userInfo, userToken } = useContext(AuthContext);
+  const [loading, setLoading] = useState(false);
   const [selectedReport, setSelectedReport] = useState('');
   const [bugDescription, setBugDescription] = useState('');
   const [selectedImage, setSelectedImage] = useState(null);
   const [imageBase64, setImageBase64] = useState('');
-
-
+  const [userEmail, setUserEmail] = useState('');  // Fix setter function
 
   const handleBackPress = () => {
     navigation.goBack();
   };
 
+  const resetForm = () => {
+    setSelectedReport('');
+    setBugDescription('');
+    setSelectedImage(null);
+    setImageBase64('');
+    setUserEmail('');
+  };
+
   const handleSendPress = async () => {
-    if (!selectedReport || !bugDescription) {
-      Alert.alert('Error', 'Please fill out all the fields before submitting.');
+    if (!userInfo.email || !selectedReport || !bugDescription) {
+      Alert.alert('Error', 'Please provide your email, select a report type, and describe the issue.');
       return;
     }
-console.log(userInfo,userToken);
+    console.log("bug report", userInfo.email,selectedReport ,bugDescription);
+    setLoading(true); // Set loading state
+  
+    const bugReport = {
+      email: userInfo.email,  // Fetch email from userInfo
+      title: selectedReport,  // Use the selected report as the title
+      bugMessage: bugDescription,  // Bug description
+    };
+  
     try {
-      const response = await UserService.reportIssue(
-        userInfo.userId,
-        userToken,
-        selectedReport,
-        bugDescription,
-        imageBase64
-      );
-      Alert.alert('Success', 'Bug report sent successfully!');
-      console.log('API response:', response);
+      const response = await UserService.reportBug(bugReport, userToken);  // Call API
+      Alert.alert('Success', 'Issue sent successfully');
+      resetForm();  // Clear form
+      navigation.goBack();  // Navigate back to the previous screen
     } catch (error) {
-      Alert.alert('Error', 'Failed to send bug report.');
-      console.error('Error sending bug report:', error);
+      Alert.alert('Error', 'Failed to send bug report');
+      console.error('Error while sending bug report:', error);
+    } finally {
+      setLoading(false);  // Set loading to false after API call
     }
   };
 
@@ -66,7 +80,7 @@ console.log(userInfo,userToken);
             console.error('Error converting image to Base64:', error);
           }
         }
-      }
+      },
     );
   };
 
@@ -81,37 +95,30 @@ console.log(userInfo,userToken);
         <TouchableOpacity onPress={handleBackPress}>
           <Icon name="arrow-back" size={24} color="#fff" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Report Issue</Text>
-        <TouchableOpacity onPress={handleSendPress}>
-          <FeatherIcon name="send" size={24} color="#fff" />
+        <Text style={styles.headerTitle}>Report Bug</Text>
+
+        <TouchableOpacity onPress={handleSendPress} disabled={loading}>
+          {loading ? (
+            <ActivityIndicator size="small" color="#fff" />
+          ) : (
+            <FeatherIcon name="send" size={24} color="#fff" />
+          )}
         </TouchableOpacity>
       </View>
 
       <View style={styles.content}>
         <Text style={styles.label}>Choose a report</Text>
-
         <View style={styles.options}>
-          <TouchableOpacity
-            style={[styles.option, selectedReport === 'UI Issue' && styles.selectedOption]}
-            onPress={() => setSelectedReport('UI Issue')} >
-            <Text style={styles.optionText}>UI Issue</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.option, selectedReport === 'Performance Issue' && styles.selectedOption]}
-            onPress={() => setSelectedReport('Performance Issue')}>
-            <Text style={styles.optionText}>Performance Issue</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.option, selectedReport === 'Crash' && styles.selectedOption]}
-            onPress={() => setSelectedReport('Crash')}>
-            <Text style={styles.optionText}>Crash</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.option, selectedReport === 'Other' && styles.selectedOption]}
-            onPress={() => setSelectedReport('Other')}>
-            <Text style={styles.optionText}>Other</Text>
-          </TouchableOpacity>
+          {['UI Issue', 'Performance Issue', 'Crash', 'Other'].map((reportType) => (
+            <TouchableOpacity
+              key={reportType}
+              style={[styles.option, selectedReport === reportType && styles.selectedOption]}
+              onPress={() => setSelectedReport(reportType)}>
+              <Text style={styles.optionText}>{reportType}</Text>
+            </TouchableOpacity>
+          ))}
         </View>
+
         <TextInput
           style={styles.textInput}
           placeholder="Describe the issue in detail"
@@ -119,7 +126,7 @@ console.log(userInfo,userToken);
           onChangeText={setBugDescription}
           multiline
         />
-
+  
         <TouchableOpacity style={styles.uploadButton} onPress={handleUploadImage}>
           <FeatherIcon name="image" size={24} color="#fff" />
           <Text style={styles.uploadButtonText}>Upload Image</Text>
@@ -137,7 +144,6 @@ console.log(userInfo,userToken);
     </ScrollView>
   );
 };
-
 export default BugReportScreen;
 
 const styles = StyleSheet.create({

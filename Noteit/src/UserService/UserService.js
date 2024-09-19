@@ -37,12 +37,12 @@ class UserService {
             return response.data;
         } catch (err) {
             // console.error("Login error:", err);
-    
+
             // Check if there's a response and status code
             if (err.response) {
                 const statusCode = err.response.status;
                 let errorMessage = '';
-    
+
                 switch (statusCode) {
                     case 401:
                         errorMessage = 'Invalid credentials. Please check your phone number or password.';
@@ -59,7 +59,7 @@ class UserService {
                     default:
                         errorMessage = 'An unexpected error occurred. Please try again.';
                 }
-    
+
                 // Throw the error with a custom message based on the status code
                 throw new Error(errorMessage);
             } else if (err.request) {
@@ -93,7 +93,7 @@ class UserService {
             throw error;
         }
     }
-    
+
     static async verifyOtpAndSetPassword({ email, otp, newPassword }) {
         try {
             const response = await axios.post(`${UserService.BASE_URL}/reset-password`, {
@@ -406,27 +406,24 @@ class UserService {
         }
     }
 
-    static async reportIssue(customerId, userToken, reportType, description, imageBase64) {
+
+
+    static async reportBug(bugReport, userToken) {
         try {
-          const response = await axios.post(`${this.BASE_URL}/reportIssue/${customerId}`, {
-            reportType,
-            description,
-            imageBase64, // Send the image in Base64 format
-          }, {
-            headers: {
-              Authorization: `Bearer ${userToken}`,
-              'Content-Type': 'application/json',
-            },
-          });
-    
-          console.log('Response from API:', response.data);
-          return response.data;
+            const response = await axios.post(`${UserService.BASE_URL}/send-bug-report`, bugReport, {
+                headers: {
+                    Authorization: `Bearer ${userToken}`,  // Pass user token for authentication
+                    'Content-Type': 'application/json',   // JSON request
+                },
+            });
+            return response.data;
         } catch (err) {
-          console.error('Error reporting issue:', err);
-          throw err;
+            console.error("Error in reportBug:", err);
+            throw err;
         }
-      }
     }
+
+}
 
 
 
