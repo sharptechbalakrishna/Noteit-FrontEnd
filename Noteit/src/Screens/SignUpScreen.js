@@ -5,7 +5,7 @@ import CustomButton from '../Components/CustomButton';
 import { useNavigation } from '@react-navigation/native';
 import { useForm, Controller } from "react-hook-form";
 import UserService from '../UserService/UserService';
-import { ActivityIndicator } from 'react-native-paper';
+import { ActivityIndicator } from 'react-native';
 import CustomFlashMessage from '../Components/CustomFlashMessage';
 
 
@@ -40,7 +40,7 @@ const SignUpScreen = () => {
     const onSignUpPressed = async (register) => {
         console.log("In Sign UP", register);
         setIsLoading(true);
-    
+
         try {
             const response = await UserService.register({
                 firstName: register.firstName,
@@ -49,13 +49,13 @@ const SignUpScreen = () => {
                 email: register.email,
                 password: register.password
             });
-    
+
             CustomFlashMessage('success', 'Success', 'Registered Successfully!');
-            navigation.navigate('SignInScreen');
+            // navigation.navigate('SignInScreen');123456
         } catch (error) {
             console.error("Signup Error:", error);
             console.error("Error Response:", error.response?.data); // Log the actual error response
-            
+
             // Handle different error statuses
             let errorMessage = 'Something Went Wrong!';
             if (error.response?.status === 409) {
@@ -65,14 +65,14 @@ const SignUpScreen = () => {
             } else if (error.response?.status === 500) {
                 errorMessage = 'Server error. Please try again later.';
             }
-    
+
             // Display the appropriate error message to the user
             CustomFlashMessage('error', 'Error', errorMessage);
         }
-    
+
         setIsLoading(false);
     };
-    
+
 
 
     const onSignPressed = () => {

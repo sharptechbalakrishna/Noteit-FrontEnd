@@ -3,6 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, Modal, ScrollView, StyleSheet,
 import DatePicker from 'react-native-date-picker';
 import { AuthContext } from '../Context/AuthContext';
 import UserService from '../UserService/UserService';
+import { ActivityIndicator } from 'react-native';
 
 const AddBorrower = ({ visible, onClose, addBorrower }) => {
     const { userInfo, userToken } = useContext(AuthContext);
@@ -20,6 +21,7 @@ const AddBorrower = ({ visible, onClose, addBorrower }) => {
 
     const [showBorrowedDatePicker, setShowBorrowedDatePicker] = useState(false);
     const [showEndDatePicker, setShowEndDatePicker] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         if (borrowedDate && endDate) {
@@ -116,6 +118,7 @@ const AddBorrower = ({ visible, onClose, addBorrower }) => {
         };
 
         try {
+            setLoading(true);
             const response = await UserService.borrowerdetails(userInfo.id, borrowerData, userToken);
             console.log('Response:', response.data);
             console.log('Status:', response.status);
@@ -130,6 +133,8 @@ const AddBorrower = ({ visible, onClose, addBorrower }) => {
         } catch (error) {
             console.error('Error adding borrower:', error);
             Alert.alert('Failed to add borrower. Please check your network connection and try again.');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -249,9 +254,14 @@ const AddBorrower = ({ visible, onClose, addBorrower }) => {
                             </TouchableOpacity>
                             <TouchableOpacity
                                 style={[styles.submitButton, { backgroundColor: '#32CD32' }]} // Custom color for Save button
-                                onPress={handleSubmit}
+                                onPress={handleSubmit} disabled={loading}
                             >
-                                <Text style={styles.buttonText}>Save</Text>
+                                {loading ? (
+                                    <ActivityIndicator size="small" color="#fff" />
+                                ) : (
+                                    <Text style={styles.buttonText}>Save</Text>
+                                )}
+
                             </TouchableOpacity>
                         </View>
                     </ScrollView>

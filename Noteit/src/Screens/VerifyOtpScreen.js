@@ -5,18 +5,21 @@ import CustomButton from '../Components/CustomButton';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useForm } from 'react-hook-form';
 import UserService from '../UserService/UserService';
+import { useState } from 'react';
 
 const VerifyOtpScreen = () => {
     const navigation = useNavigation();
     const route = useRoute();
     const { control, handleSubmit, watch, formState: { errors } } = useForm();
     const pwd = watch('newPassword'); // Watch the new password field
+    const [loading, setLoading] = useState(false);
 
     const onSubmitPressed = async (data) => {
         const { otp, newPassword } = data;
         const { email } = route.params;
-    
+
         try {
+            setLoading(true);
             console.log('OTP and New Password:', otp, newPassword);
             const response = await UserService.verifyOtpAndSetPassword({ email, otp, newPassword });
             console.log("Response Data:", response);
@@ -25,6 +28,9 @@ const VerifyOtpScreen = () => {
         } catch (error) {
             console.error("Error during OTP verification and password reset:", error);
             Alert.alert('Error', 'Something went wrong, please try again!');
+        }
+        finally {
+            setLoading(false);
         }
     };
 
@@ -62,6 +68,7 @@ const VerifyOtpScreen = () => {
             <CustomButton
                 text="Reset Password"
                 onPress={handleSubmit(onSubmitPressed)}
+                loading={loading} // Pass loading prop to disable button
                 type="PRIMARY"
                 style={styles.button}
             />
@@ -73,7 +80,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         padding: 20,
-      
+
         backgroundColor: '#F5F5F5',
     },
     title: {
