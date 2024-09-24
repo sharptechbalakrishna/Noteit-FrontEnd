@@ -1,4 +1,4 @@
-import React, { useEffect, useState,useContext } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, Linking } from 'react-native';
 import { Avatar, Title, Caption, TouchableRipple, } from 'react-native-paper';
 import AddEntryModal from './AddEntryModal';
@@ -7,6 +7,7 @@ import BorrowerDetailView from './BorrowerDetailView';
 import FlashMessage, { showMessage } from 'react-native-flash-message';
 import CustomFlashMessage from '../Components/CustomFlashMessage';
 import Icon from 'react-native-vector-icons/Ionicons';
+import Entypo from 'react-native-vector-icons/Entypo';
 import { Image } from 'react-native-elements';
 import { useNavigation } from '@react-navigation/native';
 import { color } from 'react-native-elements/dist/helpers';
@@ -40,7 +41,7 @@ const BorrowerDetailScreen = ({ route }) => {
   const fetchLedgerData = async () => {
 
     try {
-      
+
       const data = await UserService.ledgerData(barrowerData.id, userToken);
       setLedgerData(data);
     } catch (err) {
@@ -55,7 +56,7 @@ const BorrowerDetailScreen = ({ route }) => {
     setLoading(true);
     try {
       setModalVisible(false);
-      await UserService.addEntry(newEntry,userToken);
+      await UserService.addEntry(newEntry, userToken);
       fetchLedgerData();
       CustomFlashMessage('success', 'Success', 'Entry added successfully!');
 
@@ -106,6 +107,50 @@ const BorrowerDetailScreen = ({ route }) => {
       CustomFlashMessage('error', 'Error', 'Phone number not available');
     }
   };
+  // Function to handle the phone call
+//  const handleMessagePressed = () => {
+//     const phoneNumber = '9449983623'; // Your target phone number
+//     const message = 'Hi'; // Pre-filled message
+
+//     let smsUrl = '';
+
+//     if (Platform.OS === 'ios') {
+//       // iOS URL scheme
+//       smsUrl = `sms:${phoneNumber}&body=${encodeURIComponent(message)}`;
+//       Linking.canOpenURL(smsUrl) // In ios we have kept canOpenURl only to open the sms app directly 
+//         .then((supported) => {
+//           if (supported) {
+//             return Linking.openURL(smsUrl);
+//           } else {
+//             console.warn("SMS not supported on this device");
+//           }
+//         })
+//         .catch((err) => console.error("Failed to open SMS app", err));
+
+//     } else if (Platform.OS === 'android') {
+//       // Android URL scheme
+//       smsUrl = `sms:${phoneNumber}?body=${encodeURIComponent(message)}`;
+
+
+//       Linking.canOpenURL(smsUrl) // here canOpenURl is not supported for Simulator so need to check after deploting the app in playstore wher canOpenURl is workin or openURl is working need to be verify 
+//         .then((supported) => {
+//           if (supported) {
+//             return Linking.openURL(smsUrl);
+//           } else {
+//             Linking.openURL(smsUrl)
+//               .then((supported) => {
+//                 if (supported) {
+//                   return Linking.openURL(smsUrl);
+//                 } else {
+//                   console.warn("SMS not supported on this device");
+//                 }
+//               })
+//               .catch((err) => console.error("Failed to open SMS app", err));
+//           }
+//         })
+//         .catch((err) => console.error("Failed to open SMS app", err));
+//     }
+//   };
 
 
   // Editing the Latest Entry
@@ -120,7 +165,7 @@ const BorrowerDetailScreen = ({ route }) => {
     setLoading(true);
     try {
       setEditModula(false);
-      await UserService.addEntry(newEntry,userToken);
+      await UserService.addEntry(newEntry, userToken);
       fetchLedgerData();
       CustomFlashMessage('success', 'Success', 'Entry added successfully!');
 
@@ -174,6 +219,9 @@ const BorrowerDetailScreen = ({ route }) => {
             </View>
           </TouchableOpacity>
         </View>
+        {/* <TouchableOpacity onPress={handleMessagePressed}>
+          <Entypo name="message" size={24} color="#fff" />
+        </TouchableOpacity> */}
         <TouchableOpacity onPress={handleCallPress}>
           <Icon name="call" size={24} color="#fff" />
         </TouchableOpacity>
@@ -211,7 +259,7 @@ const BorrowerDetailScreen = ({ route }) => {
 
 
       </View>
-      
+
       {(!modalVisible && !editModula) && (
         <TouchableOpacity style={styles.floatingButton} onPress={() => setModalVisible(true)}>
           <Text style={styles.buttonText}>Entry Interest</Text>

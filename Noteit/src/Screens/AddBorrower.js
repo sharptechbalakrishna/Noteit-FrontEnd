@@ -126,7 +126,7 @@ const AddBorrower = ({ visible, onClose, addBorrower }) => {
             if (response.status !== 200) {
                 throw new Error('Failed to add borrower');
             }
-
+            // Alert.alert('Do you want to send the message');
             addBorrower(borrowerData);
             handleClear();
             onClose();
