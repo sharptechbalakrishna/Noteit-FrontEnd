@@ -77,14 +77,14 @@ const SignUpScreen = () => {
 
     const onSignPressed = () => {
 
-        console.warn("SingnIn Pressed");
-        navigation.navigate('SignInScreen');
+        // console.warn("SingnIn Pressed");
+        // navigation.navigate('SignInScreen');
     }
     const onTermsOfUsePressed = () => {
-        console.warn("Terms of use pressed");
+        // console.warn("Terms of use pressed");
     }
     const onPrivacyPolicyPressed = () => {
-        console.warn("Privacy Policy Pressed");
+        // console.warn("Privacy Policy Pressed");
     }
 
     if (isLoading) {

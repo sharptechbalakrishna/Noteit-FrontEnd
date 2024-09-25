@@ -37,12 +37,12 @@ const SignInScreen = () => {
     };
 
     const onForgotPasswordPressed = () => {
-        console.warn("onForgotPasswordPressed");
+        // console.warn("onForgotPasswordPressed");
         navigation.navigate('ForgetPasswordScreen');
     }
 
     const singnUpPressed = () => {
-        console.warn("Singn Up Pressed");
+        // console.warn("Singn Up Pressed");
         navigation.navigate('SignUpScreen');
     }
 
